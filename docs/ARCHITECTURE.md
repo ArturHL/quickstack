@@ -1,14 +1,14 @@
-# QuickStack POS - Arquitectura Técnica
+# QuickStack POS - Arquitectura Tecnica
 
-> **Última actualización:** 2026-01-26
+> **Ultima actualizacion:** 2026-02-05
 > **Fase actual:** Phase 0 - Foundation
 
 ---
 
-## Stack Tecnológico
+## Stack Tecnologico
 
 ### Frontend
-| Tecnología | Versión | Propósito |
+| Tecnologia | Version | Proposito |
 |------------|---------|-----------|
 | React | 18.x | UI Library |
 | Vite | 5.x | Build tool |
@@ -21,19 +21,20 @@
 | Auth0 React SDK | 2.x | Authentication |
 
 ### Backend
-| Tecnología | Versión | Propósito |
+| Tecnologia | Version | Proposito |
 |------------|---------|-----------|
 | Java | 21 LTS | Runtime |
-| Spring Boot | 3.2.x | Framework |
+| Spring Boot | 3.5.x | Framework |
 | Spring Data JPA | 3.x | ORM / Data access |
 | Spring Security | 6.x | Security |
+| Spring WebSocket | 3.x | Real-time KDS |
 | PostgreSQL | 16.x | Database |
 | Flyway | 10.x | DB migrations |
 | JUnit 5 | 5.x | Testing |
 | Mockito | 5.x | Mocking |
 
 ### Infraestructura
-| Servicio | Propósito | Tier |
+| Servicio | Proposito | Tier |
 |----------|-----------|------|
 | Vercel | Frontend hosting | Free |
 | Render | Backend hosting (Docker) | Free |
@@ -57,7 +58,7 @@ quickstack-pos/
 └── README.md
 ```
 
-**Razón:** Un solo desarrollador, commits atómicos, fácil compartir configuraciones.
+**Razon:** Un solo desarrollador, commits atomicos, facil compartir configuraciones.
 
 ---
 
@@ -89,7 +90,7 @@ src/main/java/com/quickstack/
     └── ...
 ```
 
-**Razón:** Cada feature es autocontenido, fácil de navegar, escala mejor que capas globales.
+**Razon:** Cada feature es autocontenido, facil de navegar, escala mejor que capas globales.
 
 ---
 
@@ -127,27 +128,31 @@ src/
 
 ### 4. Multi-tenancy: Shared Database with tenant_id
 
-**Estrategia:** Todas las tablas tienen columna `tenant_id`. Un filtro/interceptor inyecta automáticamente el tenant del usuario autenticado.
+**Estrategia:** Todas las tablas tienen columna `tenant_id`. Un filtro/interceptor inyecta automaticamente el tenant del usuario autenticado.
+
+**Composite Foreign Keys:** Todas las FK incluyen `tenant_id` para prevenir referencias cross-tenant a nivel de base de datos.
 
 ```sql
--- Ejemplo: Tabla products
+-- Ejemplo: Tabla products con FK compuesta
 CREATE TABLE products (
     id UUID PRIMARY KEY,
     tenant_id UUID NOT NULL REFERENCES tenants(id),
-    branch_id UUID REFERENCES branches(id),
+    category_id UUID,
     name VARCHAR(255) NOT NULL,
-    -- ... más campos
-    CONSTRAINT fk_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)
+    -- ... mas campos
+    CONSTRAINT uq_products_tenant_id UNIQUE (tenant_id, id),
+    CONSTRAINT fk_products_category FOREIGN KEY (tenant_id, category_id)
+        REFERENCES categories(tenant_id, id)
 );
 
--- Índice para queries por tenant
+-- Indice para queries por tenant
 CREATE INDEX idx_products_tenant ON products(tenant_id);
 ```
 
-**Implementación en Spring:**
+**Implementacion en Spring:**
 - `TenantFilter`: Extrae tenant_id del JWT token
 - `TenantContext`: ThreadLocal para acceso al tenant actual
-- `@TenantScoped`: Annotation para queries automáticos con filtro de tenant
+- `@TenantScoped`: Annotation para queries automaticos con filtro de tenant
 
 ---
 
@@ -156,17 +161,23 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 **Flujo:**
 1. Usuario hace login en frontend via Auth0 React SDK
 2. Auth0 retorna JWT (access_token)
-3. Frontend envía JWT en header `Authorization: Bearer <token>`
-4. Backend valida JWT con Auth0 JWKS
+3. Frontend envia JWT en header `Authorization: Bearer <token>`
+4. Backend valida JWT contra Auth0 JWKS
 5. Backend extrae claims (user_id, tenant_id, roles)
 6. Request procede con contexto de usuario y tenant
 
 **Roles:**
 | Rol | Permisos |
 |-----|----------|
-| OWNER | Todo (CRUD tenants, branches, users, products, reports) |
-| ADMIN | CRUD branches, users, products dentro de su tenant |
-| CASHIER | Crear pedidos, ver productos (solo su branch asignado) |
+| OWNER | Todo (CRUD tenants, branches, users, products, reports, settings) |
+| CASHIER | Crear pedidos, ver productos, gestionar clientes (solo su branch asignado) |
+| KITCHEN | Solo KDS - ver y actualizar estado de ordenes |
+
+**Decisiones de Roles:**
+- Un usuario tiene exactamente UN rol (no many-to-many)
+- Permisos almacenados como JSON array en tabla `roles`
+- OWNER no requiere branch_id asignado (accede a todas las sucursales)
+- CASHIER y KITCHEN requieren branch_id asignado
 
 **JWT Custom Claims:**
 ```json
@@ -175,7 +186,7 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
   "email": "user@example.com",
   "https://quickstack.app/tenant_id": "uuid-del-tenant",
   "https://quickstack.app/branch_id": "uuid-del-branch",
-  "https://quickstack.app/roles": ["ADMIN"]
+  "https://quickstack.app/roles": ["CASHIER"]
 }
 ```
 
@@ -193,7 +204,7 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 {
   "data": { ... },
   "meta": {
-    "timestamp": "2026-01-26T10:00:00Z"
+    "timestamp": "2026-02-05T10:00:00Z"
   }
 }
 
@@ -207,7 +218,7 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
     ]
   },
   "meta": {
-    "timestamp": "2026-01-26T10:00:00Z"
+    "timestamp": "2026-02-05T10:00:00Z"
   }
 }
 ```
@@ -218,7 +229,7 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 | 200 | OK (GET, PUT, PATCH exitosos) |
 | 201 | Created (POST exitoso) |
 | 204 | No Content (DELETE exitoso) |
-| 400 | Bad Request (validación fallida) |
+| 400 | Bad Request (validacion fallida) |
 | 401 | Unauthorized (no autenticado) |
 | 403 | Forbidden (sin permisos) |
 | 404 | Not Found |
@@ -235,7 +246,7 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 - Primary keys: `id` tipo `UUID`
 - Foreign keys: `{table_singular}_id` (`product_id`, `branch_id`)
 
-**Campos de auditoría (todas las tablas):**
+**Campos de auditoria (todas las tablas):**
 ```sql
 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -243,7 +254,28 @@ created_by UUID REFERENCES users(id),
 updated_by UUID REFERENCES users(id)
 ```
 
-**Soft delete:**
+**Modulos de Base de Datos (27 tablas en 6 modulos):**
+
+| Modulo | Tablas | Descripcion |
+|--------|--------|-------------|
+| Global Catalogs | 5 | subscription_plans, roles, order_status_types, stock_movement_types, unit_types |
+| Core | 4 | tenants, branches, users, auth_identities |
+| Catalog | 7 | categories, products, product_variants, modifier_groups, modifiers, combos, combo_items |
+| Inventory | 6 | ingredients, suppliers, recipes, stock_movements, purchase_orders, purchase_order_items |
+| POS | 8 | areas, tables, customers, orders, order_items, order_item_modifiers, payments, order_status_history |
+| Notifications | 2 | notification_logs, notification_templates |
+
+---
+
+### 8. Soft Delete Strategy
+
+| Estrategia | Entidades | Razon |
+|------------|-----------|-------|
+| Soft delete | tenants, branches, users, products, categories, ingredients, customers | Referencias historicas de ordenes, requisitos legales/auditoria |
+| Hard delete | auth_identities, combo_items, recipes | Sin valor historico, cascade con padre |
+| Never delete | orders, payments, stock_movements, order_status_history | Registros financieros/auditoria |
+
+**Implementacion:**
 ```sql
 deleted_at TIMESTAMP WITH TIME ZONE NULL,
 deleted_by UUID REFERENCES users(id)
@@ -253,10 +285,81 @@ deleted_by UUID REFERENCES users(id)
 
 ---
 
-### 8. Git Workflow: GitHub Flow
+### 9. WebSockets: KDS en Tiempo Real
+
+**Tecnologia:** Spring WebSocket con STOMP protocol
+
+**Arquitectura:**
 
 ```
-main (producción)
+┌─────────────────┐     WebSocket      ┌─────────────────┐
+│   POS Terminal  │ ─────────────────> │  Spring Boot    │
+│   (React)       │                    │  WebSocket      │
+└─────────────────┘                    │  Handler        │
+                                       └────────┬────────┘
+┌─────────────────┐     WebSocket              │
+│   KDS Display   │ <───────────────── ────────┘
+│   (React)       │     (Push updates)
+└─────────────────┘
+```
+
+**Topics:**
+- `/topic/kds/{branchId}/orders` - Nuevas ordenes y actualizaciones
+- `/topic/kds/{branchId}/items` - Cambios de estado de items
+
+**Eventos:**
+```json
+{
+  "type": "ORDER_CREATED",
+  "orderId": "uuid",
+  "orderNumber": "ORD-20260205-001",
+  "dailySequence": 1,
+  "items": [...],
+  "timestamp": "2026-02-05T10:00:00Z"
+}
+```
+
+**Decision:** WebSockets sobre polling porque:
+- Latencia minima para operaciones de cocina
+- Menor carga en servidor (no requests repetidos)
+- Mejor UX para KDS en tiempo real
+
+---
+
+### 10. Notificaciones Digitales
+
+**Estrategia:** Tickets digitales via WhatsApp/Email en lugar de impresion fisica
+
+**Canales soportados:**
+| Canal | Proposito | Proveedor sugerido |
+|-------|-----------|-------------------|
+| WhatsApp | Ticket digital, confirmacion de pedido, notificacion "listo" | Twilio / WhatsApp Business API |
+| Email | Ticket digital, resumen de compra | SendGrid / Resend |
+| SMS | Fallback si no hay WhatsApp | Twilio |
+
+**Tipos de contenido:**
+- `RECEIPT` - Ticket de compra
+- `ORDER_CONFIRMATION` - Confirmacion de pedido (delivery/takeout)
+- `ORDER_READY` - Notificacion de pedido listo
+
+**Flujo:**
+1. Orden completada y pagada
+2. Sistema envia ticket digital al canal preferido del cliente
+3. Se registra en `notification_logs` para auditoria
+4. Reintentos automaticos si falla
+
+**Ventajas sobre impresion:**
+- Sin costo de papel/tinta
+- Cliente siempre tiene su ticket
+- Facilita reordenes y fidelizacion
+- Mejor para el medio ambiente
+
+---
+
+### 11. Git Workflow: GitHub Flow
+
+```
+main (produccion)
   │
   ├── feature/QS-001-setup-monorepo
   ├── feature/QS-002-auth0-integration
@@ -265,7 +368,7 @@ main (producción)
 ```
 
 **Reglas:**
-1. `main` siempre está deployable
+1. `main` siempre esta deployable
 2. Crear branch desde `main` para cada feature/fix
 3. Prefijo con ticket ID: `feature/QS-XXX-descripcion`
 4. Pull Request obligatorio para merge a main
@@ -274,7 +377,7 @@ main (producción)
 
 ---
 
-### 9. Testing Strategy: TDD
+### 12. Testing Strategy: TDD
 
 **Backend:**
 ```
@@ -288,7 +391,7 @@ src/
         └── ...
 ```
 
-**Cobertura mínima:**
+**Cobertura minima:**
 - Services: 80%+
 - Controllers: Integration tests para happy path + error cases
 - Repositories: Solo si hay queries custom
@@ -300,7 +403,7 @@ src/
 
 ---
 
-### 10. Environment Variables
+### 13. Environment Variables
 
 **Backend (`application.yml` + env vars):**
 ```yaml
@@ -322,6 +425,7 @@ VITE_API_URL=https://api.quickstack.app/v1
 VITE_AUTH0_DOMAIN=quickstack.auth0.com
 VITE_AUTH0_CLIENT_ID=xxxxxxxxxxxx
 VITE_AUTH0_AUDIENCE=https://api.quickstack.app
+VITE_WS_URL=wss://api.quickstack.app/ws
 ```
 
 ---
@@ -329,54 +433,68 @@ VITE_AUTH0_AUDIENCE=https://api.quickstack.app
 ## Diagrama de Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         BROWSER                                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                 React + Vite (MUI)                       │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐              │   │
-│  │  │  Zustand │  │ TanStack │  │  Auth0   │              │   │
-│  │  │  Store   │  │  Query   │  │   SDK    │              │   │
-│  │  └──────────┘  └────┬─────┘  └────┬─────┘              │   │
-│  └──────────────────────┼────────────┼─────────────────────┘   │
-└─────────────────────────┼────────────┼─────────────────────────┘
-                          │            │
-                    Axios │            │ OAuth 2.0 PKCE
-                          ▼            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        VERCEL                                    │
-│                   (Static Hosting)                               │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                           BROWSER                                    │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                   React + Vite (MUI)                         │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │   │
+│  │  │  Zustand │  │ TanStack │  │  Auth0   │  │WebSocket │    │   │
+│  │  │  Store   │  │  Query   │  │   SDK    │  │  Client  │    │   │
+│  │  └──────────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │   │
+│  └──────────────────────┼────────────┼─────────────┼───────────┘   │
+└─────────────────────────┼────────────┼─────────────┼───────────────┘
+                          │            │             │
+                    Axios │            │ OAuth 2.0   │ WSS
+                          ▼            │ PKCE        ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                          VERCEL                                      │
+│                     (Static Hosting)                                 │
+└─────────────────────────────────────────────────────────────────────┘
                           │
                           │ HTTPS
                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        RENDER                                    │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │              Spring Boot (Docker)                        │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │   │
-│  │  │   Security   │  │   Tenant     │  │    JPA       │  │   │
-│  │  │  (JWT/Auth0) │  │   Filter     │  │  Hibernate   │  │   │
-│  │  └──────────────┘  └──────────────┘  └──────┬───────┘  │   │
-│  └──────────────────────────────────────────────┼──────────┘   │
-└─────────────────────────────────────────────────┼───────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                          RENDER                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                Spring Boot (Docker)                          │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │   │
+│  │  │   Security   │  │   Tenant     │  │    JPA       │      │   │
+│  │  │  (JWT/Auth0) │  │   Filter     │  │  Hibernate   │      │   │
+│  │  └──────────────┘  └──────────────┘  └──────┬───────┘      │   │
+│  │                                              │               │   │
+│  │  ┌──────────────┐  ┌──────────────┐         │               │   │
+│  │  │  WebSocket   │  │ Notification │         │               │   │
+│  │  │   Handler    │  │   Service    │         │               │   │
+│  │  │   (STOMP)    │  │(WhatsApp/Email)        │               │   │
+│  │  └──────────────┘  └──────────────┘         │               │   │
+│  └──────────────────────────────────────────────┼───────────────┘   │
+└─────────────────────────────────────────────────┼───────────────────┘
                                                   │
                                                   │ SSL
                                                   ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         NEON                                     │
-│                   PostgreSQL Serverless                          │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │
-│  │ tenants │ │ branches│ │  users  │ │products │ │ orders  │  │
-│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                           NEON                                       │
+│                     PostgreSQL Serverless                            │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │               6 Modulos - 27 Tablas                          │   │
+│  │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │   │
+│  │  │  Global   │ │   Core    │ │  Catalog  │ │ Inventory │   │   │
+│  │  │ Catalogs  │ │           │ │           │ │           │   │   │
+│  │  └───────────┘ └───────────┘ └───────────┘ └───────────┘   │   │
+│  │  ┌───────────┐ ┌───────────┐                               │   │
+│  │  │    POS    │ │  Notif.   │                               │   │
+│  │  │           │ │           │                               │   │
+│  │  └───────────┘ └───────────┘                               │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────┐
-│                        AUTH0                                     │
-│              Identity Provider (OAuth 2.0)                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                      │
-│  │  Users   │  │  Roles   │  │   JWKS   │                      │
-│  └──────────┘  └──────────┘  └──────────┘                      │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                          AUTH0                                       │
+│                Identity Provider (OAuth 2.0)                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐                          │
+│  │  Users   │  │  Roles   │  │   JWKS   │                          │
+│  └──────────┘  └──────────┘  └──────────┘                          │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -390,7 +508,7 @@ VITE_AUTH0_AUDIENCE=https://api.quickstack.app
    │
 3. useProducts() hook (TanStack Query) dispara fetch
    │
-4. Axios interceptor añade JWT: Authorization: Bearer <token>
+4. Axios interceptor anade JWT: Authorization: Bearer <token>
    │
 5. Request viaja a Render: GET /v1/products
    │
@@ -402,7 +520,7 @@ VITE_AUTH0_AUDIENCE=https://api.quickstack.app
    │
 9. ProductService.findAll() ejecuta query
    │
-10. JPA añade automáticamente: WHERE tenant_id = :currentTenant
+10. JPA anade automaticamente: WHERE tenant_id = :currentTenant
     │
 11. PostgreSQL retorna resultados
     │
@@ -413,10 +531,143 @@ VITE_AUTH0_AUDIENCE=https://api.quickstack.app
 
 ---
 
+## Flujo KDS en Tiempo Real
+
+```
+1. Cajero crea orden en POS
+   │
+2. OrderService guarda orden en BD
+   │
+3. OrderService publica evento a WebSocket
+   │
+4. WebSocket Handler envia a /topic/kds/{branchId}/orders
+   │
+5. KDS Display (suscrito) recibe orden instantaneamente
+   │
+6. Cocinero ve orden en pantalla, inicia preparacion
+   │
+7. Cocinero marca item como "listo" en KDS
+   │
+8. KDS envia actualizacion via WebSocket
+   │
+9. POS recibe notificacion de item listo
+   │
+10. Cajero/mesero notifica al cliente
+```
+
+---
+
+## Tipos de Servicio
+
+| Tipo | Codigo | Descripcion | Requiere |
+|------|--------|-------------|----------|
+| Mesa | DINE_IN | Cliente come en restaurante | table_id |
+| Mostrador | COUNTER | Cliente ordena y espera en mostrador | - |
+| Delivery | DELIVERY | Entrega a domicilio | customer_id, address |
+| Para llevar | TAKEOUT | Cliente recoge en local | customer_id (opcional) |
+
+---
+
+## Order Number Format
+
+**Formato completo:** `ORD-YYYYMMDD-XXX`
+- Ejemplo: `ORD-20260205-001`
+- Unico por tenant
+
+**Secuencia diaria:** `daily_sequence` INTEGER
+- Se reinicia cada dia por branch
+- Para mostrar en cocina/KDS como "Orden #7"
+- Constraint: UNIQUE (tenant_id, branch_id, DATE(opened_at), daily_sequence)
+
+---
+
+## Architecture Decision Records (ADR)
+
+### ADR-001: Precios Desnormalizados en Order Items
+
+**Contexto:** Los productos cambian de precio con el tiempo. Las ordenes historicas deben preservar el precio al momento de la venta.
+
+**Decision:** Copiar `product_name`, `variant_name`, `unit_price`, y precios de modifiers en order items.
+
+**Razones:**
+- Garantiza registros financieros precisos sin importar cambios futuros
+- Simplifica reportes (no se necesitan tablas de "historial de precios")
+- Overhead de almacenamiento menor (~500 bytes por order item)
+
+**Trade-offs:**
+- Mayor almacenamiento (aceptable para escala MVP)
+- Renombrar productos no actualiza ordenes pasadas (intencional)
+
+---
+
+### ADR-002: Un Rol por Usuario
+
+**Contexto:** Requerimientos especifican que usuarios no pueden tener multiples roles.
+
+**Decision:** FK directa de `users.role_id` a `roles.id` en lugar de tabla de union.
+
+**Razones:**
+- Logica de autorizacion mas simple
+- Cumple con requerimientos establecidos
+- Una tabla y join menos
+
+**Trade-offs:**
+- No se pueden asignar multiples roles sin cambio de schema
+- OK para alcance del MVP
+
+---
+
+### ADR-003: WebSockets para KDS
+
+**Contexto:** La cocina necesita ver ordenes en tiempo real.
+
+**Decision:** WebSockets con STOMP sobre polling HTTP.
+
+**Razones:**
+- Latencia minima (~50ms vs ~5s con polling)
+- Menor carga en servidor
+- Mejor experiencia de usuario para operaciones criticas
+
+**Trade-offs:**
+- Mayor complejidad de infraestructura
+- Necesita manejo de reconexion en cliente
+
+---
+
+### ADR-004: Tickets Digitales sobre Impresion
+
+**Contexto:** MVP necesita entregar tickets a clientes.
+
+**Decision:** WhatsApp/Email como canal primario, sin impresion fisica.
+
+**Razones:**
+- Sin costo de hardware (impresora termica)
+- Sin costos recurrentes (papel, tinta)
+- Cliente siempre tiene su ticket
+- Facilita reordenes y CRM
+
+**Trade-offs:**
+- Requiere que cliente proporcione contacto
+- Dependencia de servicios externos (Twilio/SendGrid)
+
+---
+
 ## Changelog
+
+### 2026-02-05
+- Actualizado Spring Boot a version 3.5.x
+- Agregada seccion de WebSockets para KDS en tiempo real
+- Agregada seccion de Notificaciones Digitales (WhatsApp/Email)
+- Actualizado diagrama de BD con 6 modulos y 27 tablas
+- Actualizado sistema de roles: OWNER, CASHIER, KITCHEN (removido ADMIN)
+- Agregada estrategia de Soft Delete detallada
+- Agregados tipos de servicio (DINE_IN, COUNTER, DELIVERY, TAKEOUT)
+- Agregado formato de order number (ORD-YYYYMMDD-XXX + daily_sequence)
+- Agregados ADRs para decisiones clave
+- Actualizado diagrama de arquitectura con WebSocket y Notifications
 
 ### 2026-01-26
 - Documento inicial de arquitectura
-- Definición de stack completo
+- Definicion de stack completo
 - Decisiones de monorepo, JPA, Zustand, MUI
 - Estrategia de multi-tenancy y auth
