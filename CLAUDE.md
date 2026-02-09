@@ -16,7 +16,7 @@
 | Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
 | Backend | Java 21 + Spring Boot 3.5 | Render (Docker) |
 | Base de datos | PostgreSQL 16 | Neon (serverless) |
-| Autenticación | Auth0 (OWASP ASVS L1) | - |
+| Autenticación | Auth0 (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
 | HTTP Client | TanStack Query + Axios | - |
 | ORM | Spring Data JPA + Flyway | - |
@@ -41,6 +41,7 @@ quickstack/
 ├── docs/
 │   ├── ARCHITECTURE.md    # Decisiones técnicas detalladas
 │   ├── DATABASE_SCHEMA.md # Esquema completo de BD
+│   ├── SECURITY.md        # Arquitectura de seguridad (ASVS L2)
 │   └── ROADMAP.md         # Plan de fases del MVP
 ├── frontend/              # React + Vite + TypeScript
 │   └── src/
@@ -190,7 +191,7 @@ cd frontend && npm run dev
 
 - Java 21 requerido (usar SDKMAN: `sdk install java 21.0.5-tem`)
 - Node.js 20+ requerido para frontend
-- Seguir OWASP ASVS L1 para seguridad
+- Seguir OWASP ASVS L2 para seguridad (ver docs/SECURITY.md)
 - TDD obligatorio para lógica de negocio
 - WebSockets para KDS (no polling)
 - Soft delete en la mayoría de entidades
