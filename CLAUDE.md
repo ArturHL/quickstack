@@ -1,7 +1,7 @@
 # QuickStack POS - Contexto del Proyecto
 
 > Este archivo contiene el contexto necesario para continuar el desarrollo con Claude Code.
-> **Última actualización:** 2026-02-05
+> **Última actualización:** 2026-02-09
 
 ## Resumen del Proyecto
 
@@ -14,7 +14,7 @@
 | Componente | Tecnología | Hosting |
 |------------|------------|---------|
 | Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
-| Backend | Java 21 + Spring Boot 3.5 | Render (Docker) |
+| Backend | Java 17 + Spring Boot 3.5 | Render (Docker) |
 | Base de datos | PostgreSQL 16 | Neon (serverless) |
 | Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
@@ -33,37 +33,51 @@
 - **GitHub Flow**: main + feature branches con PRs
 - **WebSockets**: KDS en tiempo real (no polling)
 - **Tickets digitales**: WhatsApp/Email, sin impresión física
+- **Auth nativo**: Spring Security + JWT (sin Auth0)
 
 ## Estructura del Proyecto
 
 ```
 quickstack/
 ├── docs/
-│   ├── ARCHITECTURE.md    # Decisiones técnicas detalladas
-│   ├── DATABASE_SCHEMA.md # Esquema completo de BD
-│   ├── SECURITY.md        # Arquitectura de seguridad (ASVS L2)
-│   └── ROADMAP.md         # Plan de fases del MVP
-├── frontend/              # React + Vite + TypeScript
+│   ├── ARCHITECTURE.md        # Decisiones técnicas detalladas
+│   ├── DATABASE_SCHEMA.md     # Esquema completo de BD
+│   ├── SECURITY.md            # Visión general de seguridad
+│   ├── ROADMAP.md             # Plan de fases del MVP
+│   └── security/
+│       └── asvs/              # Requisitos OWASP ASVS por capítulo
+│           ├── README.md      # Índice y progreso
+│           └── V01-architecture.md  # V1: 38 requisitos
+├── frontend/                  # React + Vite + TypeScript
 │   └── src/
-├── backend/               # Multi-module Maven
-│   ├── pom.xml           # Parent POM
-│   ├── quickstack-common/ # Utilidades compartidas
-│   ├── quickstack-tenant/ # Módulo tenants
-│   ├── quickstack-branch/ # Módulo sucursales
-│   ├── quickstack-user/   # Módulo usuarios
-│   ├── quickstack-product/# Módulo productos
-│   ├── quickstack-pos/    # Módulo punto de venta
-│   └── quickstack-app/    # Ensamblador (Spring Boot main)
-│       └── src/main/resources/db/migration/  # Flyway migrations
+├── backend/                   # Multi-module Maven
+│   ├── pom.xml               # Parent POM (Java 17)
+│   ├── Dockerfile            # Multi-stage, non-root user
+│   ├── quickstack-common/    # Utilidades compartidas, seguridad
+│   ├── quickstack-tenant/    # Módulo tenants
+│   ├── quickstack-branch/    # Módulo sucursales
+│   ├── quickstack-user/      # Módulo usuarios
+│   ├── quickstack-product/   # Módulo productos
+│   ├── quickstack-pos/       # Módulo punto de venta
+│   └── quickstack-app/       # Ensamblador (Spring Boot main)
+│       └── src/main/resources/
+│           ├── application.yml
+│           ├── application-dev.yml
+│           ├── application-prod.yml
+│           ├── logback-spring.xml
+│           └── db/migration/  # Flyway migrations (V1-V7)
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # CI: build, test, Semgrep, OWASP Dependency-Check
 └── .claude/
-    └── agents/            # Agentes personalizados
+    └── agents/               # Agentes personalizados
 ```
 
 ## Fases del MVP
 
 | Fase | Nombre | Estado |
 |------|--------|--------|
-| 0 | Foundation & Architecture | ✅ ~90% completo |
+| 0 | Foundation & Architecture | 🔄 ~50% (0.1 ✅, 0.2 ~70%) |
 | 1 | Core POS (ventas, mesas, variantes, combos) | ⏳ Pendiente |
 | 2 | Inventory (ingredientes, recetas, stock auto) | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | ⏳ Pendiente |
@@ -71,28 +85,53 @@ quickstack/
 | 5 | WhatsApp Bot with AI | ⏳ Pendiente |
 | 6 | Polish & Pilot Validation | ⏳ Pendiente |
 
-## Estado Actual (Phase 0)
+### Sub-fases de Phase 0
+
+| Sub-fase | Nombre | Estado |
+|----------|--------|--------|
+| 0.1 | Diseño y Documentación | ✅ Completado |
+| 0.2 | Infraestructura (CI/CD, BD, Deploy) | 🔄 ~70% |
+| 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
+| 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
+
+## Estado Actual (Phase 0.2)
 
 ### Completado
 - [x] Definición de arquitectura y stack
 - [x] Creación de estructura monorepo
 - [x] Inicialización de frontend (React + Vite)
 - [x] Estructura multi-module Maven para backend
-- [x] Parent POM creado
-- [x] Documentación (ARCHITECTURE.md, ROADMAP.md)
+- [x] Parent POM con Java 17
+- [x] POMs de los 7 módulos Maven
+- [x] Documentación (ARCHITECTURE.md, ROADMAP.md, SECURITY.md)
 - [x] Configuración de Git y GitHub
-- [x] **Diseño de modelo de datos (29 tablas, 6 módulos)**
-- [x] **7 migraciones Flyway creadas (V1-V7)**
-- [x] **DATABASE_SCHEMA.md documentado**
+- [x] Diseño de modelo de datos (29 tablas, 6 módulos)
+- [x] 7 migraciones Flyway creadas (V1-V7)
+- [x] DATABASE_SCHEMA.md documentado
+- [x] CI/CD con GitHub Actions (Semgrep + OWASP Dependency-Check)
+- [x] Spring Boot configurado (application.yml, profiles)
+- [x] Logback JSON estructurado
+- [x] GlobalExceptionHandler (sin leak de info)
+- [x] SecurityConfig con Argon2id
+- [x] CORS configurado
+- [x] Dockerfile multi-stage con usuario non-root
+- [x] Documentación ASVS reorganizada por capítulos
 
-### Pendiente Phase 0
-- [ ] Crear `pom.xml` de cada módulo del backend
-- [ ] Configurar Flyway + conexión a Neon
-- [ ] Crear entidades JPA del módulo Core
-- [ ] Implementar módulo de autenticación (Spring Security + JWT)
-- [ ] Configurar CI/CD (GitHub Actions)
-- [ ] Estructura de carpetas del frontend
-- [ ] Configurar variables de entorno
+### Pendiente Phase 0.2
+- [ ] Crear proyecto en Neon
+- [ ] Ejecutar migraciones V1-V7
+- [ ] Configurar Render (backend)
+- [ ] Configurar Vercel (frontend)
+- [ ] Variables de entorno en Render
+
+### Pendiente Phase 0.3 (Auth)
+- [ ] Endpoints: register, login, refresh, logout, forgot-password, reset-password
+- [ ] Argon2id password hashing (configurado, falta implementar)
+- [ ] JWT RS256 signing
+- [ ] Rate limiting (Bucket4j)
+- [ ] Account lockout
+- [ ] Refresh token rotation
+- [ ] Tests de seguridad
 
 ## Base de Datos - 29 Tablas en 6 Módulos
 
@@ -104,6 +143,22 @@ quickstack/
 | Inventory | ingredients, suppliers, recipes, stock_movements, purchase_orders, purchase_order_items |
 | POS | areas, tables, customers, orders, order_items, order_item_modifiers, payments, order_status_history |
 | Notifications | notification_logs, notification_templates |
+
+## Seguridad (OWASP ASVS L2)
+
+### Progreso
+
+| Capítulo | Cumplidos | Total | Archivo |
+|----------|-----------|-------|---------|
+| V1 - Architecture | 12 | 38 | `docs/security/asvs/V01-architecture.md` |
+| V2-V14 | 0 | ~235 | Pendiente |
+| **Total** | **12** | **~273** | **4%** |
+
+### Documentación de Seguridad
+
+- `docs/SECURITY.md` - Visión general, threat model, protocolos, compliance
+- `docs/security/asvs/README.md` - Índice de requisitos ASVS
+- `docs/security/asvs/V01-architecture.md` - Requisitos V1 detallados
 
 ## Decisiones de Negocio Confirmadas
 
@@ -180,19 +235,27 @@ cd backend && ./mvnw clean compile
 # Backend - tests
 cd backend && ./mvnw test
 
+# Backend - verificar (compile + test)
+cd backend && ./mvnw verify
+
 # Frontend - instalar dependencias
 cd frontend && npm install
 
 # Frontend - desarrollo
 cd frontend && npm run dev
+
+# Frontend - build
+cd frontend && npm run build
 ```
 
 ## Notas Importantes
 
-- Java 21 requerido (usar SDKMAN: `sdk install java 21.0.5-tem`)
+- **Java 17** requerido (usar SDKMAN: `sdk install java 17.0.10-tem`)
 - Node.js 20+ requerido para frontend
-- Seguir OWASP ASVS L2 para seguridad (ver docs/SECURITY.md)
+- Seguir OWASP ASVS L2 para seguridad (ver `docs/security/asvs/`)
 - TDD obligatorio para lógica de negocio
 - WebSockets para KDS (no polling)
 - Soft delete en la mayoría de entidades
 - Orders y payments nunca se borran (auditoría)
+- GlobalExceptionHandler evita leak de información interna
+- Passwords con Argon2id (Spring Security 6)
