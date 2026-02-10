@@ -231,7 +231,7 @@ CREATE INDEX idx_orders_tenant ON orders(tenant_id);
 CREATE INDEX idx_orders_branch ON orders(tenant_id, branch_id);
 CREATE INDEX idx_orders_status ON orders(tenant_id, status_id);
 CREATE INDEX idx_orders_date ON orders(tenant_id, opened_at);
-CREATE INDEX idx_orders_daily ON orders(tenant_id, branch_id, DATE(opened_at));
+CREATE INDEX idx_orders_daily ON orders(tenant_id, branch_id, opened_at);
 CREATE INDEX idx_orders_table ON orders(tenant_id, table_id) WHERE table_id IS NOT NULL;
 CREATE INDEX idx_orders_customer ON orders(tenant_id, customer_id) WHERE customer_id IS NOT NULL;
 CREATE INDEX idx_orders_service_type ON orders(tenant_id, service_type);
