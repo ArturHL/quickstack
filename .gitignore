@@ -18,14 +18,30 @@ Thumbs.db
 .project
 .classpath
 .settings/
+*.code-workspace
 
 # ============================
-# Environment
+# Environment & Secrets (CRITICAL)
 # ============================
 .env
 .env.local
 .env.*.local
 *.env
+secrets/
+*.secret
+
+# Private keys and certificates - NEVER commit these
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.crt
+*.cer
+
+# Local config overrides
+application-local.yml
+application-local.properties
 
 # ============================
 # Backend - Java/Maven
@@ -38,8 +54,12 @@ backend/**/*.ear
 backend/**/hs_err_pid*
 backend/**/replay_pid*
 
-# Maven wrapper (optional - some prefer to commit these)
-# backend/.mvn/wrapper/maven-wrapper.jar
+# Maven wrapper JAR is committed for reproducibility
+# Only ignore downloaded artifacts
+backend/.mvn/wrapper/maven-wrapper.jar.tmp
+
+# OWASP Dependency Check reports (generated in CI)
+backend/**/dependency-check-report.*
 
 # ============================
 # Frontend - Node/Vite
@@ -59,6 +79,7 @@ frontend/vite.config.ts.timestamp-*
 frontend/coverage/
 backend/**/surefire-reports/
 backend/**/failsafe-reports/
+backend/**/jacoco.exec
 
 # ============================
 # Logs
@@ -78,3 +99,8 @@ yarn-error.log*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+
+# ============================
+# Docker (local)
+# ============================
+docker-compose.override.yml

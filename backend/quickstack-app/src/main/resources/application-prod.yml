@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    show-sql: false
+
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.quickstack: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never

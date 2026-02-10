@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.quickstack</groupId>
+        <artifactId>quickstack-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>quickstack-pos</artifactId>
+    <name>QuickStack POS</name>
+    <description>Point of Sale - orders, payments, tables, areas</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-tenant</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-branch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-product</artifactId>
+        </dependency>
+
+        <!-- WebSocket for KDS -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+    </dependencies>
+</project>
