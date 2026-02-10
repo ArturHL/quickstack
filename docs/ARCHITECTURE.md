@@ -18,7 +18,7 @@
 | TanStack Query | 5.x | Server state / caching |
 | Axios | 1.x | HTTP client |
 | React Router | 6.x | Routing |
-| Auth0 React SDK | 2.x | Authentication |
+| js-cookie | 3.x | Secure cookie handling |
 
 ### Backend
 | Tecnologia | Version | Proposito |
@@ -39,7 +39,6 @@
 | Vercel | Frontend hosting | Free |
 | Render | Backend hosting (Docker) | Free |
 | Neon | PostgreSQL serverless | Free |
-| Auth0 | Authentication | Free |
 | GitHub | Code repository | Free |
 | GitHub Actions | CI/CD | Free |
 
@@ -70,7 +69,7 @@ src/main/java/com/quickstack/
 ├── common/                    # Shared utilities
 │   ├── config/               # Spring configs
 │   ├── exception/            # Global exception handling
-│   ├── security/             # Auth0 + JWT config
+│   ├── security/             # Spring Security + JWT config
 │   └── audit/                # Auditing (created_at, etc.)
 ├── tenant/                    # Tenant module
 │   ├── Tenant.java           # Entity
@@ -156,15 +155,32 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 
 ---
 
-### 5. Authentication: Auth0 con OWASP ASVS L1
+### 5. Authentication: Spring Security Nativo (OWASP ASVS L2)
 
-**Flujo:**
-1. Usuario hace login en frontend via Auth0 React SDK
-2. Auth0 retorna JWT (access_token)
-3. Frontend envia JWT en header `Authorization: Bearer <token>`
-4. Backend valida JWT contra Auth0 JWKS
-5. Backend extrae claims (user_id, tenant_id, roles)
-6. Request procede con contexto de usuario y tenant
+**Flujo de Login:**
+1. Usuario envia credenciales a `POST /api/v1/auth/login`
+2. Backend valida email/password contra BD (Argon2id hash)
+3. Backend genera JWT (access_token, 15 min) + refresh_token (7 dias)
+4. Access token retornado en response body, refresh token en httpOnly cookie
+5. Frontend almacena access token en memoria (no localStorage)
+
+**Flujo de Request Autenticado:**
+1. Frontend envia JWT en header `Authorization: Bearer <token>`
+2. Backend valida firma JWT (RS256, clave privada en backend)
+3. Backend extrae claims (user_id, tenant_id, roles)
+4. Request procede con contexto de usuario y tenant
+
+**Flujo de Refresh:**
+1. Access token expira, frontend llama `POST /api/v1/auth/refresh`
+2. Backend valida refresh token de httpOnly cookie
+3. Backend rota refresh token (invalida el anterior, genera nuevo)
+4. Retorna nuevo access token + nuevo refresh token
+
+**Seguridad (ASVS L2):**
+- Passwords: Argon2id, min 12 caracteres, check HaveIBeenPwned
+- Account lockout: 5 intentos fallidos = bloqueo 15 min
+- Refresh token rotation: Cada uso genera nuevo token
+- Family tracking: Si token antiguo reutilizado, revoca toda la familia
 
 **Roles:**
 | Rol | Permisos |
@@ -179,14 +195,16 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 - OWNER no requiere branch_id asignado (accede a todas las sucursales)
 - CASHIER y KITCHEN requieren branch_id asignado
 
-**JWT Custom Claims:**
+**JWT Claims:**
 ```json
 {
-  "sub": "auth0|123456",
+  "sub": "uuid-del-usuario",
   "email": "user@example.com",
-  "https://quickstack.app/tenant_id": "uuid-del-tenant",
-  "https://quickstack.app/branch_id": "uuid-del-branch",
-  "https://quickstack.app/roles": ["CASHIER"]
+  "tenant_id": "uuid-del-tenant",
+  "branch_id": "uuid-del-branch",
+  "role": "CASHIER",
+  "iat": 1707123456,
+  "exp": 1707124356
 }
 ```
 
@@ -411,9 +429,11 @@ src/
 NEON_DATABASE_URL=postgresql://user:pass@host/db
 NEON_DATABASE_POOL_SIZE=5
 
-# Auth0
-AUTH0_ISSUER_URI=https://quickstack.auth0.com/
-AUTH0_AUDIENCE=https://api.quickstack.app
+# JWT (RS256)
+JWT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----...
+JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----...
+JWT_ACCESS_TOKEN_EXPIRY=900
+JWT_REFRESH_TOKEN_EXPIRY=604800
 
 # App
 APP_CORS_ORIGINS=https://quickstack.app,http://localhost:5173
@@ -422,9 +442,6 @@ APP_CORS_ORIGINS=https://quickstack.app,http://localhost:5173
 **Frontend (`.env`):**
 ```bash
 VITE_API_URL=https://api.quickstack.app/v1
-VITE_AUTH0_DOMAIN=quickstack.auth0.com
-VITE_AUTH0_CLIENT_ID=xxxxxxxxxxxx
-VITE_AUTH0_AUDIENCE=https://api.quickstack.app
 VITE_WS_URL=wss://api.quickstack.app/ws
 ```
 
@@ -438,14 +455,14 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │                   React + Vite (MUI)                         │   │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │   │
-│  │  │  Zustand │  │ TanStack │  │  Auth0   │  │WebSocket │    │   │
-│  │  │  Store   │  │  Query   │  │   SDK    │  │  Client  │    │   │
+│  │  │  Zustand │  │ TanStack │  │   Auth   │  │WebSocket │    │   │
+│  │  │  Store   │  │  Query   │  │  Context │  │  Client  │    │   │
 │  │  └──────────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │   │
 │  └──────────────────────┼────────────┼─────────────┼───────────┘   │
 └─────────────────────────┼────────────┼─────────────┼───────────────┘
                           │            │             │
-                    Axios │            │ OAuth 2.0   │ WSS
-                          ▼            │ PKCE        ▼
+                    Axios │      JWT   │             │ WSS
+                          ▼     Bearer ▼             ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                          VERCEL                                      │
 │                     (Static Hosting)                                 │
@@ -459,7 +476,7 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 │  │                Spring Boot (Docker)                          │   │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │   │
 │  │  │   Security   │  │   Tenant     │  │    JPA       │      │   │
-│  │  │  (JWT/Auth0) │  │   Filter     │  │  Hibernate   │      │   │
+│  │  │  (JWT/RS256) │  │   Filter     │  │  Hibernate   │      │   │
 │  │  └──────────────┘  └──────────────┘  └──────┬───────┘      │   │
 │  │                                              │               │   │
 │  │  ┌──────────────┐  ┌──────────────┐         │               │   │
@@ -476,7 +493,7 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 │                           NEON                                       │
 │                     PostgreSQL Serverless                            │
 │  ┌─────────────────────────────────────────────────────────────┐   │
-│  │               6 Modulos - 27 Tablas                          │   │
+│  │               6 Modulos - 29 Tablas                          │   │
 │  │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │   │
 │  │  │  Global   │ │   Core    │ │  Catalog  │ │ Inventory │   │   │
 │  │  │ Catalogs  │ │           │ │           │ │           │   │   │
@@ -486,14 +503,6 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 │  │  │           │ │           │                               │   │
 │  │  └───────────┘ └───────────┘                               │   │
 │  └─────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                          AUTH0                                       │
-│                Identity Provider (OAuth 2.0)                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                          │
-│  │  Users   │  │  Roles   │  │   JWKS   │                          │
-│  └──────────┘  └──────────┘  └──────────┘                          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -512,7 +521,7 @@ VITE_WS_URL=wss://api.quickstack.app/ws
    │
 5. Request viaja a Render: GET /v1/products
    │
-6. Spring Security valida JWT contra Auth0 JWKS
+6. Spring Security valida firma JWT (RS256, clave publica local)
    │
 7. TenantFilter extrae tenant_id del JWT, lo pone en TenantContext
    │

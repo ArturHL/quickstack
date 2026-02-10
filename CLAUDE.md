@@ -16,7 +16,7 @@
 | Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
 | Backend | Java 21 + Spring Boot 3.5 | Render (Docker) |
 | Base de datos | PostgreSQL 16 | Neon (serverless) |
-| Autenticación | Auth0 (OWASP ASVS L2) | - |
+| Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
 | HTTP Client | TanStack Query + Axios | - |
 | ORM | Spring Data JPA + Flyway | - |
@@ -81,7 +81,7 @@ quickstack/
 - [x] Parent POM creado
 - [x] Documentación (ARCHITECTURE.md, ROADMAP.md)
 - [x] Configuración de Git y GitHub
-- [x] **Diseño de modelo de datos (27 tablas, 6 módulos)**
+- [x] **Diseño de modelo de datos (29 tablas, 6 módulos)**
 - [x] **7 migraciones Flyway creadas (V1-V7)**
 - [x] **DATABASE_SCHEMA.md documentado**
 
@@ -89,17 +89,17 @@ quickstack/
 - [ ] Crear `pom.xml` de cada módulo del backend
 - [ ] Configurar Flyway + conexión a Neon
 - [ ] Crear entidades JPA del módulo Core
-- [ ] Configurar Auth0
+- [ ] Implementar módulo de autenticación (Spring Security + JWT)
 - [ ] Configurar CI/CD (GitHub Actions)
 - [ ] Estructura de carpetas del frontend
 - [ ] Configurar variables de entorno
 
-## Base de Datos - 27 Tablas en 6 Módulos
+## Base de Datos - 29 Tablas en 6 Módulos
 
 | Módulo | Tablas |
 |--------|--------|
 | Global Catalogs | subscription_plans, roles, order_status_types, stock_movement_types, unit_types |
-| Core | tenants, branches, users, auth_identities |
+| Core | tenants, branches, users, password_reset_tokens, refresh_tokens, login_attempts |
 | Catalog | categories, products, product_variants, modifier_groups, modifiers, combos, combo_items |
 | Inventory | ingredients, suppliers, recipes, stock_movements, purchase_orders, purchase_order_items |
 | POS | areas, tables, customers, orders, order_items, order_item_modifiers, payments, order_status_history |

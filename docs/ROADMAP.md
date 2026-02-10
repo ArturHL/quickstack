@@ -17,8 +17,8 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 |------------|------------|---------|
 | Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
 | Backend | Java 21 + Spring Boot 3.5 | Render (Docker) |
-| Base de datos | PostgreSQL (27 tablas, multi-tenant) | Neon (serverless) |
-| Autenticación | Auth0 (OWASP ASVS L1) | - |
+| Base de datos | PostgreSQL (29 tablas, multi-tenant) | Neon (serverless) |
+| Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
 | HTTP Client | TanStack Query + Axios | - |
 | ORM | Spring Data JPA | - |
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth0 + BD + Deploy básico + Esquema completo | 🔄 90% completado |
+| 0 | Foundation | Auth + BD + Deploy básico + Esquema completo | 🔄 90% completado |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -63,25 +63,25 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] ORM: JPA/Hibernate con Flyway migrations
 - [x] State management: Zustand
 - [x] Multi-module Maven: Backend modular por feature
-- [x] Esquema de 27 tablas diseñado (5 módulos)
+- [x] Esquema de 29 tablas diseñado (6 módulos)
 
 ### Entregables
 
 - [x] Repositorios configurados (monorepo)
-- [x] Esquema de base de datos completo (27 tablas, 7 migraciones)
+- [x] Esquema de base de datos completo (29 tablas, 7 migraciones)
 - [x] Documentación de arquitectura técnica (ARCHITECTURE.md, DATABASE_SCHEMA.md)
 - [x] Multi-module Maven configurado
 - [ ] Base de datos PostgreSQL en Neon con migraciones ejecutadas
 - [ ] Backend Spring Boot con estructura base funcionando
 - [ ] Frontend React+Vite con routing y estructura
-- [ ] Auth0 integrado con login/logout funcional
+- [ ] Autenticación nativa (login/logout/register/forgot-password)
 - [ ] CI/CD pipeline básico (Vercel/Render)
 - [ ] Variables de entorno y secrets management
 - [ ] Health check endpoint funcionando
 
 ### Success Criteria
 
-- Usuario puede hacer login con Auth0 y ver dashboard vacío
+- Usuario puede hacer login y ver dashboard vacío
 - Backend responde a health check endpoint
 - Database schema ejecutado correctamente con seed data
 - Deploys automáticos funcionan desde git push

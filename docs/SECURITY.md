@@ -42,7 +42,7 @@ QuickStack maneja:
 | 1.1.2 | Verificar el uso de threat modeling para cada cambio de diseno o planificacion de sprint para identificar amenazas, planificar contramedidas, facilitar respuestas de riesgo apropiadas y guiar pruebas de seguridad | L2 | ⏳ | **Implementacion:** Threat model documentado en este archivo (ver seccion Threat Model). STRIDE aplicado a cada nuevo modulo. Issues de seguridad etiquetados `security` en GitHub. User stories incluyen criterios de seguridad. |
 | 1.1.3 | Verificar que todas las user stories y features contengan restricciones funcionales de seguridad, como "Como usuario, deberia poder ver y editar mi perfil. No deberia poder ver o editar el perfil de nadie mas" | L2 | ⏳ | **Implementacion:** Template de user story en GitHub Issues incluye seccion "Security Constraints". Ejemplo: "Como CAJERO, puedo crear ordenes solo en MI sucursal asignada. No puedo ver datos de otros tenants ni otras sucursales." |
 | 1.1.4 | Verificar documentacion y justificacion de todos los limites de confianza, componentes y flujos de datos significativos de la aplicacion | L2 | ✅ | **Implementacion:** Documentado en ARCHITECTURE.md con diagramas de arquitectura. Trust boundaries: Frontend (untrusted) -> API Gateway -> Backend (trusted) -> Database. Composite FKs con tenant_id previenen referencias cross-tenant a nivel de BD. |
-| 1.1.5 | Verificar definicion y analisis de seguridad de la arquitectura de alto nivel de la aplicacion y todos los servicios remotos conectados | L2 | ✅ | **Implementacion:** Arquitectura documentada en ARCHITECTURE.md. Servicios externos: Auth0 (autenticacion), Neon (BD), Twilio/SendGrid (notificaciones). Cada servicio evaluado por seguridad y compliance. |
+| 1.1.5 | Verificar definicion y analisis de seguridad de la arquitectura de alto nivel de la aplicacion y todos los servicios remotos conectados | L2 | ✅ | **Implementacion:** Arquitectura documentada en ARCHITECTURE.md. Servicios externos: Neon (BD), Twilio/SendGrid (notificaciones). Autenticacion nativa con Spring Security + JWT (sin IdP externo). Cada servicio evaluado por seguridad y compliance. |
 | 1.1.6 | Verificar implementacion de controles de seguridad centralizados, simples, verificados, seguros y reutilizables para evitar controles duplicados, faltantes, ineficaces o inseguros | L2 | ⏳ | **Implementacion:** Modulo `quickstack-common` contiene: `TenantFilter` (extraccion de tenant_id de JWT), `SecurityConfig` (configuracion Spring Security), `AuditingConfig` (campos de auditoria automaticos), `GlobalExceptionHandler` (manejo de errores sin leak de info). |
 | 1.1.7 | Verificar disponibilidad de checklist de codificacion segura, requisitos de seguridad, guias o politicas para todos los desarrolladores y testers | L2 | ⏳ | **Implementacion:** Este documento SECURITY.md. Checklist pre-PR incluido abajo. CLAUDE.md referencia requisitos ASVS. Agentes de Claude Code configurados con contexto de seguridad. |
 
@@ -51,9 +51,9 @@ QuickStack maneja:
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.2.1 | Verificar el uso de cuentas de sistema operativo unicas o especiales de bajo privilegio para todos los componentes de la aplicacion, servicios y servidores | L2 | ⏳ | **Implementacion:** Contenedor Docker ejecuta como usuario no-root (`USER quickstack:quickstack` con UID/GID 1000). Base de datos Neon usa roles con privilegios minimos: `quickstack_app` (CRUD), `quickstack_readonly` (solo SELECT para reportes). |
-| 1.2.2 | Verificar que las comunicaciones entre componentes de la aplicacion, incluyendo APIs, middleware y capas de datos, esten autenticadas. Los componentes deben tener los privilegios minimos necesarios | L2 | ⏳ | **Implementacion:** Backend -> Neon: conexion SSL obligatoria con certificado validado. Backend -> Auth0: HTTPS con API key/secret. WebSocket: autenticacion JWT en handshake. Cada componente tiene credenciales unicas (no compartidas). |
-| 1.2.3 | Verificar que la aplicacion usa un unico mecanismo de autenticacion verificado que sea seguro, extensible para incluir autenticacion fuerte, y tenga suficiente logging y monitoreo para detectar abuso de cuentas o brechas | L2 | ⏳ | **Implementacion:** Auth0 como unico IdP. Flujo OAuth 2.0 con PKCE (no implicit flow). JWT firmados con RS256, validados contra JWKS endpoint. Auth0 proporciona: MFA opcional, brute force protection, anomaly detection, login logs. Custom claims para tenant_id/branch_id/roles. |
-| 1.2.4 | Verificar que todas las rutas de autenticacion y APIs de gestion de identidad implementen fuerza de control de seguridad de autenticacion consistente | L2 | ⏳ | **Implementacion:** Todas las APIs (excepto health check) requieren JWT valido. No hay endpoints de autenticacion en backend (delegado a Auth0). Spring Security con `JwtAuthenticationConverter` personalizado extrae claims y roles. Rate limiting via API Gateway (Render) en endpoints criticos. |
+| 1.2.2 | Verificar que las comunicaciones entre componentes de la aplicacion, incluyendo APIs, middleware y capas de datos, esten autenticadas. Los componentes deben tener los privilegios minimos necesarios | L2 | ⏳ | **Implementacion:** Backend -> Neon: conexion SSL obligatoria con certificado validado. WebSocket: autenticacion JWT en handshake. Cada componente tiene credenciales unicas (no compartidas). JWTs firmados con clave privada RS256 almacenada en backend. |
+| 1.2.3 | Verificar que la aplicacion usa un unico mecanismo de autenticacion verificado que sea seguro, extensible para incluir autenticacion fuerte, y tenga suficiente logging y monitoreo para detectar abuso de cuentas o brechas | L2 | ⏳ | **Implementacion:** Spring Security como unico mecanismo de auth. Passwords almacenados con Argon2id (ASVS 2.4.1). JWT firmados con RS256, clave privada en backend. Brute force protection via `failed_login_attempts` + account lockout. Todos los login attempts loggeados en tabla `login_attempts`. Claims JWT incluyen tenant_id/branch_id/roles. |
+| 1.2.4 | Verificar que todas las rutas de autenticacion y APIs de gestion de identidad implementen fuerza de control de seguridad de autenticacion consistente | L2 | ⏳ | **Implementacion:** Endpoints de auth: `/api/v1/auth/login`, `/register`, `/forgot-password`, `/reset-password`, `/refresh-token`. Todas las demas APIs requieren JWT valido. Spring Security con `JwtAuthenticationConverter` personalizado extrae claims y roles. Rate limiting en endpoints de auth (Bucket4j o similar). |
 
 ### V1.3 Session Management Architecture
 
@@ -61,7 +61,7 @@ QuickStack maneja:
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| - | No hay requisitos definidos en ASVS 4.0.3 V1.3 | - | N/A | **Implementacion proactiva:** Sesiones manejadas por Auth0 (cookies httpOnly, secure, SameSite=Strict). Access tokens JWT con expiracion corta (1 hora). Refresh tokens rotados automaticamente. Frontend usa Auth0 React SDK que maneja renovacion transparente. |
+| - | No hay requisitos definidos en ASVS 4.0.3 V1.3 | - | N/A | **Implementacion proactiva:** Stateless sessions via JWT. Access tokens con expiracion corta (15-30 min). Refresh tokens almacenados en tabla `refresh_tokens`, rotados en cada uso (rotation + family tracking para detectar reuso). Frontend almacena access token en memoria, refresh token en httpOnly cookie. |
 
 ### V1.4 Access Control Architecture
 
@@ -86,10 +86,10 @@ QuickStack maneja:
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.6.1 | Verificar que existe una politica explicita para gestion de claves criptograficas y que el ciclo de vida de claves sigue un estandar de gestion como NIST SP 800-57 | L2 | ⏳ | **Implementacion:** Auth0 maneja claves de firma JWT (RS256, rotacion automatica). Claves de BD: Neon maneja encryption at rest. Claves de API (Twilio, SendGrid): almacenadas en environment variables de Render, rotadas trimestralmente. Documentacion de rotacion en este archivo. |
-| 1.6.2 | Verificar que los consumidores de servicios criptograficos protejan material de claves y otros secretos usando vaults de claves o alternativas basadas en API | L2 | ⏳ | **Implementacion:** Secretos en Render Environment Variables (encrypted at rest). No hay secretos hardcodeados en codigo. `.env` en `.gitignore`. Auth0 client_secret solo en backend. Para produccion futura: considerar HashiCorp Vault o AWS Secrets Manager. |
-| 1.6.3 | Verificar que todas las claves y contrasenas son reemplazables y son parte de un proceso bien definido para re-cifrar datos sensibles | L2 | ⏳ | **Implementacion:** JWT signing keys: rotacion via Auth0 sin downtime (JWKS cache refresh). Database credentials: rotacion via Neon console + deploy. API keys: rotacion individual por servicio. No hay datos cifrados con claves de aplicacion en MVP (cifrado delegado a Neon/Auth0). |
-| 1.6.4 | Verificar que la arquitectura trata los secretos del lado del cliente como inseguros y nunca los usa para proteger o acceder a datos sensibles | L2 | ✅ | **Implementacion:** Frontend solo tiene `client_id` de Auth0 (publico por diseno). Tokens almacenados en memoria (no localStorage para access tokens). Refresh tokens en memoria o secure cookie. Todas las operaciones sensibles requieren backend call con JWT. |
+| 1.6.1 | Verificar que existe una politica explicita para gestion de claves criptograficas y que el ciclo de vida de claves sigue un estandar de gestion como NIST SP 800-57 | L2 | ⏳ | **Implementacion:** JWT signing: par de claves RS256 generadas en backend, rotacion anual. Claves de BD: Neon maneja encryption at rest. Claves de API (Twilio, SendGrid): almacenadas en environment variables de Render, rotadas trimestralmente. Documentacion de rotacion en este archivo. |
+| 1.6.2 | Verificar que los consumidores de servicios criptograficos protejan material de claves y otros secretos usando vaults de claves o alternativas basadas en API | L2 | ⏳ | **Implementacion:** Secretos en Render Environment Variables (encrypted at rest). No hay secretos hardcodeados en codigo. `.env` en `.gitignore`. JWT private key almacenada como env var. Para produccion futura: considerar HashiCorp Vault o AWS Secrets Manager. |
+| 1.6.3 | Verificar que todas las claves y contrasenas son reemplazables y son parte de un proceso bien definido para re-cifrar datos sensibles | L2 | ⏳ | **Implementacion:** JWT signing keys: rotacion anual con periodo de gracia (ambas claves validas durante transicion). Database credentials: rotacion via Neon console + deploy. API keys: rotacion individual por servicio. Passwords en Argon2id (no requieren re-cifrado, solo re-hash en login). |
+| 1.6.4 | Verificar que la arquitectura trata los secretos del lado del cliente como inseguros y nunca los usa para proteger o acceder a datos sensibles | L2 | ✅ | **Implementacion:** Frontend no tiene secretos. Access tokens en memoria (no localStorage). Refresh tokens en httpOnly secure cookie (inaccesible via JS). Todas las operaciones sensibles requieren backend call con JWT. Clave privada de firma JWT solo existe en backend. |
 
 ### V1.7 Errors, Logging and Auditing Architecture
 
@@ -102,14 +102,14 @@ QuickStack maneja:
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.8.1 | Verificar que todos los datos sensibles se identifiquen y clasifiquen en niveles de proteccion | L2 | ⏳ | **Clasificacion implementada:** **CRITICO**: Credenciales (manejadas por Auth0), tokens JWT. **ALTO**: Datos financieros (orders, payments), PII de clientes (phone, email, address). **MEDIO**: Datos de negocio (productos, precios, inventario). **BAJO**: Catalogos globales, configuracion no sensible. |
+| 1.8.1 | Verificar que todos los datos sensibles se identifiquen y clasifiquen en niveles de proteccion | L2 | ⏳ | **Clasificacion implementada:** **CRITICO**: password_hash (Argon2id en BD), JWT signing key, tokens. **ALTO**: Datos financieros (orders, payments), PII de clientes (phone, email, address). **MEDIO**: Datos de negocio (productos, precios, inventario). **BAJO**: Catalogos globales, configuracion no sensible. |
 | 1.8.2 | Verificar que todos los niveles de proteccion tengan un conjunto asociado de requisitos de proteccion, como requisitos de cifrado, integridad, retencion, privacidad y otros requisitos de confidencialidad, y que estos se apliquen en la arquitectura | L2 | ⏳ | **Requisitos por nivel:** **CRITICO**: Nunca almacenado en app (delegado a Auth0). **ALTO**: Cifrado en reposo (Neon), TLS en transito, soft delete (nunca borrado fisico), retencion 7 anos (SAT Mexico). **MEDIO**: Cifrado en reposo, backup diario. **BAJO**: Backup diario. |
 
 ### V1.9 Communications Architecture
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.9.1 | Verificar que la aplicacion cifre las comunicaciones entre componentes, particularmente cuando esten en diferentes contenedores, sistemas, sitios o proveedores de nube | L2 | ⏳ | **Implementacion:** Frontend -> Backend: HTTPS obligatorio (TLS 1.2+). Backend -> Neon: SSL mode=require con validacion de certificado. Backend -> Auth0: HTTPS. Backend -> Twilio/SendGrid: HTTPS. WebSocket: WSS (WebSocket Secure). No hay comunicacion en texto plano. |
+| 1.9.1 | Verificar que la aplicacion cifre las comunicaciones entre componentes, particularmente cuando esten en diferentes contenedores, sistemas, sitios o proveedores de nube | L2 | ⏳ | **Implementacion:** Frontend -> Backend: HTTPS obligatorio (TLS 1.2+). Backend -> Neon: SSL mode=require con validacion de certificado. Backend -> Twilio/SendGrid: HTTPS. WebSocket: WSS (WebSocket Secure). No hay comunicacion en texto plano. |
 | 1.9.2 | Verificar que los componentes de la aplicacion verifiquen la autenticidad de cada lado en un enlace de comunicacion para prevenir ataques person-in-the-middle. Por ejemplo, los componentes de la aplicacion deben validar certificados y cadenas TLS | L2 | ⏳ | **Implementacion:** Backend valida certificados TLS de Neon, Auth0, y servicios externos (default JVM trust store + actualizaciones). Auth0 JWT validado contra JWKS endpoint con verificacion de firma RS256. HSTS header en respuestas (max-age=31536000). |
 
 ### V1.10 Malicious Software Architecture
@@ -123,7 +123,7 @@ QuickStack maneja:
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.11.1 | Verificar la definicion y documentacion de todos los componentes de la aplicacion en terminos de las funciones de negocio o seguridad que proporcionan | L2 | ✅ | **Implementacion:** Modulos documentados en ARCHITECTURE.md y DATABASE_SCHEMA.md. Cada modulo Maven tiene responsabilidad clara: `quickstack-tenant` (multi-tenancy), `quickstack-user` (autenticacion/autorizacion), `quickstack-pos` (transacciones), etc. Package-by-feature facilita auditoria de responsabilidades. |
-| 1.11.2 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso no compartan estado no sincronizado | L2 | ⏳ | **Implementacion:** Autenticacion: stateless (JWT). Sesiones: manejadas por Auth0 (stateless en backend). Tenant context: ThreadLocal limpiado despues de cada request. Ordenes: transacciones ACID en PostgreSQL. Inventario: actualizacion atomica de stock con `SELECT FOR UPDATE`. |
+| 1.11.2 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso no compartan estado no sincronizado | L2 | ⏳ | **Implementacion:** Autenticacion: stateless (JWT generados por backend). Refresh tokens en BD con transacciones ACID. Tenant context: ThreadLocal limpiado despues de cada request. Ordenes: transacciones ACID en PostgreSQL. Inventario: actualizacion atomica de stock con `SELECT FOR UPDATE`. |
 | 1.11.3 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso sean thread safe y resistentes a condiciones de carrera time-of-check y time-of-use | L3 | N/A | Requisito L3 - fuera del alcance actual. **Nota para futuro:** Pagos y descuento de inventario usan `@Transactional` con isolation SERIALIZABLE para flujos criticos. `daily_sequence` generado con `SELECT MAX() + 1 FOR UPDATE` para evitar duplicados. |
 
 ### V1.12 Secure File Upload Architecture
@@ -150,7 +150,7 @@ QuickStack maneja:
 | 1.14.3 | Verificar que el pipeline de build advierte sobre componentes desactualizados o inseguros y toma acciones apropiadas | L2 | ⏳ | **Implementacion:** `npm audit` en CI para frontend. OWASP Dependency-Check en CI para backend. Dependabot habilitado en GitHub (PRs automaticos para updates). CI falla si vulnerabilidades CRITICAL/HIGH detectadas. Semgrep para SAST en cada PR. |
 | 1.14.4 | Verificar que el pipeline de build contiene un paso para construir y verificar automaticamente el despliegue seguro de la aplicacion, especialmente si la infraestructura de la aplicacion esta definida como software (IaC) | L2 | ⏳ | **Implementacion:** GitHub Actions workflow: lint -> test -> security scan -> build -> deploy staging -> smoke tests -> deploy prod. Dockerfile multi-stage (build sin runtime tools). Health check endpoint verifica conectividad post-deploy. Rollback automatico si health check falla. |
 | 1.14.5 | Verificar que los despliegues de aplicacion esten adecuadamente sandboxed, containerizados y/o aislados a nivel de red para retrasar y disuadir atacantes de atacar otras aplicaciones, especialmente cuando realizan acciones sensibles o peligrosas como deserializacion | L2 | ⏳ | **Implementacion:** Contenedor Docker aislado en Render. Network isolation por servicio de Render. No hay shell access en produccion. Container ejecuta como non-root. Read-only filesystem excepto /tmp. Recursos limitados (CPU, memoria) para prevenir DoS. |
-| 1.14.6 | Verificar que la aplicacion no usa tecnologias del lado del cliente inseguras, no soportadas o deprecadas como NSAPI plugins, Flash, Shockwave, ActiveX, Silverlight, NACL, o applets Java del lado del cliente | L2 | ✅ | **Implementacion:** Frontend React puro. No hay plugins de navegador. No hay Java applets ni Flash. Solo JavaScript moderno (ES2020+). Dependencias actualizadas regularmente. No hay iframes de terceros excepto Auth0 (login widget). |
+| 1.14.6 | Verificar que la aplicacion no usa tecnologias del lado del cliente inseguras, no soportadas o deprecadas como NSAPI plugins, Flash, Shockwave, ActiveX, Silverlight, NACL, o applets Java del lado del cliente | L2 | ✅ | **Implementacion:** Frontend React puro. No hay plugins de navegador. No hay Java applets ni Flash. Solo JavaScript moderno (ES2020+). Dependencias actualizadas regularmente. No hay iframes de terceros. Login form nativo en React (no widget externo). |
 
 ---
 
@@ -182,7 +182,7 @@ QuickStack maneja:
 
 | Asset | Clasificacion | Ubicacion | Impacto si Comprometido |
 |-------|---------------|-----------|------------------------|
-| Credenciales de usuarios | CRITICO | Auth0 | Acceso no autorizado a todo el sistema |
+| Credenciales de usuarios | CRITICO | Neon PostgreSQL (password_hash) | Acceso no autorizado a todo el sistema |
 | Tokens JWT | CRITICO | Memoria (frontend), Headers (transito) | Suplantacion de identidad, acceso a datos de tenant |
 | Datos de transacciones | ALTO | Neon PostgreSQL | Fraude financiero, perdida de ingresos, problemas legales |
 | PII de clientes | ALTO | Neon PostgreSQL | Violacion de privacidad, multas LFPDPPP, dano reputacional |
@@ -204,7 +204,7 @@ QuickStack maneja:
 
 | Vector | Descripcion | Mitigacion |
 |--------|-------------|------------|
-| **Credential stuffing** | Uso de credenciales robadas de otros servicios | Auth0 brute force protection, MFA opcional, anomaly detection |
+| **Credential stuffing** | Uso de credenciales robadas de otros servicios | Rate limiting por IP/email, account lockout despues de N intentos, HaveIBeenPwned check en registro, login_attempts audit log |
 | **Session hijacking** | Robo de JWT para suplantar usuario | Tokens de corta duracion (1h), HTTPS obligatorio, httpOnly cookies para refresh |
 | **SQL Injection** | Manipulacion de queries via input | Parametrized queries (JPA), input validation, WAF en futuro |
 | **XSS** | Inyeccion de scripts maliciosos | React escapado automatico, CSP headers, no innerHTML |
@@ -229,13 +229,14 @@ QuickStack maneja:
                         [XSS, Information Disclosure]
                                       |
                                       v
-+------------------+            +---------------------------+
-|     Auth0        |<---------->|      Render               |
-|   (Identity)     |   OAuth    |   (Backend - Spring)      |
-+------------------+            +-------------+-------------+
-        ^                                     |
-        |                     [SQLi, IDOR, Elevation of Privilege]
-[Credential Stuffing]                         |
+                              +---------------------------+
+                              |      Render               |
+                              |   (Backend - Spring)      |
+                              |   + Auth Module           |
+                              +-------------+-------------+
+                                            |
+                      [SQLi, IDOR, Elevation of Privilege, Credential Stuffing]
+                                            |
                                               v
                         +---------------------------+
                         |      Neon PostgreSQL      |
@@ -322,11 +323,11 @@ El reviewer debe verificar:
 
 | Secreto | Frecuencia | Responsable | Procedimiento |
 |---------|------------|-------------|---------------|
-| Auth0 Client Secret | Anual | Owner | Regenerar en Auth0, actualizar Render env |
+| JWT Signing Key (RS256) | Anual | Owner | Generar nuevo par de claves, periodo de gracia 7 dias con ambas validas, actualizar Render env |
 | Database Password | Trimestral | Owner | Rotar en Neon, actualizar Render env |
 | Twilio API Key | Trimestral | Owner | Regenerar en Twilio, actualizar Render env |
 | SendGrid API Key | Trimestral | Owner | Regenerar en SendGrid, actualizar Render env |
-| JWT Signing Keys | Automatica | Auth0 | Rotacion automatica, JWKS cache refresh |
+| Refresh Tokens | Por uso | Sistema | Rotacion automatica en cada refresh, family tracking para detectar reuso |
 
 ---
 
@@ -393,7 +394,7 @@ El reviewer debe verificar:
 - [OWASP ASVS 4.0.3](https://github.com/OWASP/ASVS/tree/v4.0.3)
 - [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
 - [NIST SP 800-57 Key Management](https://csrc.nist.gov/publications/detail/sp/800-57-part-1/rev-5/final)
-- [Auth0 Security Best Practices](https://auth0.com/docs/secure)
+- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
 - [Spring Security Reference](https://docs.spring.io/spring-security/reference/)
 
 ---
