@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-09
-> **Estado:** Phase 0.1 completado, iniciando 0.2
+> **Estado:** Phase 0.2 ~70% completado, pendiente Neon/Render/Vercel
 
 ## Vision Summary
 
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 25% (0.1 ✅, 0.2-0.4 ⏳) |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 40% (0.1 ✅, 0.2 ~70%) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -63,7 +63,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | Sub-fase | Nombre | Estado |
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
-| 0.2 | Infraestructura (CI/CD, BD, Deploy) | ⏳ Pendiente |
+| 0.2 | Infraestructura (CI/CD, BD, Deploy) | 🔄 ~70% (falta Neon, Render, Vercel) |
 | 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
@@ -88,11 +88,11 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 **Est. Effort:** 3-4 días
 
 #### CI/CD Pipeline (GitHub Actions)
-- [ ] Workflow: Build + Test en cada PR
-- [ ] SAST: Semgrep para análisis estático
-- [ ] SCA: OWASP Dependency-Check
-- [ ] npm audit para frontend
-- [ ] Branch protection en `main`
+- [x] Workflow: Build + Test en cada PR
+- [x] SAST: Semgrep para análisis estático
+- [x] SCA: OWASP Dependency-Check
+- [x] npm audit para frontend
+- [ ] Branch protection en `main` (configurar en GitHub UI)
 
 #### Base de Datos
 - [ ] Crear proyecto en Neon
@@ -102,25 +102,27 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [ ] Seed data inicial (roles, plans, status types)
 
 #### Backend Base
-- [ ] Crear POMs de cada módulo Maven
-- [ ] Configurar Spring Boot application.yml
-- [ ] Configurar Flyway
-- [ ] Health check endpoint (`/actuator/health`)
-- [ ] Logback JSON estructurado
-- [ ] GlobalExceptionHandler (errores sin leak de info)
-- [ ] CORS configurado
+- [x] Crear POMs de cada módulo Maven (7 módulos)
+- [x] Configurar Spring Boot application.yml (con profiles dev/prod)
+- [x] Configurar Flyway (config lista, pendiente ejecución)
+- [x] Health check endpoint (`/actuator/health` + `/api/v1/health`)
+- [x] Logback JSON estructurado
+- [x] GlobalExceptionHandler (errores sin leak de info)
+- [x] CORS configurado
+- [x] SecurityConfig con Argon2id password encoder
 
 #### Deploy
-- [ ] Dockerfile multi-stage (usuario non-root)
+- [x] Dockerfile multi-stage (usuario non-root)
 - [ ] Configurar Render (backend)
 - [ ] Configurar Vercel (frontend)
 - [ ] Variables de entorno en Render
 
 **Success Criteria 0.2:**
-- `mvn verify` pasa en CI
-- Migraciones ejecutadas en Neon
-- Health check responde en Render
-- Deploy automático funciona
+- [x] `mvn compile` pasa localmente
+- [ ] `mvn verify` pasa en CI (requiere push a GitHub)
+- [ ] Migraciones ejecutadas en Neon
+- [ ] Health check responde en Render
+- [ ] Deploy automático funciona
 
 ---
 
@@ -604,6 +606,14 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - Phase 0.3 ahora incluye endpoints detallados y requisitos ASVS específicos
 - Agregados tests de seguridad como entregables obligatorios
 - Success criteria actualizado con métricas de seguridad
+- **Phase 0.2 implementada (~70%):**
+  - GitHub Actions CI/CD con Semgrep + OWASP Dependency-Check
+  - 7 módulos Maven creados con POMs
+  - Spring Boot configurado (application.yml, profiles, Flyway)
+  - GlobalExceptionHandler + ApiResponse/ApiError DTOs
+  - SecurityConfig con Argon2id password encoder
+  - Dockerfile multi-stage con usuario non-root
+  - Pendiente: Neon, Render, Vercel
 
 ### 2026-02-05
 - **CAMBIO MAYOR:** Inventario ahora parte del MVP (Phase 2)

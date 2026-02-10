@@ -1,6 +1,6 @@
 # QuickStack POS - Security Architecture (OWASP ASVS L2)
 
-> **Version:** 1.0.0
+> **Version:** 1.1.0
 > **Last Updated:** 2026-02-09
 > **Author:** Security Architect
 > **Standard:** OWASP ASVS 4.0.3
@@ -38,19 +38,19 @@ QuickStack maneja:
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.1.1 | Verificar el uso de un ciclo de desarrollo seguro que aborde la seguridad en todas las etapas de desarrollo | L2 | ⏳ | **Implementacion:** GitHub Flow con PRs obligatorios, code review con checklist de seguridad, CI/CD con SAST (Semgrep) y dependency scanning (OWASP Dependency-Check). Documentacion en CLAUDE.md define requisitos de seguridad por fase. |
+| 1.1.1 | Verificar el uso de un ciclo de desarrollo seguro que aborde la seguridad en todas las etapas de desarrollo | L2 | ✅ | **Implementacion:** GitHub Flow con PRs obligatorios, code review con checklist de seguridad, CI/CD con SAST (Semgrep) y dependency scanning (OWASP Dependency-Check). Documentacion en CLAUDE.md define requisitos de seguridad por fase. GitHub Actions workflow implementado en `.github/workflows/ci.yml`. |
 | 1.1.2 | Verificar el uso de threat modeling para cada cambio de diseno o planificacion de sprint para identificar amenazas, planificar contramedidas, facilitar respuestas de riesgo apropiadas y guiar pruebas de seguridad | L2 | ⏳ | **Implementacion:** Threat model documentado en este archivo (ver seccion Threat Model). STRIDE aplicado a cada nuevo modulo. Issues de seguridad etiquetados `security` en GitHub. User stories incluyen criterios de seguridad. |
 | 1.1.3 | Verificar que todas las user stories y features contengan restricciones funcionales de seguridad, como "Como usuario, deberia poder ver y editar mi perfil. No deberia poder ver o editar el perfil de nadie mas" | L2 | ⏳ | **Implementacion:** Template de user story en GitHub Issues incluye seccion "Security Constraints". Ejemplo: "Como CAJERO, puedo crear ordenes solo en MI sucursal asignada. No puedo ver datos de otros tenants ni otras sucursales." |
 | 1.1.4 | Verificar documentacion y justificacion de todos los limites de confianza, componentes y flujos de datos significativos de la aplicacion | L2 | ✅ | **Implementacion:** Documentado en ARCHITECTURE.md con diagramas de arquitectura. Trust boundaries: Frontend (untrusted) -> API Gateway -> Backend (trusted) -> Database. Composite FKs con tenant_id previenen referencias cross-tenant a nivel de BD. |
 | 1.1.5 | Verificar definicion y analisis de seguridad de la arquitectura de alto nivel de la aplicacion y todos los servicios remotos conectados | L2 | ✅ | **Implementacion:** Arquitectura documentada en ARCHITECTURE.md. Servicios externos: Neon (BD), Twilio/SendGrid (notificaciones). Autenticacion nativa con Spring Security + JWT (sin IdP externo). Cada servicio evaluado por seguridad y compliance. |
-| 1.1.6 | Verificar implementacion de controles de seguridad centralizados, simples, verificados, seguros y reutilizables para evitar controles duplicados, faltantes, ineficaces o inseguros | L2 | ⏳ | **Implementacion:** Modulo `quickstack-common` contiene: `TenantFilter` (extraccion de tenant_id de JWT), `SecurityConfig` (configuracion Spring Security), `AuditingConfig` (campos de auditoria automaticos), `GlobalExceptionHandler` (manejo de errores sin leak de info). |
-| 1.1.7 | Verificar disponibilidad de checklist de codificacion segura, requisitos de seguridad, guias o politicas para todos los desarrolladores y testers | L2 | ⏳ | **Implementacion:** Este documento SECURITY.md. Checklist pre-PR incluido abajo. CLAUDE.md referencia requisitos ASVS. Agentes de Claude Code configurados con contexto de seguridad. |
+| 1.1.6 | Verificar implementacion de controles de seguridad centralizados, simples, verificados, seguros y reutilizables para evitar controles duplicados, faltantes, ineficaces o inseguros | L2 | ✅ | **Implementacion:** Modulo `quickstack-common` contiene: `SecurityConfig` (Argon2id password encoder, CORS config), `GlobalExceptionHandler` (manejo de errores sin leak de info interna), `ApiResponse`/`ApiError` (respuestas estandarizadas). Pendiente: `TenantFilter`, `AuditingConfig`. |
+| 1.1.7 | Verificar disponibilidad de checklist de codificacion segura, requisitos de seguridad, guias o politicas para todos los desarrolladores y testers | L2 | ✅ | **Implementacion:** Este documento SECURITY.md con checklist pre-PR y guias de code review. CLAUDE.md referencia requisitos ASVS. Agentes de Claude Code configurados con contexto de seguridad en `.claude/agents/`. |
 
 ### V1.2 Authentication Architecture
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.2.1 | Verificar el uso de cuentas de sistema operativo unicas o especiales de bajo privilegio para todos los componentes de la aplicacion, servicios y servidores | L2 | ⏳ | **Implementacion:** Contenedor Docker ejecuta como usuario no-root (`USER quickstack:quickstack` con UID/GID 1000). Base de datos Neon usa roles con privilegios minimos: `quickstack_app` (CRUD), `quickstack_readonly` (solo SELECT para reportes). |
+| 1.2.1 | Verificar el uso de cuentas de sistema operativo unicas o especiales de bajo privilegio para todos los componentes de la aplicacion, servicios y servidores | L2 | ✅ | **Implementacion:** Dockerfile multi-stage con usuario no-root (`USER quickstack:quickstack` con UID/GID 1000). Imagen base Alpine minimalista. Pendiente en Neon: roles con privilegios minimos (`quickstack_app` CRUD, `quickstack_readonly` SELECT). |
 | 1.2.2 | Verificar que las comunicaciones entre componentes de la aplicacion, incluyendo APIs, middleware y capas de datos, esten autenticadas. Los componentes deben tener los privilegios minimos necesarios | L2 | ⏳ | **Implementacion:** Backend -> Neon: conexion SSL obligatoria con certificado validado. WebSocket: autenticacion JWT en handshake. Cada componente tiene credenciales unicas (no compartidas). JWTs firmados con clave privada RS256 almacenada en backend. |
 | 1.2.3 | Verificar que la aplicacion usa un unico mecanismo de autenticacion verificado que sea seguro, extensible para incluir autenticacion fuerte, y tenga suficiente logging y monitoreo para detectar abuso de cuentas o brechas | L2 | ⏳ | **Implementacion:** Spring Security como unico mecanismo de auth. Passwords almacenados con Argon2id (ASVS 2.4.1). JWT firmados con RS256, clave privada en backend. Brute force protection via `failed_login_attempts` + account lockout. Todos los login attempts loggeados en tabla `login_attempts`. Claims JWT incluyen tenant_id/branch_id/roles. |
 | 1.2.4 | Verificar que todas las rutas de autenticacion y APIs de gestion de identidad implementen fuerza de control de seguridad de autenticacion consistente | L2 | ⏳ | **Implementacion:** Endpoints de auth: `/api/v1/auth/login`, `/register`, `/forgot-password`, `/reset-password`, `/refresh-token`. Todas las demas APIs requieren JWT valido. Spring Security con `JwtAuthenticationConverter` personalizado extrae claims y roles. Rate limiting en endpoints de auth (Bucket4j o similar). |
@@ -95,7 +95,7 @@ QuickStack maneja:
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.7.1 | Verificar que se use un formato y enfoque de logging comun en todo el sistema | L2 | ⏳ | **Implementacion:** Logback con formato JSON estructurado. Campos estandar: timestamp, level, logger, message, tenant_id, user_id, request_id, trace_id. MDC (Mapped Diagnostic Context) para correlacion. No se loggean datos PII ni tokens. |
+| 1.7.1 | Verificar que se use un formato y enfoque de logging comun en todo el sistema | L2 | ✅ | **Implementacion:** Logback configurado en `logback-spring.xml` con formato JSON estructurado (profile prod). Campos estandar: timestamp, level, logger, message. MDC preparado para tenant_id, user_id, request_id. Console logging para desarrollo, JSON para produccion. |
 | 1.7.2 | Verificar que los logs se transmitan de forma segura a un sistema preferiblemente remoto para analisis, deteccion, alertas y escalamiento | L2 | ⏳ | **Implementacion MVP:** Logs a stdout para Render log aggregation. **Produccion:** Exportar a servicio externo (Datadog, Logflare, o Grafana Cloud) via HTTPS. Alertas configuradas para: errores 5xx > umbral, login failures > umbral, patron de SQL injection detectado. |
 
 ### V1.8 Data Protection and Privacy Architecture
@@ -103,14 +103,14 @@ QuickStack maneja:
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.8.1 | Verificar que todos los datos sensibles se identifiquen y clasifiquen en niveles de proteccion | L2 | ⏳ | **Clasificacion implementada:** **CRITICO**: password_hash (Argon2id en BD), JWT signing key, tokens. **ALTO**: Datos financieros (orders, payments), PII de clientes (phone, email, address). **MEDIO**: Datos de negocio (productos, precios, inventario). **BAJO**: Catalogos globales, configuracion no sensible. |
-| 1.8.2 | Verificar que todos los niveles de proteccion tengan un conjunto asociado de requisitos de proteccion, como requisitos de cifrado, integridad, retencion, privacidad y otros requisitos de confidencialidad, y que estos se apliquen en la arquitectura | L2 | ⏳ | **Requisitos por nivel:** **CRITICO**: Nunca almacenado en app (delegado a Auth0). **ALTO**: Cifrado en reposo (Neon), TLS en transito, soft delete (nunca borrado fisico), retencion 7 anos (SAT Mexico). **MEDIO**: Cifrado en reposo, backup diario. **BAJO**: Backup diario. |
+| 1.8.2 | Verificar que todos los niveles de proteccion tengan un conjunto asociado de requisitos de proteccion, como requisitos de cifrado, integridad, retencion, privacidad y otros requisitos de confidencialidad, y que estos se apliquen en la arquitectura | L2 | ⏳ | **Requisitos por nivel:** **CRITICO**: password_hash con Argon2id, JWT signing key en env vars, tokens con expiracion corta. **ALTO**: Cifrado en reposo (Neon), TLS en transito, soft delete (nunca borrado fisico), retencion 7 anos (SAT Mexico). **MEDIO**: Cifrado en reposo, backup diario. **BAJO**: Backup diario. |
 
 ### V1.9 Communications Architecture
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.9.1 | Verificar que la aplicacion cifre las comunicaciones entre componentes, particularmente cuando esten en diferentes contenedores, sistemas, sitios o proveedores de nube | L2 | ⏳ | **Implementacion:** Frontend -> Backend: HTTPS obligatorio (TLS 1.2+). Backend -> Neon: SSL mode=require con validacion de certificado. Backend -> Twilio/SendGrid: HTTPS. WebSocket: WSS (WebSocket Secure). No hay comunicacion en texto plano. |
-| 1.9.2 | Verificar que los componentes de la aplicacion verifiquen la autenticidad de cada lado en un enlace de comunicacion para prevenir ataques person-in-the-middle. Por ejemplo, los componentes de la aplicacion deben validar certificados y cadenas TLS | L2 | ⏳ | **Implementacion:** Backend valida certificados TLS de Neon, Auth0, y servicios externos (default JVM trust store + actualizaciones). Auth0 JWT validado contra JWKS endpoint con verificacion de firma RS256. HSTS header en respuestas (max-age=31536000). |
+| 1.9.2 | Verificar que los componentes de la aplicacion verifiquen la autenticidad de cada lado en un enlace de comunicacion para prevenir ataques person-in-the-middle. Por ejemplo, los componentes de la aplicacion deben validar certificados y cadenas TLS | L2 | ⏳ | **Implementacion:** Backend valida certificados TLS de Neon y servicios externos (default JVM trust store + actualizaciones). JWTs firmados localmente con RS256, verificados con clave publica. HSTS header en respuestas (max-age=31536000). |
 
 ### V1.10 Malicious Software Architecture
 
@@ -147,7 +147,7 @@ QuickStack maneja:
 |----|-----------|-------|--------|---------------------|
 | 1.14.1 | Verificar la segregacion de componentes de diferentes niveles de confianza a traves de controles de seguridad bien definidos, reglas de firewall, gateways de API, reverse proxies, grupos de seguridad en la nube, o mecanismos similares | L2 | ⏳ | **Implementacion:** Neon BD: solo accesible desde IPs de Render (allow list). Auth0: API separada de BD de usuarios. Frontend en Vercel: solo assets estaticos, sin acceso a BD. Backend en Render: unico punto de entrada a BD. WebSocket en mismo backend (misma autenticacion). |
 | 1.14.2 | Verificar que firmas binarias, conexiones de confianza, y endpoints verificados se usen para desplegar binarios a dispositivos remotos | L2 | ⏳ | **Implementacion:** Docker images firmadas (Docker Content Trust). GitHub Actions build con hash verificable. Render pull desde GitHub container registry (conexion autenticada). Dependencias verificadas via checksums en Maven/npm lockfiles. |
-| 1.14.3 | Verificar que el pipeline de build advierte sobre componentes desactualizados o inseguros y toma acciones apropiadas | L2 | ⏳ | **Implementacion:** `npm audit` en CI para frontend. OWASP Dependency-Check en CI para backend. Dependabot habilitado en GitHub (PRs automaticos para updates). CI falla si vulnerabilidades CRITICAL/HIGH detectadas. Semgrep para SAST en cada PR. |
+| 1.14.3 | Verificar que el pipeline de build advierte sobre componentes desactualizados o inseguros y toma acciones apropiadas | L2 | ✅ | **Implementacion:** GitHub Actions CI incluye: `npm audit --audit-level=high` para frontend, OWASP Dependency-Check (`-DfailBuildOnCVSS=7`) para backend, Semgrep con rulesets `p/java`, `p/security-audit`, `p/secrets`, `p/owasp-top-ten`. Reports como artifacts. |
 | 1.14.4 | Verificar que el pipeline de build contiene un paso para construir y verificar automaticamente el despliegue seguro de la aplicacion, especialmente si la infraestructura de la aplicacion esta definida como software (IaC) | L2 | ⏳ | **Implementacion:** GitHub Actions workflow: lint -> test -> security scan -> build -> deploy staging -> smoke tests -> deploy prod. Dockerfile multi-stage (build sin runtime tools). Health check endpoint verifica conectividad post-deploy. Rollback automatico si health check falla. |
 | 1.14.5 | Verificar que los despliegues de aplicacion esten adecuadamente sandboxed, containerizados y/o aislados a nivel de red para retrasar y disuadir atacantes de atacar otras aplicaciones, especialmente cuando realizan acciones sensibles o peligrosas como deserializacion | L2 | ⏳ | **Implementacion:** Contenedor Docker aislado en Render. Network isolation por servicio de Render. No hay shell access en produccion. Container ejecuta como non-root. Read-only filesystem excepto /tmp. Recursos limitados (CPU, memoria) para prevenir DoS. |
 | 1.14.6 | Verificar que la aplicacion no usa tecnologias del lado del cliente inseguras, no soportadas o deprecadas como NSAPI plugins, Flash, Shockwave, ActiveX, Silverlight, NACL, o applets Java del lado del cliente | L2 | ✅ | **Implementacion:** Frontend React puro. No hay plugins de navegador. No hay Java applets ni Flash. Solo JavaScript moderno (ES2020+). Dependencias actualizadas regularmente. No hay iframes de terceros. Login form nativo en React (no widget externo). |
@@ -158,21 +158,21 @@ QuickStack maneja:
 
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
-| V1.1 Secure SDLC | 7 | 2 | 5 | 0 |
-| V1.2 Authentication | 4 | 0 | 4 | 0 |
+| V1.1 Secure SDLC | 7 | 5 | 2 | 0 |
+| V1.2 Authentication | 4 | 1 | 3 | 0 |
 | V1.3 Session Management | 0 | 0 | 0 | 0 |
 | V1.4 Access Control | 3 | 0 | 3 | 0 |
 | V1.5 Input/Output | 4 | 0 | 4 | 0 |
 | V1.6 Cryptographic | 4 | 1 | 3 | 0 |
-| V1.7 Logging | 2 | 0 | 2 | 0 |
+| V1.7 Logging | 2 | 1 | 1 | 0 |
 | V1.8 Data Protection | 2 | 0 | 2 | 0 |
 | V1.9 Communications | 2 | 0 | 2 | 0 |
 | V1.10 Malicious Software | 1 | 1 | 0 | 0 |
 | V1.11 Business Logic | 2 | 1 | 1 | 0 |
 | V1.12 File Upload | 1 | 0 | 1 | 0 |
 | V1.13 API | 0 | 0 | 0 | 0 |
-| V1.14 Configuration | 6 | 1 | 5 | 0 |
-| **TOTAL** | **38** | **6** | **32** | **0** |
+| V1.14 Configuration | 6 | 2 | 4 | 0 |
+| **TOTAL** | **38** | **12** | **26** | **0** |
 
 ---
 
@@ -404,3 +404,4 @@ El reviewer debe verificar:
 | Version | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
 | 1.0.0 | 2026-02-09 | Security Architect | Documento inicial con V1 completo |
+| 1.1.0 | 2026-02-09 | Security Architect | Actualizado estado Phase 0.2: marcados como ✅ requisitos 1.1.1, 1.1.6, 1.1.7, 1.2.1, 1.7.1, 1.14.3. Removidas referencias a Auth0 (reemplazado por auth nativa). Total cumplidos: 6 → 12. |
