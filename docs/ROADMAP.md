@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-05
-> **Estado:** Phase 0 - En progreso avanzado
+> **Última actualización:** 2026-02-09
+> **Estado:** Phase 0.1 completado, iniciando 0.2
 
 ## Vision Summary
 
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth + BD + Deploy básico + Esquema completo | 🔄 90% completado |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 25% (0.1 ✅, 0.2-0.4 ⏳) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -52,11 +52,24 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ## Phase 0: Foundation & Architecture
 
-**Goal**: Establecer la arquitectura base, decisiones técnicas fundamentales y esquema de base de datos completo.
+**Goal**: Establecer la arquitectura base con autenticación nativa segura (OWASP ASVS L2).
 
-**Est. Effort:** 3-4 semanas
+**Est. Effort:** 4-5 semanas
 
-### Decisiones Técnicas
+**Enfoque:** Auth First - El módulo de autenticación se implementa completo antes de features de negocio.
+
+### Sub-fases
+
+| Sub-fase | Nombre | Estado |
+|----------|--------|--------|
+| 0.1 | Diseño y Documentación | ✅ Completado |
+| 0.2 | Infraestructura (CI/CD, BD, Deploy) | ⏳ Pendiente |
+| 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
+| 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
+
+---
+
+### Phase 0.1: Diseño y Documentación ✅
 
 - [x] Multi-tenancy: BD compartida con `tenant_id`
 - [x] Monorepo: Frontend y backend en mismo repo
@@ -64,28 +77,161 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] State management: Zustand
 - [x] Multi-module Maven: Backend modular por feature
 - [x] Esquema de 29 tablas diseñado (6 módulos)
+- [x] Documentación ASVS L2 (SECURITY.md)
+- [x] Threat model documentado
+- [x] Migraciones Flyway (V1-V7)
 
-### Entregables
+---
 
-- [x] Repositorios configurados (monorepo)
-- [x] Esquema de base de datos completo (29 tablas, 7 migraciones)
-- [x] Documentación de arquitectura técnica (ARCHITECTURE.md, DATABASE_SCHEMA.md)
-- [x] Multi-module Maven configurado
-- [ ] Base de datos PostgreSQL en Neon con migraciones ejecutadas
-- [ ] Backend Spring Boot con estructura base funcionando
-- [ ] Frontend React+Vite con routing y estructura
-- [ ] Autenticación nativa (login/logout/register/forgot-password)
-- [ ] CI/CD pipeline básico (Vercel/Render)
-- [ ] Variables de entorno y secrets management
-- [ ] Health check endpoint funcionando
+### Phase 0.2: Infraestructura
 
-### Success Criteria
+**Est. Effort:** 3-4 días
 
-- Usuario puede hacer login y ver dashboard vacío
-- Backend responde a health check endpoint
-- Database schema ejecutado correctamente con seed data
-- Deploys automáticos funcionan desde git push
-- 7 migraciones Flyway ejecutadas (V1-V7)
+#### CI/CD Pipeline (GitHub Actions)
+- [ ] Workflow: Build + Test en cada PR
+- [ ] SAST: Semgrep para análisis estático
+- [ ] SCA: OWASP Dependency-Check
+- [ ] npm audit para frontend
+- [ ] Branch protection en `main`
+
+#### Base de Datos
+- [ ] Crear proyecto en Neon
+- [ ] Configurar connection pooling
+- [ ] Ejecutar migraciones V1-V7
+- [ ] Crear roles de BD (quickstack_app, quickstack_readonly)
+- [ ] Seed data inicial (roles, plans, status types)
+
+#### Backend Base
+- [ ] Crear POMs de cada módulo Maven
+- [ ] Configurar Spring Boot application.yml
+- [ ] Configurar Flyway
+- [ ] Health check endpoint (`/actuator/health`)
+- [ ] Logback JSON estructurado
+- [ ] GlobalExceptionHandler (errores sin leak de info)
+- [ ] CORS configurado
+
+#### Deploy
+- [ ] Dockerfile multi-stage (usuario non-root)
+- [ ] Configurar Render (backend)
+- [ ] Configurar Vercel (frontend)
+- [ ] Variables de entorno en Render
+
+**Success Criteria 0.2:**
+- `mvn verify` pasa en CI
+- Migraciones ejecutadas en Neon
+- Health check responde en Render
+- Deploy automático funciona
+
+---
+
+### Phase 0.3: Módulo de Autenticación (ASVS L2)
+
+**Est. Effort:** 5-7 días
+
+**Objetivo:** Implementación completa de auth nativo cumpliendo OWASP ASVS L2.
+
+#### Endpoints de Auth API
+| Endpoint | Método | Descripción | ASVS |
+|----------|--------|-------------|------|
+| `/api/v1/auth/register` | POST | Crear cuenta | V2.1 |
+| `/api/v1/auth/login` | POST | Obtener tokens | V2.2 |
+| `/api/v1/auth/refresh` | POST | Rotar refresh token | V3.5 |
+| `/api/v1/auth/logout` | POST | Revocar tokens | V3.3 |
+| `/api/v1/auth/forgot-password` | POST | Solicitar reset | V2.5 |
+| `/api/v1/auth/reset-password` | POST | Cambiar password | V2.5 |
+| `/api/v1/auth/me` | GET | Info usuario actual | - |
+
+#### Seguridad de Passwords (ASVS V2.1, V2.4)
+- [ ] Argon2id para hashing (Spring Security 6)
+- [ ] Mínimo 12 caracteres
+- [ ] Sin reglas de composición (no "requiere mayúscula")
+- [ ] Check contra HaveIBeenPwned API
+- [ ] Validación de fuerza (zxcvbn o nbvcxz)
+
+#### Protección de Cuentas (ASVS V2.2)
+- [ ] Rate limiting por IP/email (Bucket4j)
+- [ ] Account lockout después de 5 intentos
+- [ ] Lockout duration: 15 minutos
+- [ ] Registro en login_attempts
+
+#### Tokens JWT (ASVS V3)
+- [ ] Access token: RS256, 15-30 min expiry
+- [ ] Refresh token: almacenado en BD, 7 días expiry
+- [ ] Refresh token rotation en cada uso
+- [ ] Family tracking para detectar reuso
+- [ ] Revocación de familia completa si reuso detectado
+
+#### Password Recovery (ASVS V2.5)
+- [ ] Token único, hasheado en BD (SHA-256)
+- [ ] Expira en 1 hora
+- [ ] Single use (marked as used_at)
+- [ ] Invalida tokens anteriores del mismo usuario
+
+#### Tests de Seguridad
+- [ ] Test: Login con credenciales inválidas
+- [ ] Test: Account lockout después de N intentos
+- [ ] Test: Refresh token rotation
+- [ ] Test: Refresh token reuse detection
+- [ ] Test: Password reset flow completo
+- [ ] Test: Token expirado rechazado
+- [ ] Test: Rate limiting funciona
+
+**Success Criteria 0.3:**
+- Todos los endpoints funcionan
+- Tests de seguridad pasan al 100%
+- Rate limiting bloquea después de umbral
+- Lockout funciona correctamente
+- Refresh token rotation implementado
+
+---
+
+### Phase 0.4: Frontend Base + Integración Auth
+
+**Est. Effort:** 3-4 días
+
+#### Estructura Frontend
+- [ ] Configurar Vite + React + TypeScript
+- [ ] Configurar MUI theme
+- [ ] Configurar React Router
+- [ ] Configurar Axios con interceptors
+- [ ] Configurar Zustand stores
+- [ ] Configurar TanStack Query
+
+#### Auth en Frontend
+- [ ] AuthContext/Store para estado de auth
+- [ ] Login page
+- [ ] Register page (solo OWNER en MVP)
+- [ ] Forgot password page
+- [ ] Reset password page
+- [ ] Protected routes (redirect si no autenticado)
+- [ ] Auto-refresh de token (silencioso)
+- [ ] Logout (limpia tokens, redirige)
+
+#### Dashboard Base
+- [ ] Layout con sidebar
+- [ ] Header con info de usuario
+- [ ] Dashboard vacío (placeholder)
+- [ ] Manejo de errores global
+
+**Success Criteria 0.4:**
+- Usuario puede registrarse
+- Usuario puede hacer login
+- Usuario ve dashboard después de login
+- Token se refresca automáticamente
+- Logout funciona correctamente
+
+---
+
+### Success Criteria Phase 0 Completa
+
+| Criterio | Métrica |
+|----------|---------|
+| CI/CD funciona | PRs bloqueados sin checks verdes |
+| Auth seguro | 100% tests de seguridad pasan |
+| Deploys automáticos | Push a main → deploy en <5 min |
+| ASVS L2 V2 cumplido | Checklist de auth completado |
+| Frontend funcional | Flujo login → dashboard funciona |
+| Zero secrets en código | Ningún secret hardcodeado |
 
 ---
 
@@ -447,6 +593,17 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-09
+- **CAMBIO MAYOR:** Auth0 reemplazado por autenticación nativa (Spring Security + JWT)
+- **CAMBIO MAYOR:** Phase 0 reestructurada en 4 sub-fases con enfoque "Auth First"
+- **CAMBIO MAYOR:** Nivel de seguridad elevado de ASVS L1 a ASVS L2
+- Agregadas 3 tablas de auth: password_reset_tokens, refresh_tokens, login_attempts
+- Eliminada tabla auth_identities (no necesaria sin IdP externo)
+- Total de tablas: 27 → 29
+- Phase 0.3 ahora incluye endpoints detallados y requisitos ASVS específicos
+- Agregados tests de seguridad como entregables obligatorios
+- Success criteria actualizado con métricas de seguridad
 
 ### 2026-02-05
 - **CAMBIO MAYOR:** Inventario ahora parte del MVP (Phase 2)
