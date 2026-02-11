@@ -1,0 +1,6 @@
+# Semgrep ignore file
+# https://semgrep.dev/docs/ignoring-files-folders-code
+
+# Claude Code skills reference documentation
+# These files contain API response examples with placeholder URIs, not real credentials
+.agents/skills/**/references/
