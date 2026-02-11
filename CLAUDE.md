@@ -46,8 +46,8 @@ quickstack/
 │   ├── ROADMAP.md             # Plan de fases del MVP
 │   └── security/
 │       └── asvs/              # Requisitos OWASP ASVS por capítulo
-│           ├── README.md      # Índice y progreso
-│           └── V01-architecture.md  # V1: 38 requisitos
+│           ├── README.md      # Índice y progreso (272 requisitos)
+│           └── V01-V14*.md    # 14 capítulos documentados
 ├── frontend/                  # React + Vite + TypeScript
 │   └── src/
 ├── backend/                   # Multi-module Maven
@@ -149,15 +149,28 @@ quickstack/
 
 | Capítulo | Cumplidos | Total | Archivo |
 |----------|-----------|-------|---------|
-| V1 - Architecture | 12 | 38 | `docs/security/asvs/V01-architecture.md` |
-| V2-V14 | 0 | ~235 | Pendiente |
-| **Total** | **12** | **~273** | **4%** |
+| V1 - Architecture | 12 | 38 | `V01-architecture.md` |
+| V2 - Authentication | 1 | 57 | `V02-authentication.md` |
+| V3 - Session Management | 0 | 19 | `V03-session-management.md` |
+| V4 - Access Control | 0 | 9 | `V04-access-control.md` |
+| V5 - Validation | 0 | 30 | `V05-validation.md` |
+| V6 - Cryptography | 0 | 16 | `V06-cryptography.md` |
+| V7 - Error/Logging | 4 | 12 | `V07-error-logging.md` |
+| V8 - Data Protection | 0 | 15 | `V08-data-protection.md` |
+| V9 - Communication | 0 | 8 | `V09-communication.md` |
+| V10 - Malicious Code | 1 | 9 | `V10-malicious-code.md` |
+| V11 - Business Logic | 0 | 8 | `V11-business-logic.md` |
+| V12 - Files | 0 | 15 | `V12-files-resources.md` |
+| V13 - API | 0 | 13 | `V13-api.md` |
+| V14 - Configuration | 2 | 23 | `V14-configuration.md` |
+| **Total** | **20** | **272** | **7%** |
+
+> Archivos en `docs/security/asvs/`. 41 requisitos marcados N/A (no aplican al MVP).
 
 ### Documentación de Seguridad
 
 - `docs/SECURITY.md` - Visión general, threat model, protocolos, compliance
-- `docs/security/asvs/README.md` - Índice de requisitos ASVS
-- `docs/security/asvs/V01-architecture.md` - Requisitos V1 detallados
+- `docs/security/asvs/README.md` - Índice completo de requisitos ASVS (14 capítulos)
 
 ## Decisiones de Negocio Confirmadas
 
