@@ -611,6 +611,11 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
   - Variables de entorno configuradas
   - CORS configurado con URL de producción
   - CI/CD funcionando con GitHub Actions
+- **Documentación ASVS completa:**
+  - Creados 14 capítulos de requisitos (V01-V14)
+  - 272 requisitos L2 documentados
+  - 20 requisitos ya cumplidos (7%)
+  - 41 requisitos marcados N/A para MVP
 - Fix: Índice `idx_orders_daily` corregido (DATE() no es IMMUTABLE)
 
 ### 2026-02-09
