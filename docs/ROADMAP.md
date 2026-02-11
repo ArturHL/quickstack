@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-09
-> **Estado:** Phase 0.2 ~70% completado, pendiente Neon/Render/Vercel
+> **Última actualización:** 2026-02-10
+> **Estado:** Phase 0.2 completado, iniciando Phase 0.3 (Auth)
 
 ## Vision Summary
 
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 40% (0.1 ✅, 0.2 ~70%) |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 50% (0.1 ✅, 0.2 ✅) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -63,7 +63,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | Sub-fase | Nombre | Estado |
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
-| 0.2 | Infraestructura (CI/CD, BD, Deploy) | 🔄 ~70% (falta Neon, Render, Vercel) |
+| 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
 | 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
@@ -95,11 +95,11 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [ ] Branch protection en `main` (configurar en GitHub UI)
 
 #### Base de Datos
-- [ ] Crear proyecto en Neon
-- [ ] Configurar connection pooling
-- [ ] Ejecutar migraciones V1-V7
-- [ ] Crear roles de BD (quickstack_app, quickstack_readonly)
-- [ ] Seed data inicial (roles, plans, status types)
+- [x] Crear proyecto en Neon (PostgreSQL 17, us-west-2)
+- [x] Connection pooling habilitado (pooler endpoint)
+- [x] Ejecutar migraciones V1-V7 (29 tablas creadas)
+- [x] Seed data inicial (roles, plans, status types, unit types)
+- [ ] Crear roles de BD adicionales (quickstack_readonly) - opcional
 
 #### Backend Base
 - [x] Crear POMs de cada módulo Maven (7 módulos)
@@ -113,16 +113,22 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 #### Deploy
 - [x] Dockerfile multi-stage (usuario non-root)
-- [ ] Configurar Render (backend)
-- [ ] Configurar Vercel (frontend)
-- [ ] Variables de entorno en Render
+- [x] Configurar Render (backend - Docker)
+- [x] Configurar Vercel (frontend - Vite)
+- [x] Variables de entorno en Render
+- [x] CORS configurado con URL de Vercel
 
-**Success Criteria 0.2:**
+**Success Criteria 0.2:** ✅ Completado
 - [x] `mvn compile` pasa localmente
-- [ ] `mvn verify` pasa en CI (requiere push a GitHub)
-- [ ] Migraciones ejecutadas en Neon
-- [ ] Health check responde en Render
-- [ ] Deploy automático funciona
+- [x] `mvn verify` pasa en CI
+- [x] Migraciones ejecutadas en Neon (V1-V7)
+- [x] Health check responde en Render
+- [x] Deploy automático funciona (push → deploy)
+
+**URLs de Producción:**
+- Backend: https://quickstack-api.onrender.com
+- Frontend: https://quickstack-drab.vercel.app
+- Database: Neon (us-west-2)
 
 ---
 
@@ -595,6 +601,17 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-10
+- **Phase 0.2 completado:**
+  - Proyecto Neon creado (PostgreSQL 17, región us-west-2)
+  - Migraciones V1-V7 ejecutadas exitosamente (29 tablas)
+  - Backend desplegado en Render (Docker, auto-deploy desde main)
+  - Frontend desplegado en Vercel (Vite, auto-deploy desde main)
+  - Variables de entorno configuradas
+  - CORS configurado con URL de producción
+  - CI/CD funcionando con GitHub Actions
+- Fix: Índice `idx_orders_daily` corregido (DATE() no es IMMUTABLE)
 
 ### 2026-02-09
 - **CAMBIO MAYOR:** Auth0 reemplazado por autenticación nativa (Spring Security + JWT)

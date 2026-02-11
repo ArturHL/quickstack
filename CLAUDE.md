@@ -1,7 +1,7 @@
 # QuickStack POS - Contexto del Proyecto
 
 > Este archivo contiene el contexto necesario para continuar el desarrollo con Claude Code.
-> **Última actualización:** 2026-02-09
+> **Última actualización:** 2026-02-10
 
 ## Resumen del Proyecto
 
@@ -77,7 +77,7 @@ quickstack/
 
 | Fase | Nombre | Estado |
 |------|--------|--------|
-| 0 | Foundation & Architecture | 🔄 ~50% (0.1 ✅, 0.2 ~70%) |
+| 0 | Foundation & Architecture | 🔄 ~50% (0.1 ✅, 0.2 ✅) |
 | 1 | Core POS (ventas, mesas, variantes, combos) | ⏳ Pendiente |
 | 2 | Inventory (ingredientes, recetas, stock auto) | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | ⏳ Pendiente |
@@ -90,13 +90,13 @@ quickstack/
 | Sub-fase | Nombre | Estado |
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
-| 0.2 | Infraestructura (CI/CD, BD, Deploy) | 🔄 ~70% |
+| 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
 | 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
-## Estado Actual (Phase 0.2)
+## Estado Actual (Phase 0.3)
 
-### Completado
+### Phase 0.2 Completado
 - [x] Definición de arquitectura y stack
 - [x] Creación de estructura monorepo
 - [x] Inicialización de frontend (React + Vite)
@@ -116,13 +116,12 @@ quickstack/
 - [x] CORS configurado
 - [x] Dockerfile multi-stage con usuario non-root
 - [x] Documentación ASVS reorganizada por capítulos
-
-### Pendiente Phase 0.2
-- [ ] Crear proyecto en Neon
-- [ ] Ejecutar migraciones V1-V7
-- [ ] Configurar Render (backend)
-- [ ] Configurar Vercel (frontend)
-- [ ] Variables de entorno en Render
+- [x] Proyecto creado en Neon (PostgreSQL 17, us-west-2)
+- [x] Migraciones V1-V7 ejecutadas (29 tablas)
+- [x] Backend desplegado en Render (Docker)
+- [x] Frontend desplegado en Vercel
+- [x] Variables de entorno configuradas
+- [x] CORS configurado con URL de Vercel
 
 ### Pendiente Phase 0.3 (Auth)
 - [ ] Endpoints: register, login, refresh, logout, forgot-password, reset-password
