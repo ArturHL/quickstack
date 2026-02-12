@@ -3,7 +3,7 @@ package com.quickstack.common.exception;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Map;
+// import java.util.Map;
 
 /**
  * Exception thrown when request validation fails.

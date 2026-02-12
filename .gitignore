@@ -104,3 +104,10 @@ ehthumbs.db
 # Docker (local)
 # ============================
 docker-compose.override.yml
+
+# ============================
+# Personal Notes (not for repo)
+# ============================
+MENTORSHIP_NOTES.md
+PERSONAL_NOTES.md
+*.personal.md

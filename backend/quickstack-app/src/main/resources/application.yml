@@ -70,15 +70,69 @@ app:
     allow-credentials: true
     max-age: 3600
 
+# QuickStack security configuration (OWASP ASVS L2)
+quickstack:
   jwt:
-    access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900}
-    refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
-    issuer: ${JWT_ISSUER:quickstack}
+    issuer: ${JWT_ISSUER:quickstack-pos}
+    access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:15m}
+    refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7d}
+    key-size: 2048
+    private-key-base64: ${JWT_PRIVATE_KEY_BASE64:}
+    public-key-base64: ${JWT_PUBLIC_KEY_BASE64:}
+    previous-public-keys-base64: ${JWT_PREVIOUS_PUBLIC_KEYS_BASE64:}
+    clock-skew: 30s
 
-  security:
-    max-login-attempts: 5
-    lockout-duration-minutes: 15
-    password-min-length: 12
+  password:
+    min-length: 12
+    max-length: 128
+    argon2:
+      memory: 65536
+      iterations: 3
+      parallelism: 4
+      salt-length: 16
+      hash-length: 32
+    pepper:
+      value: ${PASSWORD_PEPPER:}
+      version: ${PASSWORD_PEPPER_VERSION:1}
+      previous-versions: ${PASSWORD_PEPPER_PREVIOUS:}
+    hibp:
+      enabled: true
+      api-url: https://api.pwnedpasswords.com/range/
+      timeout-millis: 3000
+      retries: 2
+      block-on-failure: true
+
+  rate-limit:
+    enabled: true
+    ip:
+      capacity: 10
+      refill-period: 1m
+      refill-tokens: 10
+    email:
+      capacity: 5
+      refill-period: 1m
+      refill-tokens: 5
+    password-reset:
+      capacity: 3
+      refill-period: 1h
+      refill-tokens: 3
+    lockout:
+      enabled: true
+      max-attempts: 5
+      lockout-duration: 15m
+      attempt-window: 15m
+    cache:
+      max-buckets: 10000
+      ttl: 1h
+
+  cookie:
+    refresh-token:
+      name: __Host-refreshToken
+      path: /api/v1/auth
+      secure: true
+      http-only: true
+      same-site: STRICT
+      max-age: 7d
 
 logging:
   level:

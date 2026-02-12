@@ -1,7 +1,7 @@
 # QuickStack POS - Contexto del Proyecto
 
 > Este archivo contiene el contexto necesario para continuar el desarrollo con Claude Code.
-> **Última actualización:** 2026-02-10
+> **Última actualización:** 2026-02-11
 
 ## Resumen del Proyecto
 
@@ -40,37 +40,42 @@
 ```
 quickstack/
 ├── docs/
-│   ├── ARCHITECTURE.md        # Decisiones técnicas detalladas
-│   ├── DATABASE_SCHEMA.md     # Esquema completo de BD
-│   ├── SECURITY.md            # Visión general de seguridad
-│   ├── ROADMAP.md             # Plan de fases del MVP
+│   ├── ARCHITECTURE.md           # Decisiones técnicas detalladas
+│   ├── DATABASE_SCHEMA.md        # Esquema completo de BD
+│   ├── SECURITY.md               # Visión general de seguridad
+│   ├── ROADMAP.md                # Plan de fases del MVP
+│   ├── PHASE_0.3_AUTH_ROADMAP.md # Roadmap detallado de autenticación
 │   └── security/
-│       └── asvs/              # Requisitos OWASP ASVS por capítulo
-│           ├── README.md      # Índice y progreso (272 requisitos)
-│           └── V01-V14*.md    # 14 capítulos documentados
-├── frontend/                  # React + Vite + TypeScript
+│       └── asvs/                 # Requisitos OWASP ASVS por capítulo
+│           ├── README.md         # Índice y progreso (272 requisitos)
+│           └── V01-V14*.md       # 14 capítulos documentados
+├── frontend/                     # React + Vite + TypeScript
 │   └── src/
-├── backend/                   # Multi-module Maven
-│   ├── pom.xml               # Parent POM (Java 17)
-│   ├── Dockerfile            # Multi-stage, non-root user
-│   ├── quickstack-common/    # Utilidades compartidas, seguridad
-│   ├── quickstack-tenant/    # Módulo tenants
-│   ├── quickstack-branch/    # Módulo sucursales
-│   ├── quickstack-user/      # Módulo usuarios
-│   ├── quickstack-product/   # Módulo productos
-│   ├── quickstack-pos/       # Módulo punto de venta
-│   └── quickstack-app/       # Ensamblador (Spring Boot main)
+├── backend/                      # Multi-module Maven
+│   ├── pom.xml                  # Parent POM (Java 17)
+│   ├── Dockerfile               # Multi-stage, non-root user
+│   ├── quickstack-common/       # Utilidades compartidas, seguridad
+│   │   └── src/main/java/.../common/
+│   │       ├── config/properties/   # JwtProperties, PasswordProperties, etc.
+│   │       ├── exception/           # Excepciones custom de auth
+│   │       └── security/            # SecureTokenGenerator, IpAddressExtractor
+│   ├── quickstack-tenant/       # Módulo tenants
+│   ├── quickstack-branch/       # Módulo sucursales
+│   ├── quickstack-user/         # Módulo usuarios
+│   ├── quickstack-product/      # Módulo productos
+│   ├── quickstack-pos/          # Módulo punto de venta
+│   └── quickstack-app/          # Ensamblador (Spring Boot main)
 │       └── src/main/resources/
-│           ├── application.yml
+│           ├── application.yml      # Config con quickstack.* properties
 │           ├── application-dev.yml
 │           ├── application-prod.yml
 │           ├── logback-spring.xml
-│           └── db/migration/  # Flyway migrations (V1-V7)
+│           └── db/migration/        # Flyway migrations (V1-V7)
 ├── .github/
 │   └── workflows/
-│       └── ci.yml            # CI: build, test, Semgrep, OWASP Dependency-Check
+│       └── ci.yml               # CI: build, test, Semgrep, OWASP Dependency-Check
 └── .claude/
-    └── agents/               # Agentes personalizados
+    └── agents/                  # Agentes personalizados
 ```
 
 ## Fases del MVP
@@ -91,46 +96,74 @@ quickstack/
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 1/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ## Estado Actual (Phase 0.3)
 
-### Phase 0.2 Completado
-- [x] Definición de arquitectura y stack
-- [x] Creación de estructura monorepo
-- [x] Inicialización de frontend (React + Vite)
-- [x] Estructura multi-module Maven para backend
-- [x] Parent POM con Java 17
-- [x] POMs de los 7 módulos Maven
-- [x] Documentación (ARCHITECTURE.md, ROADMAP.md, SECURITY.md)
-- [x] Configuración de Git y GitHub
-- [x] Diseño de modelo de datos (29 tablas, 6 módulos)
-- [x] 7 migraciones Flyway creadas (V1-V7)
-- [x] DATABASE_SCHEMA.md documentado
-- [x] CI/CD con GitHub Actions (Semgrep + OWASP Dependency-Check)
-- [x] Spring Boot configurado (application.yml, profiles)
-- [x] Logback JSON estructurado
-- [x] GlobalExceptionHandler (sin leak de info)
-- [x] SecurityConfig con Argon2id
-- [x] CORS configurado
-- [x] Dockerfile multi-stage con usuario non-root
-- [x] Documentación ASVS reorganizada por capítulos
-- [x] Proyecto creado en Neon (PostgreSQL 17, us-west-2)
-- [x] Migraciones V1-V7 ejecutadas (29 tablas)
-- [x] Backend desplegado en Render (Docker)
-- [x] Frontend desplegado en Vercel
-- [x] Variables de entorno configuradas
-- [x] CORS configurado con URL de Vercel
+> **Roadmap detallado:** `docs/PHASE_0.3_AUTH_ROADMAP.md`
 
-### Pendiente Phase 0.3 (Auth)
-- [ ] Endpoints: register, login, refresh, logout, forgot-password, reset-password
-- [ ] Argon2id password hashing (configurado, falta implementar)
-- [ ] JWT RS256 signing
-- [ ] Rate limiting (Bucket4j)
-- [ ] Account lockout
-- [ ] Refresh token rotation
-- [ ] Tests de seguridad
+### Phase 0.3 - Sprint 1 Completado ✅
+
+**Foundation & Core Infrastructure (61 tests)**
+
+- [x] `JwtProperties` - Configuración JWT con rotación de claves
+- [x] `PasswordProperties` - Argon2id, pepper versionado, HIBP (blockOnFailure=true)
+- [x] `RateLimitProperties` - Bucket4j, lockout config
+- [x] `CookieProperties` - Cookie `__Host-` segura
+- [x] `AuthenticationException` - Login fallido (mensaje genérico)
+- [x] `RateLimitExceededException` - Rate limit con `retryAfterSeconds`
+- [x] `AccountLockedException` - Lockout con `lockedUntil` timestamp
+- [x] `InvalidTokenException` - Tokens inválidos con tipo y razón
+- [x] `PasswordCompromisedException` - Password en breach (HIBP)
+- [x] `PasswordValidationException` - Validación de password
+- [x] `SecureTokenGenerator` - Generación tokens seguros (32 bytes, Base64URL)
+- [x] `IpAddressExtractor` - Extracción IP real con protección injection
+- [x] `GlobalExceptionHandler` actualizado con handlers de auth
+- [x] `application.yml` actualizado con configuración `quickstack:`
+
+### Phase 0.3 - Pendiente
+
+**Sprint 2: Password Hashing & User Management**
+- [ ] PasswordService con Argon2id + pepper
+- [ ] HibpClient para breach detection
+- [ ] UserService con registro
+
+**Sprint 3: JWT Generation & Validation**
+- [ ] JwtConfig y KeyPair RS256
+- [ ] JwtService
+- [ ] JwtAuthenticationFilter
+
+**Sprint 4: Login, Refresh & Session Management**
+- [ ] Entidades: RefreshToken, LoginAttempt
+- [ ] LoginAttemptService (lockout)
+- [ ] RefreshTokenService (rotation)
+- [ ] AuthController: login, refresh
+
+**Sprint 5: Rate Limiting & Password Reset**
+- [ ] RateLimitConfig con Bucket4j
+- [ ] RateLimitFilter
+- [ ] PasswordResetService
+- [ ] AuthController: forgot-password, reset-password
+
+**Sprint 6: Final Endpoints & Integration**
+- [ ] SessionService
+- [ ] AuthController: register, logout
+- [ ] SecurityConfig final
+- [ ] Tests de integración multi-tenant
+
+### Decisiones de Seguridad Confirmadas
+
+| Decisión | Valor |
+|----------|-------|
+| HIBP falla | **Bloquear registro** |
+| Password hashing | Argon2id + pepper versionado |
+| JWT signing | RS256 (2048 bits) |
+| Access token expiry | 15 minutos |
+| Refresh token expiry | 7 días con rotation |
+| Rate limit IP | 10 req/min |
+| Rate limit email | 5 req/min |
+| Account lockout | 5 intentos = 15 min lock |
 
 ## Base de Datos - 29 Tablas en 6 Módulos
 

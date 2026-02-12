@@ -3,7 +3,7 @@
 > **Version:** 1.0.0
 > **Fecha:** 2026-02-11
 > **Standard:** OWASP ASVS L2
-> **Status:** Aprobado para implementacion
+> **Status:** En progreso - Sprint 1/6 completado
 
 ---
 
@@ -167,73 +167,75 @@ quickstack-app/
 
 ---
 
-## Sprint 1: Foundation & Core Infrastructure
+## Sprint 1: Foundation & Core Infrastructure ✅
 
-**Duracion:** 2 dias
+**Duracion:** 2 dias | **Status:** COMPLETADO (61 tests)
 
-### [BACKEND] Tarea 1.1: Properties Classes
+### [BACKEND] Tarea 1.1: Properties Classes ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 Crear clases de configuracion en `quickstack-common`.
 
 **Criterios de Aceptacion:**
-- [ ] `JwtProperties` con: issuer, accessTokenExpiration, refreshTokenExpiration
-- [ ] `PasswordProperties` con: argon2 params, pepper reference
-- [ ] `RateLimitProperties` con: ipLimit, emailLimit, windowMinutes
-- [ ] `CookieProperties` con: secure, httpOnly, sameSite, maxAge
-- [ ] Validaciones con `@Min`, `@NotBlank`
-- [ ] Tests unitarios
+- [x] `JwtProperties` con: issuer, accessTokenExpiration, refreshTokenExpiration
+- [x] `PasswordProperties` con: argon2 params, pepper reference
+- [x] `RateLimitProperties` con: ipLimit, emailLimit, windowMinutes
+- [x] `CookieProperties` con: secure, httpOnly, sameSite, maxAge
+- [x] Validaciones con `@Min`, `@NotBlank`
+- [x] Tests unitarios (16 tests)
 
 **Archivos:**
 - `quickstack-common/src/main/java/com/quickstack/common/config/properties/*.java`
 
 ---
 
-### [BACKEND] Tarea 1.2: Excepciones Custom
+### [BACKEND] Tarea 1.2: Excepciones Custom ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 **Criterios de Aceptacion:**
-- [ ] `AuthenticationException` base
-- [ ] `RateLimitExceededException` con `retryAfterSeconds`
-- [ ] `AccountLockedException` con `unlockAtTimestamp`
-- [ ] `InvalidTokenException` con tipo de token
-- [ ] `PasswordCompromisedException` para HIBP
-- [ ] Tests unitarios
+- [x] `AuthenticationException` base
+- [x] `RateLimitExceededException` con `retryAfterSeconds`
+- [x] `AccountLockedException` con `unlockAtTimestamp`
+- [x] `InvalidTokenException` con tipo de token
+- [x] `PasswordCompromisedException` para HIBP
+- [x] `PasswordValidationException` para validacion de password
+- [x] Tests unitarios (15 tests)
 
 **Archivos:**
 - `quickstack-common/src/main/java/com/quickstack/common/exception/*.java`
 
 ---
 
-### [BACKEND] Tarea 1.3: Utilidades de Seguridad
+### [BACKEND] Tarea 1.3: Utilidades de Seguridad ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 **Criterios de Aceptacion:**
-- [ ] `SecureTokenGenerator.generate()` retorna 32 bytes URL-safe
-- [ ] Usa `SecureRandom` thread-safe
-- [ ] `IpAddressExtractor` maneja X-Forwarded-For, X-Real-IP
-- [ ] Sanitiza IPs contra header injection
-- [ ] Tests unitarios con mocks
+- [x] `SecureTokenGenerator.generate()` retorna 32 bytes URL-safe
+- [x] Usa `SecureRandom` thread-safe
+- [x] `IpAddressExtractor` maneja X-Forwarded-For, X-Real-IP
+- [x] Sanitiza IPs contra header injection
+- [x] Tests unitarios con mocks (30 tests)
 
 **Archivos:**
 - `quickstack-common/src/main/java/com/quickstack/common/security/*.java`
 
 ---
 
-### [BACKEND] Tarea 1.4: Actualizar GlobalExceptionHandler
+### [BACKEND] Tarea 1.4: Actualizar GlobalExceptionHandler ✅
 **Prioridad:** Media | **Dependencias:** 1.2
 
 **Criterios de Aceptacion:**
-- [ ] Handler para cada nueva excepcion
-- [ ] `RateLimitExceededException` -> 429 + header `Retry-After`
-- [ ] `AccountLockedException` -> 423 Locked
-- [ ] `InvalidTokenException` -> 401
-- [ ] `PasswordCompromisedException` -> 400
-- [ ] No exponer info sensible
-- [ ] Tests de status codes
+- [x] Handler para cada nueva excepcion
+- [x] `RateLimitExceededException` -> 429 + header `Retry-After`
+- [x] `AccountLockedException` -> 423 Locked + `X-Locked-Until`
+- [x] `InvalidTokenException` -> 401 + `WWW-Authenticate`
+- [x] `PasswordCompromisedException` -> 400
+- [x] `PasswordValidationException` -> 400
+- [x] No exponer info sensible
+- [x] Handlers existentes preservados
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/exception/GlobalExceptionHandler.java`
+- `quickstack-common/src/main/java/com/quickstack/common/exception/GlobalExceptionHandler.java`
 
 ---
 

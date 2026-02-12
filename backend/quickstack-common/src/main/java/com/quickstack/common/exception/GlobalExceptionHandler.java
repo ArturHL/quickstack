@@ -5,6 +5,7 @@ import com.quickstack.common.dto.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -31,6 +32,112 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    /**
+     * Handle rate limit exceeded.
+     * Returns 429 with Retry-After header.
+     * ASVS V2.2.1: Anti-automation controls.
+     */
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRateLimitExceeded(RateLimitExceededException ex) {
+        log.warn("Rate limit exceeded: {}", ex.getMessage());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Retry-After", String.valueOf(ex.getRetryAfterSeconds()));
+
+        return ResponseEntity
+            .status(HttpStatus.TOO_MANY_REQUESTS)
+            .headers(headers)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle account locked.
+     * Returns 423 Locked with unlock timestamp.
+     * ASVS V2.2.1: Account lockout after failed attempts.
+     */
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccountLocked(AccountLockedException ex) {
+        log.warn("Account locked until: {}", ex.getLockedUntil());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        if (ex.getLockedUntil() != null) {
+            headers.add("X-Locked-Until", ex.getLockedUntil().toString());
+            headers.add("Retry-After", String.valueOf(ex.getRemainingLockoutSeconds()));
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.LOCKED)
+            .headers(headers)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle invalid token.
+     * Returns 401 with WWW-Authenticate header.
+     * ASVS V3.5: Token validation.
+     */
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException ex) {
+        log.warn("Invalid token: type={}, reason={}", ex.getTokenType(), ex.getReason());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("WWW-Authenticate", "Bearer error=\"invalid_token\"");
+
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .headers(headers)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle password compromised (found in breach database).
+     * ASVS V2.1.7: Breached password detection.
+     */
+    @ExceptionHandler(PasswordCompromisedException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePasswordCompromised(PasswordCompromisedException ex) {
+        log.warn("Password compromised attempt detected");
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle password validation failures.
+     */
+    @ExceptionHandler(PasswordValidationException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePasswordValidation(PasswordValidationException ex) {
+        log.warn("Password validation failed: {}", ex.getFailure());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle custom authentication failures.
+     * Generic message to avoid revealing credential details.
+     * ASVS V2.2.3: Don't reveal which credential was wrong.
+     */
+    @ExceptionHandler(com.quickstack.common.exception.AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCustomAuthenticationException(
+            com.quickstack.common.exception.AuthenticationException ex) {
+        log.warn("Authentication failed: {}", ex.getCode());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ApiResponse.error(error));
+    }
 
     /**
      * Handle custom API exceptions.

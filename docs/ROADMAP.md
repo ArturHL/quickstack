@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-10
-> **Estado:** Phase 0.2 completado, iniciando Phase 0.3 (Auth)
+> **Última actualización:** 2026-02-11
+> **Estado:** Phase 0.3 en progreso (Sprint 1/6 completado)
 
 ## Vision Summary
 
@@ -16,7 +16,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 | Componente | Tecnología | Hosting |
 |------------|------------|---------|
 | Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
-| Backend | Java 21 + Spring Boot 3.5 | Render (Docker) |
+| Backend | Java 17 + Spring Boot 3.5 | Render (Docker) |
 | Base de datos | PostgreSQL (29 tablas, multi-tenant) | Neon (serverless) |
 | Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
@@ -64,7 +64,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | ⏳ Pendiente |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 1/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ---
@@ -137,6 +137,14 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 **Est. Effort:** 5-7 días
 
 **Objetivo:** Implementación completa de auth nativo cumpliendo OWASP ASVS L2.
+
+> **Roadmap detallado:** `docs/PHASE_0.3_AUTH_ROADMAP.md`
+
+#### Sprint 1: Foundation & Core Infrastructure ✅ (61 tests)
+- [x] Properties Classes: JwtProperties, PasswordProperties, RateLimitProperties, CookieProperties
+- [x] Excepciones Custom: AuthenticationException, RateLimitExceededException, AccountLockedException, InvalidTokenException, PasswordCompromisedException, PasswordValidationException
+- [x] Utilidades de Seguridad: SecureTokenGenerator, IpAddressExtractor
+- [x] GlobalExceptionHandler actualizado con handlers de auth
 
 #### Endpoints de Auth API
 | Endpoint | Método | Descripción | ASVS |
@@ -601,6 +609,22 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-11
+- **Phase 0.3 Sprint 1 completado (61 tests):**
+  - Properties Classes: JwtProperties, PasswordProperties, RateLimitProperties, CookieProperties
+  - Excepciones Custom con headers HTTP correctos (Retry-After, WWW-Authenticate, X-Locked-Until)
+  - SecureTokenGenerator (32 bytes URL-safe Base64, SecureRandom)
+  - IpAddressExtractor con protección contra header injection
+  - GlobalExceptionHandler actualizado para excepciones de auth
+  - Configuración `quickstack:` en application.yml
+- **Documentación:**
+  - Creado PHASE_0.3_AUTH_ROADMAP.md (807 líneas, 6 sprints, 22 tareas backend, 11 QA)
+  - Procedimiento de rotación de JWT keys documentado
+  - Decisiones de seguridad confirmadas (HIBP blockOnFailure=true)
+- **CI fixes:**
+  - .semgrepignore para excluir skill reference docs
+  - package-lock.json generado para npm ci
 
 ### 2026-02-10
 - **Phase 0.2 completado:**
