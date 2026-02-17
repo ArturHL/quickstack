@@ -1,0 +1,338 @@
+package com.quickstack.user.controller;
+
+import com.quickstack.common.config.properties.CookieProperties;
+import com.quickstack.common.config.properties.JwtProperties;
+import com.quickstack.common.dto.ApiResponse;
+import com.quickstack.common.exception.AuthenticationException;
+import com.quickstack.common.security.IpAddressExtractor;
+import com.quickstack.user.dto.request.LoginRequest;
+import com.quickstack.user.dto.response.AuthResponse;
+import com.quickstack.user.entity.LoginAttempt;
+import com.quickstack.user.entity.User;
+import com.quickstack.user.repository.UserRepository;
+import com.quickstack.user.service.LoginAttemptService;
+import com.quickstack.user.service.PasswordService;
+import com.quickstack.user.service.RefreshTokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+/**
+ * REST controller for authentication operations.
+ * <p>
+ * Endpoints:
+ * - POST /api/v1/auth/login - Authenticate and get tokens
+ * - POST /api/v1/auth/refresh - Refresh access token
+ * - POST /api/v1/auth/logout - Revoke tokens
+ * <p>
+ * Security features:
+ * - Account lockout after failed attempts
+ * - Refresh token rotation
+ * - HttpOnly secure cookies for refresh tokens
+ * <p>
+ * ASVS Compliance:
+ * - V2.2.1: Account lockout
+ * - V3.4: Secure cookie attributes
+ * - V3.5: Token rotation
+ */
+@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+
+    private final UserRepository userRepository;
+    private final PasswordService passwordService;
+    private final LoginAttemptService loginAttemptService;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtProperties jwtProperties;
+    private final CookieProperties cookieProperties;
+    private final JwtServiceAdapter jwtService;
+
+    /**
+     * Adapter interface for JwtService to avoid circular dependency.
+     * JwtService is in quickstack-app, this controller is in quickstack-user.
+     */
+    public interface JwtServiceAdapter {
+        String generateAccessToken(User user);
+    }
+
+    public AuthController(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            LoginAttemptService loginAttemptService,
+            RefreshTokenService refreshTokenService,
+            JwtProperties jwtProperties,
+            CookieProperties cookieProperties,
+            JwtServiceAdapter jwtService
+    ) {
+        this.userRepository = userRepository;
+        this.passwordService = passwordService;
+        this.loginAttemptService = loginAttemptService;
+        this.refreshTokenService = refreshTokenService;
+        this.jwtProperties = jwtProperties;
+        this.cookieProperties = cookieProperties;
+        this.jwtService = jwtService;
+    }
+
+    /**
+     * Authenticates a user and returns access token.
+     * Refresh token is set as HttpOnly cookie.
+     *
+     * @param request login credentials
+     * @param httpRequest for extracting client IP
+     * @param httpResponse for setting refresh token cookie
+     * @return access token and user info
+     */
+    @PostMapping("/login")
+    @Transactional
+    public ResponseEntity<ApiResponse<AuthResponse>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        String ipAddress = IpAddressExtractor.extract(httpRequest);
+        String userAgent = httpRequest.getHeader("User-Agent");
+        UUID tenantId = UUID.fromString(request.tenantId());
+
+        log.info("Login attempt for {} from IP {}", request.maskedEmail(), ipAddress);
+
+        // Check if account is locked
+        loginAttemptService.checkAccountLock(request.email(), tenantId);
+
+        // Find user
+        User user = userRepository.findByTenantIdAndEmail(tenantId, request.email())
+                .orElse(null);
+
+        // User not found - record attempt and throw generic error
+        if (user == null) {
+            loginAttemptService.recordFailedLogin(
+                    request.email(), null, tenantId, ipAddress, userAgent,
+                    LoginAttempt.REASON_USER_NOT_FOUND
+            );
+            throw new AuthenticationException();
+        }
+
+        // Check if user can login (not locked, active, not deleted)
+        if (!user.canLogin()) {
+            String reason = user.isLocked()
+                    ? LoginAttempt.REASON_ACCOUNT_LOCKED
+                    : LoginAttempt.REASON_ACCOUNT_INACTIVE;
+            loginAttemptService.recordFailedLogin(
+                    request.email(), user.getId(), tenantId, ipAddress, userAgent, reason
+            );
+            throw new AuthenticationException();
+        }
+
+        // Verify password
+        if (!passwordService.verifyPassword(request.password(), user.getPasswordHash())) {
+            loginAttemptService.recordFailedLogin(
+                    request.email(), user.getId(), tenantId, ipAddress, userAgent,
+                    LoginAttempt.REASON_INVALID_CREDENTIALS
+            );
+            throw new AuthenticationException();
+        }
+
+        // Successful login
+        loginAttemptService.recordSuccessfulLogin(
+                request.email(), user.getId(), tenantId, ipAddress, userAgent
+        );
+
+        // Update user login info
+        user.recordSuccessfulLogin(ipAddress);
+        userRepository.save(user);
+
+        // Generate tokens
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), ipAddress, userAgent);
+
+        // Set refresh token as HttpOnly cookie
+        setRefreshTokenCookie(httpResponse, refreshToken);
+
+        // Build response
+        AuthResponse authResponse = AuthResponse.of(
+                accessToken,
+                jwtProperties.getAccessTokenExpiration().toSeconds(),
+                AuthResponse.UserInfo.from(
+                        user.getId().toString(),
+                        user.getEmail(),
+                        user.getFullName(),
+                        user.getTenantId().toString(),
+                        user.getRoleId().toString(),
+                        user.getBranchId() != null ? user.getBranchId().toString() : null,
+                        user.getLastLoginAt()
+                )
+        );
+
+        log.info("Login successful for user {} from IP {}", user.getId(), ipAddress);
+        return ResponseEntity.ok(ApiResponse.success(authResponse));
+    }
+
+    /**
+     * Refreshes an access token using the refresh token from cookie.
+     *
+     * @param httpRequest for reading refresh token cookie
+     * @param httpResponse for setting new refresh token cookie
+     * @return new access token
+     */
+    @PostMapping("/refresh")
+    @Transactional
+    public ResponseEntity<ApiResponse<AuthResponse>> refresh(
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        String ipAddress = IpAddressExtractor.extract(httpRequest);
+        String userAgent = httpRequest.getHeader("User-Agent");
+
+        // Get refresh token from cookie
+        String refreshToken = getRefreshTokenFromCookie(httpRequest);
+        if (refreshToken == null) {
+            log.debug("Refresh token cookie not found");
+            throw new AuthenticationException();
+        }
+
+        // Rotate token
+        RefreshTokenService.RotationResult rotation = refreshTokenService.rotateToken(
+                refreshToken, ipAddress, userAgent
+        );
+
+        // Get user
+        User user = userRepository.findById(rotation.userId())
+                .orElseThrow(AuthenticationException::new);
+
+        if (!user.canLogin()) {
+            refreshTokenService.revokeAllUserTokens(user.getId(), "account_disabled");
+            throw new AuthenticationException();
+        }
+
+        // Generate new access token
+        String accessToken = jwtService.generateAccessToken(user);
+
+        // Set new refresh token cookie
+        setRefreshTokenCookie(httpResponse, rotation.newToken());
+
+        AuthResponse authResponse = AuthResponse.of(
+                accessToken,
+                jwtProperties.getAccessTokenExpiration().toSeconds(),
+                AuthResponse.UserInfo.from(
+                        user.getId().toString(),
+                        user.getEmail(),
+                        user.getFullName(),
+                        user.getTenantId().toString(),
+                        user.getRoleId().toString(),
+                        user.getBranchId() != null ? user.getBranchId().toString() : null,
+                        user.getLastLoginAt()
+                )
+        );
+
+        log.debug("Token refreshed for user {}", user.getId());
+        return ResponseEntity.ok(ApiResponse.success(authResponse));
+    }
+
+    /**
+     * Logs out the user by revoking the refresh token.
+     *
+     * @param httpRequest for reading refresh token cookie
+     * @param httpResponse for clearing the cookie
+     * @return 204 No Content
+     */
+    @PostMapping("/logout")
+    @Transactional
+    public ResponseEntity<Void> logout(
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        String refreshToken = getRefreshTokenFromCookie(httpRequest);
+
+        if (refreshToken != null) {
+            refreshTokenService.revokeToken(refreshToken, "logout");
+        }
+
+        // Clear the cookie
+        clearRefreshTokenCookie(httpResponse);
+
+        log.debug("User logged out");
+        return ResponseEntity.noContent().build();
+    }
+
+    // -------------------------------------------------------------------------
+    // Cookie Helpers
+    // -------------------------------------------------------------------------
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String token) {
+        CookieProperties.RefreshTokenCookie config = cookieProperties.getRefreshToken();
+
+        Cookie cookie = new Cookie(config.getName(), token);
+        cookie.setHttpOnly(config.isHttpOnly());
+        cookie.setSecure(config.isSecure());
+        cookie.setPath(config.getPath());
+        cookie.setMaxAge((int) config.getMaxAgeSeconds());
+
+        // SameSite is set via header since Cookie class doesn't support it directly
+        String sameSite = config.getSameSite().getValue();
+        String cookieHeader = buildCookieHeader(cookie, sameSite);
+        response.addHeader("Set-Cookie", cookieHeader);
+    }
+
+    private void clearRefreshTokenCookie(HttpServletResponse response) {
+        CookieProperties.RefreshTokenCookie config = cookieProperties.getRefreshToken();
+
+        Cookie cookie = new Cookie(config.getName(), "");
+        cookie.setHttpOnly(config.isHttpOnly());
+        cookie.setSecure(config.isSecure());
+        cookie.setPath(config.getPath());
+        cookie.setMaxAge(0); // Expire immediately
+
+        String sameSite = config.getSameSite().getValue();
+        String cookieHeader = buildCookieHeader(cookie, sameSite);
+        response.addHeader("Set-Cookie", cookieHeader);
+    }
+
+    private String getRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+
+        String cookieName = cookieProperties.getRefreshToken().getName();
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String buildCookieHeader(Cookie cookie, String sameSite) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(cookie.getName()).append("=").append(cookie.getValue());
+
+        if (cookie.getMaxAge() >= 0) {
+            sb.append("; Max-Age=").append(cookie.getMaxAge());
+        }
+
+        if (cookie.getPath() != null) {
+            sb.append("; Path=").append(cookie.getPath());
+        }
+
+        if (cookie.getSecure()) {
+            sb.append("; Secure");
+        }
+
+        if (cookie.isHttpOnly()) {
+            sb.append("; HttpOnly");
+        }
+
+        sb.append("; SameSite=").append(sameSite);
+
+        return sb.toString();
+    }
+}

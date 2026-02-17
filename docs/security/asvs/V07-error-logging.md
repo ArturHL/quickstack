@@ -2,7 +2,7 @@
 
 > **Capitulo:** V7
 > **Requisitos L2:** 14
-> **Cumplidos:** 2 (14%)
+> **Cumplidos:** 6 (50%)
 > **Ultima actualizacion:** 2026-02-10
 
 ---
@@ -13,7 +13,7 @@
 |----|-----------|-------|--------|---------------------|
 | 7.1.1 | Verificar que la aplicacion no registre credenciales o detalles de pago. Los tokens de sesion solo deben almacenarse en logs en una forma hasheada irreversible | L1 | ⏳ | **Pendiente Phase 0.3:** Logback configurado para excluir campos sensibles. Passwords nunca logueados. JWTs logueados como hash o ultimos 8 chars. |
 | 7.1.2 | Verificar que la aplicacion no registre otros datos sensibles definidos bajo las leyes de privacidad locales o la politica de seguridad relevante | L1 | ⏳ | **Pendiente Phase 1:** PII (email, phone, address) no logueado en texto plano. Solo IDs de entidades. Compliance LFPDPPP Mexico. |
-| 7.1.3 | Verificar que la aplicacion registre eventos relevantes de seguridad incluyendo eventos de autenticacion exitosos y fallidos, fallas de control de acceso, fallas de deserializacion, y fallas de validacion de entrada | L2 | ⏳ | **Pendiente Phase 0.3:** Tabla `login_attempts` para auth events. Logging de AccessDeniedException. Logging de validation errors (sin datos sensibles). |
+| 7.1.3 | Verificar que la aplicacion registre eventos relevantes de seguridad incluyendo eventos de autenticacion exitosos y fallidos, fallas de control de acceso, fallas de deserializacion, y fallas de validacion de entrada | L2 | ✅ | `LoginAttemptService` registra todos los intentos de login en tabla `login_attempts`. `GlobalExceptionHandler` loguea excepciones de seguridad. Validation errors logueados sin datos sensibles. |
 | 7.1.4 | Verificar que cada evento de log incluya la informacion necesaria que permita una investigacion detallada de la linea de tiempo cuando ocurre un evento | L2 | ✅ | **Implementado:** Logback JSON con timestamp ISO-8601, level, logger, thread. MDC preparado para tenant_id, user_id, request_id, correlation_id. |
 
 ---
@@ -22,7 +22,7 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 7.2.1 | Verificar que todas las decisiones de autenticacion se registren, sin almacenar identificadores o tokens de sesion sensibles. Esto debe incluir solicitudes con los metadatos relevantes necesarios para investigaciones de seguridad | L2 | ⏳ | **Pendiente Phase 0.3:** Tabla `login_attempts` con email, IP, user_agent, success, failure_reason, timestamp. Sin password ni tokens. |
+| 7.2.1 | Verificar que todas las decisiones de autenticacion se registren, sin almacenar identificadores o tokens de sesion sensibles. Esto debe incluir solicitudes con los metadatos relevantes necesarios para investigaciones de seguridad | L2 | ✅ | Tabla `login_attempts` con email (enmascarado en logs), IP, user_agent, success, failure_reason, timestamp. Passwords nunca logueados. Tokens hasheados. |
 | 7.2.2 | Verificar que todas las decisiones de control de acceso se puedan registrar y que todas las decisiones fallidas se registren. Esto debe incluir solicitudes con los metadatos relevantes necesarios para investigaciones de seguridad | L2 | ⏳ | **Pendiente Phase 1:** Logging de 403 Forbidden con endpoint, user_id, tenant_id, required_role. Integracion con `@PreAuthorize`. |
 
 ---
@@ -52,8 +52,8 @@
 
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
-| V7.1 Log Content | 4 | 1 | 3 | 0 |
-| V7.2 Log Processing | 2 | 0 | 2 | 0 |
+| V7.1 Log Content | 4 | 2 | 2 | 0 |
+| V7.2 Log Processing | 2 | 1 | 1 | 0 |
 | V7.3 Log Protection | 3 | 1 | 2 | 0 |
 | V7.4 Error Handling | 3 | 2 | 1 | 0 |
-| **TOTAL** | **12** | **4** | **8** | **0** |
+| **TOTAL** | **12** | **6** | **6** | **0** |

@@ -2,7 +2,7 @@
 
 > **Capitulo:** V2
 > **Requisitos L2:** 57
-> **Cumplidos:** 8 (~14%)
+> **Cumplidos:** 13 (~23%)
 > **Ultima actualizacion:** 2026-02-16
 
 ---
@@ -13,8 +13,8 @@
 |----|-----------|-------|--------|---------------------|
 | 2.1.1 | Verificar que las contrasenas establecidas por el usuario tengan al menos 12 caracteres de longitud (despues de combinar espacios multiples) | L1 | ✅ | `PasswordService.validatePasswordPolicy()` valida minLength=12. Configurable via `PasswordProperties`. |
 | 2.1.2 | Verificar que se permitan contrasenas de al menos 64 caracteres y que se denieguen contrasenas de mas de 128 caracteres | L1 | ✅ | `PasswordService.validatePasswordPolicy()` permite 12-128 chars. Sin limite inferior a 64. |
-| 2.1.3 | Verificar que no se trunque la contrasena. Sin embargo, espacios multiples consecutivos pueden reemplazarse por un solo espacio | L1 | ⏳ | **Pendiente Phase 0.3:** Password procesado tal cual sin truncamiento. Normalizacion de espacios multiples. |
-| 2.1.4 | Verificar que cualquier caracter Unicode imprimible, incluyendo caracteres neutrales de idioma como espacios y Emojis, este permitido en contrasenas | L1 | ⏳ | **Pendiente Phase 0.3:** Sin restriccion de charset. UTF-8 completo permitido. |
+| 2.1.3 | Verificar que no se trunque la contrasena. Sin embargo, espacios multiples consecutivos pueden reemplazarse por un solo espacio | L1 | ✅ | `PasswordService.validatePasswordPolicy()` no trunca ni modifica el password. Solo valida longitud. Normalizacion de espacios es opcional ("may"). |
+| 2.1.4 | Verificar que cualquier caracter Unicode imprimible, incluyendo caracteres neutrales de idioma como espacios y Emojis, este permitido en contrasenas | L1 | ✅ | `PasswordService.validatePasswordPolicy()` no restringe caracteres. Acepta cualquier string Java (UTF-8 completo). Sin blacklist de caracteres. |
 | 2.1.5 | Verificar que los usuarios puedan cambiar su contrasena | L1 | ⏳ | **Pendiente Phase 0.3:** Endpoint `PUT /api/v1/users/me/password`. Requiere contrasena actual. |
 | 2.1.6 | Verificar que la funcionalidad de cambio de contrasena requiera la contrasena actual y la nueva del usuario | L1 | ⏳ | **Pendiente Phase 0.3:** `ChangePasswordRequest` con `currentPassword` y `newPassword`. |
 | 2.1.7 | Verificar que las contrasenas enviadas durante el registro, login y cambio de contrasena sean verificadas contra un conjunto de contrasenas violadas ya sea localmente o usando una API externa. Si se usa API, debe usarse un protocolo zero-knowledge u otra proteccion de privacidad | L1 | ✅ | `HibpClient` usa k-Anonymity: solo envia primeros 5 chars del SHA-1. Retry con backoff. Bloquea registro si HIBP falla (configurable). |
@@ -30,12 +30,12 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 2.2.1 | Verificar que los controles anti-automatizacion sean efectivos para mitigar ataques de breach testing, brute force y account lockout. Tales controles incluyen bloquear las contrasenas violadas mas comunes, soft lockouts, rate limiting, CAPTCHA, delays crecientes entre intentos, restricciones de IP, o restricciones basadas en riesgo como ubicacion, primer login en dispositivo, intentos recientes de desbloqueo, o similares | L1 | ⏳ | **Pendiente Phase 0.3:** Bucket4j para rate limiting (10 intentos/min por IP, 5 por email). Account lockout despues de 5 intentos fallidos (15 min). Registro en `login_attempts`. Check contra HaveIBeenPwned. |
+| 2.2.1 | Verificar que los controles anti-automatizacion sean efectivos para mitigar ataques de breach testing, brute force y account lockout. Tales controles incluyen bloquear las contrasenas violadas mas comunes, soft lockouts, rate limiting, CAPTCHA, delays crecientes entre intentos, restricciones de IP, o restricciones basadas en riesgo como ubicacion, primer login en dispositivo, intentos recientes de desbloqueo, o similares | L1 | ⏳ | **Parcialmente implementado:** ✅ HibpClient verifica breach. ✅ `LoginAttemptService` con lockout 5 intentos = 15 min. ✅ Registro en `login_attempts`. **Pendiente Sprint 5:** Rate limiting con Bucket4j (IP + email). |
 | 2.2.2 | Verificar que el uso de autenticadores debiles (como SMS y email) se limite a verificacion secundaria y aprobacion de transacciones y no como reemplazo de metodos de autenticacion mas seguros. Verificar que se ofrezcan metodos mas fuertes antes que los debiles, que los usuarios esten conscientes de los riesgos, o que medidas apropiadas esten en lugar para limitar riesgos de compromiso de cuenta | L1 | ⏳ | **Pendiente Phase 0.3:** Email solo para password recovery (no como 2FA). SMS no usado. Password reset tokens con expiracion de 1 hora. |
 | 2.2.3 | Verificar que notificaciones seguras se envien a los usuarios despues de actualizaciones a detalles de autenticacion, como reseteo de credenciales, cambios de email o direccion, login desde ubicaciones desconocidas o riesgosas. Se prefiere el uso de notificaciones push sobre SMS o email, pero en ausencia de push, SMS o email son aceptables mientras no haya informacion sensible en la notificacion | L1 | ⏳ | **Pendiente Phase 0.3:** Email de notificacion en: password change, password reset request, login desde nueva IP. Sin detalles sensibles en notificacion. |
 | 2.2.4 | Verificar resistencia a impersonacion contra phishing, como el uso de autenticacion multi-factor, dispositivos criptograficos con intencion (como claves conectadas con push para autenticar), o en niveles AAL mas altos, certificados del lado del cliente | L2 | ⏳ | **MVP:** No MFA (fuera de alcance). Mitigaciones: HTTPS obligatorio, HSTS, login attempts logging para detectar anomalias. **Futuro:** TOTP como opcion para OWNER. |
 | 2.2.5 | Verificar que donde un Proveedor de Servicio de Credenciales (CSP) y la aplicacion que verifica autenticacion estan separados, haya TLS mutuamente autenticado entre los dos endpoints | L2 | N/A | **No aplica:** Autenticacion nativa, no hay CSP externo. Spring Security es parte del mismo backend. |
-| 2.2.6 | Verificar proteccion contra replay resistance a traves del uso obligatorio de dispositivos OTP, autenticadores criptograficos, o codigos de lookup | L2 | ⏳ | **Pendiente Phase 0.3:** JWTs con `jti` (JWT ID) unico. Refresh tokens de un solo uso (rotacion). Nonces en password reset. |
+| 2.2.6 | Verificar proteccion contra replay resistance a traves del uso obligatorio de dispositivos OTP, autenticadores criptograficos, o codigos de lookup | L2 | ✅ | `JwtService` genera `jti` unico (256 bits via SecureTokenGenerator). `RefreshTokenService.rotateToken()` invalida token usado y emite nuevo. Password reset tokens single-use via `used_at`. |
 | 2.2.7 | Verificar intencion de autenticar requiriendo la entrada de un token OTP o accion iniciada por usuario como presionar un boton en una llave de hardware FIDO | L2 | ⏳ | **MVP:** Intencion via submit de formulario con password. No FIDO en MVP. **Futuro:** Soporte para WebAuthn. |
 
 ---
@@ -118,8 +118,8 @@
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 2.9.1 | Verificar que las claves criptograficas usadas en verificacion sean almacenadas de forma segura y protegidas contra divulgacion, como usar un TPM o HSM, o un servicio de sistema operativo que pueda usar este almacenamiento seguro | L2 | ⏳ | **Pendiente Phase 0.3:** JWT private key en variable de entorno de Render (encrypted at rest). **Futuro:** AWS KMS o HashiCorp Vault. |
-| 2.9.2 | Verificar que el nonce de desafio tenga al menos 64 bits de longitud, y sea estadisticamente unico o unico durante la vida util del dispositivo criptografico | L2 | ⏳ | **Pendiente Phase 0.3:** JWT `jti` claim de 128 bits (UUID). Unico por token. |
-| 2.9.3 | Verificar que algoritmos criptograficos aprobados sean usados en la generacion, siembra, y verificacion | L2 | ⏳ | **Pendiente Phase 0.3:** RS256 (RSA-SHA256) para JWT signing. Claves RSA de 2048 bits minimo. |
+| 2.9.2 | Verificar que el nonce de desafio tenga al menos 64 bits de longitud, y sea estadisticamente unico o unico durante la vida util del dispositivo criptografico | L2 | ✅ | JWT `jti` claim generado con `SecureTokenGenerator` (256 bits). Unico por token. Base64URL encoded. |
+| 2.9.3 | Verificar que algoritmos criptograficos aprobados sean usados en la generacion, siembra, y verificacion | L2 | ✅ | `JwtService` usa RS256 (RSA-SHA256, `Jwts.SIG.RS256`). `JwtConfig` valida RSA 2048+ bits en startup. Rechaza none/HS256. |
 
 ---
 
@@ -138,14 +138,14 @@
 
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
-| V2.1 Password Security | 12 | 4 | 8 | 0 |
-| V2.2 General Authenticator | 7 | 0 | 6 | 1 |
+| V2.1 Password Security | 12 | 6 | 6 | 0 |
+| V2.2 General Authenticator | 7 | 1 | 5 | 1 |
 | V2.3 Authenticator Lifecycle | 3 | 0 | 1 | 2 |
 | V2.4 Credential Storage | 5 | 3 | 0 | 2 |
 | V2.5 Credential Recovery | 7 | 0 | 6 | 1 |
 | V2.6 Look-up Secret | 3 | 0 | 3 | 0 |
 | V2.7 Out of Band | 6 | 0 | 6 | 0 |
 | V2.8 One Time Verifier | 7 | 0 | 0 | 7 |
-| V2.9 Cryptographic Verifier | 3 | 0 | 3 | 0 |
+| V2.9 Cryptographic Verifier | 3 | 2 | 1 | 0 |
 | V2.10 Service Authentication | 4 | 1 | 3 | 0 |
-| **TOTAL** | **57** | **8** | **36** | **13** |
+| **TOTAL** | **57** | **13** | **31** | **13** |

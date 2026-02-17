@@ -96,7 +96,7 @@ quickstack/
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 3/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 4/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ## Estado Actual (Phase 0.3)
@@ -143,13 +143,21 @@ quickstack/
 - [x] `JwtAuthenticationFilter` - Extracción Bearer token, SecurityContext (15 tests)
 - [x] `SecurityConfig` actualizado con JWT filter opcional
 
-### Phase 0.3 - Pendiente
+### Phase 0.3 - Sprint 4 Completado ✅
 
-**Sprint 4: Login, Refresh & Session Management**
-- [ ] Entidades: RefreshToken, LoginAttempt
-- [ ] LoginAttemptService (lockout)
-- [ ] RefreshTokenService (rotation)
-- [ ] AuthController: login, refresh
+**Login, Refresh & Session Management (40 tests)**
+
+- [x] `RefreshToken` entity - Token storage con family tracking (SHA-256 hash)
+- [x] `RefreshTokenRepository` - Queries para rotation y revocación
+- [x] `LoginAttempt` entity - Tracking de intentos de login
+- [x] `LoginAttemptRepository` - Queries para lockout y rate limiting
+- [x] `LoginAttemptService` - Account lockout (5 intentos = 15 min lock) (14 tests)
+- [x] `RefreshTokenService` - Rotation con detección de reuso (15 tests)
+- [x] `AuthController` - login, refresh, logout endpoints (11 tests)
+- [x] Cookie HttpOnly segura con SameSite=Strict
+- [x] Checkpoint de Seguridad #2 completado
+
+### Phase 0.3 - Pendiente
 
 **Sprint 5: Rate Limiting & Password Reset**
 - [ ] RateLimitConfig con Bucket4j
@@ -158,9 +166,9 @@ quickstack/
 - [ ] AuthController: forgot-password, reset-password
 
 **Sprint 6: Final Endpoints & Integration**
-- [ ] SessionService
-- [ ] AuthController: register, logout
-- [ ] SecurityConfig final
+- [ ] SessionService (listar/revocar sesiones)
+- [ ] AuthController: register (logout ya implementado en Sprint 4)
+- [ ] SecurityConfig final con todos los filtros
 - [ ] Tests de integración multi-tenant
 
 ### Decisiones de Seguridad Confirmadas
@@ -194,12 +202,12 @@ quickstack/
 | Capítulo | Cumplidos | Total | Archivo |
 |----------|-----------|-------|---------|
 | V1 - Architecture | 12 | 38 | `V01-architecture.md` |
-| V2 - Authentication | 8 | 57 | `V02-authentication.md` |
-| V3 - Session Management | 1 | 19 | `V03-session-management.md` |
+| V2 - Authentication | 13 | 57 | `V02-authentication.md` |
+| V3 - Session Management | 12 | 19 | `V03-session-management.md` |
 | V4 - Access Control | 0 | 9 | `V04-access-control.md` |
 | V5 - Validation | 0 | 30 | `V05-validation.md` |
-| V6 - Cryptography | 7 | 16 | `V06-cryptography.md` |
-| V7 - Error/Logging | 4 | 12 | `V07-error-logging.md` |
+| V6 - Cryptography | 9 | 16 | `V06-cryptography.md` |
+| V7 - Error/Logging | 6 | 12 | `V07-error-logging.md` |
 | V8 - Data Protection | 0 | 15 | `V08-data-protection.md` |
 | V9 - Communication | 0 | 8 | `V09-communication.md` |
 | V10 - Malicious Code | 1 | 9 | `V10-malicious-code.md` |
@@ -207,7 +215,7 @@ quickstack/
 | V12 - Files | 0 | 15 | `V12-files-resources.md` |
 | V13 - API | 0 | 13 | `V13-api.md` |
 | V14 - Configuration | 2 | 23 | `V14-configuration.md` |
-| **Total** | **35** | **272** | **13%** |
+| **Total** | **55** | **272** | **20%** |
 
 > Archivos en `docs/security/asvs/`. 41 requisitos marcados N/A (no aplican al MVP).
 

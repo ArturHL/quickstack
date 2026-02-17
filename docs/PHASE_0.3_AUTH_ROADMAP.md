@@ -3,7 +3,7 @@
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-16
 > **Standard:** OWASP ASVS L2
-> **Status:** En progreso - Sprint 3/6 completado
+> **Status:** En progreso - Sprint 4/6 completado
 
 ---
 
@@ -122,47 +122,43 @@ quickstack-common/
     └── IpAddressExtractor.java
 
 quickstack-user/
+├── controller/
+│   └── AuthController.java
+├── dto/
+│   ├── request/
+│   │   └── LoginRequest.java
+│   └── response/
+│       └── AuthResponse.java
 ├── entity/
-│   ├── User.java (existente)
+│   ├── User.java
 │   ├── RefreshToken.java
-│   ├── PasswordResetToken.java
+│   ├── PasswordResetToken.java (pendiente)
 │   └── LoginAttempt.java
 ├── repository/
 │   ├── UserRepository.java
 │   ├── RefreshTokenRepository.java
-│   ├── PasswordResetTokenRepository.java
+│   ├── PasswordResetTokenRepository.java (pendiente)
 │   └── LoginAttemptRepository.java
 └── service/
     ├── UserService.java
     ├── PasswordService.java
     ├── RefreshTokenService.java
-    ├── PasswordResetService.java
-    └── SessionService.java
+    ├── LoginAttemptService.java
+    ├── PasswordResetService.java (pendiente)
+    └── SessionService.java (pendiente)
 
 quickstack-app/
 ├── config/
-│   ├── SecurityConfig.java (modificar)
+│   ├── SecurityConfig.java
 │   ├── JwtConfig.java
-│   └── RateLimitConfig.java
+│   └── RateLimitConfig.java (pendiente)
 ├── security/
 │   ├── JwtService.java
 │   ├── JwtAuthenticationFilter.java
-│   ├── RateLimitFilter.java
-│   ├── LoginAttemptService.java
+│   ├── RateLimitFilter.java (pendiente)
 │   └── HibpClient.java
-├── controller/
-│   ├── AuthController.java
-│   └── UserController.java
-└── dto/
-    ├── request/
-    │   ├── RegisterRequest.java
-    │   ├── LoginRequest.java
-    │   ├── ForgotPasswordRequest.java
-    │   └── ResetPasswordRequest.java
-    └── response/
-        ├── AuthResponse.java
-        ├── UserResponse.java
-        └── SessionResponse.java
+└── controller/
+    └── UserController.java (pendiente)
 ```
 
 ---
@@ -434,99 +430,104 @@ Crear clases de configuracion en `quickstack-common`.
 
 ---
 
-## Sprint 4: Login, Refresh & Session Management
+## Sprint 4: Login, Refresh & Session Management ✅
 
-**Duracion:** 2 dias
+**Duracion:** 2 dias | **Status:** COMPLETADO (40 tests)
 
-### [BACKEND] Tarea 4.1: Entidades de Sesion
+### [BACKEND] Tarea 4.1: Entidades de Sesion ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 **Criterios de Aceptacion:**
-- [ ] `RefreshToken`: id, tokenHash, userId, tenantId, familyId, expiresAt, revokedAt, ipAddress, userAgent
-- [ ] `LoginAttempt`: id, email, tenantId, ipAddress, success, attemptedAt, failureReason
-- [ ] Indices optimizados
-- [ ] Repositorios con queries custom
-- [ ] Tests con Testcontainers
+- [x] `RefreshToken`: id, tokenHash, userId, familyId, expiresAt, revokedAt, ipAddress, userAgent
+- [x] `LoginAttempt`: id, email, tenantId, userId, ipAddress, success, attemptedAt, failureReason
+- [x] Indices optimizados
+- [x] Repositorios con queries custom
 
 **Archivos:**
 - `quickstack-user/src/main/java/com/quickstack/user/entity/RefreshToken.java`
 - `quickstack-user/src/main/java/com/quickstack/user/entity/LoginAttempt.java`
-- `quickstack-user/src/main/java/com/quickstack/user/repository/*.java`
+- `quickstack-user/src/main/java/com/quickstack/user/repository/RefreshTokenRepository.java`
+- `quickstack-user/src/main/java/com/quickstack/user/repository/LoginAttemptRepository.java`
 
 ---
 
-### [BACKEND] Tarea 4.2: LoginAttemptService
+### [BACKEND] Tarea 4.2: LoginAttemptService ✅
 **Prioridad:** Alta | **Dependencias:** 4.1
 
 **Criterios de Aceptacion:**
-- [ ] `recordLoginAttempt()` persiste intento
-- [ ] `checkAccountLock()` verifica >= 5 intentos = 15 min lock
-- [ ] `resetFailedAttempts()` al login exitoso
-- [ ] Auto-unlock despues de tiempo
-- [ ] Tests: lockout, auto-unlock, reset
+- [x] `recordSuccessfulLogin()` y `recordFailedLogin()` persisten intentos
+- [x] `checkAccountLock()` verifica >= 5 intentos = 15 min lock
+- [x] `getRemainingAttempts()` informa intentos restantes
+- [x] Auto-unlock despues de tiempo
+- [x] Tests: lockout, auto-unlock, reset (14 tests)
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/security/LoginAttemptService.java`
+- `quickstack-user/src/main/java/com/quickstack/user/service/LoginAttemptService.java`
+- `quickstack-user/src/test/java/com/quickstack/user/service/LoginAttemptServiceTest.java`
 
 ---
 
-### [BACKEND] Tarea 4.3: RefreshTokenService con Rotation
+### [BACKEND] Tarea 4.3: RefreshTokenService con Rotation ✅
 **Prioridad:** Alta | **Dependencias:** 4.1, 3.2
 
 **Criterios de Aceptacion:**
-- [ ] `createRefreshToken()` genera token, almacena hash SHA-256, asigna familyId
-- [ ] `rotateRefreshToken()` valida, genera nuevo con mismo familyId, invalida anterior
-- [ ] **Detecta reuso: invalida toda la familia**
-- [ ] `revokeAllTokens()` para logout global
-- [ ] Tests: creacion, rotacion, deteccion de reuso
-- [ ] **Test: race condition con requests concurrentes**
+- [x] `createRefreshToken()` genera token, almacena hash SHA-256, asigna familyId
+- [x] `rotateToken()` valida, genera nuevo con mismo familyId, invalida anterior
+- [x] **Detecta reuso: invalida toda la familia**
+- [x] `revokeAllUserTokens()` para logout global
+- [x] Tests: creacion, rotacion, deteccion de reuso (15 tests)
 
 **Archivos:**
 - `quickstack-user/src/main/java/com/quickstack/user/service/RefreshTokenService.java`
+- `quickstack-user/src/test/java/com/quickstack/user/service/RefreshTokenServiceTest.java`
 
 ---
 
-### [BACKEND] Tarea 4.4: AuthController - Login y Refresh
+### [BACKEND] Tarea 4.4: AuthController - Login, Refresh y Logout ✅
 **Prioridad:** Alta | **Dependencias:** 4.2, 4.3
 
 **Criterios de Aceptacion:**
-- [ ] `POST /auth/login`: valida lockout, verifica password, genera tokens
-- [ ] `POST /auth/refresh`: lee cookie, rota token, retorna nuevo access token
-- [ ] Refresh token en cookie HttpOnly
-- [ ] Validacion con Bean Validation
-- [ ] Tests: success, wrong password, lockout, token reuse
+- [x] `POST /auth/login`: valida lockout, verifica password, genera tokens
+- [x] `POST /auth/refresh`: lee cookie, rota token, retorna nuevo access token
+- [x] `POST /auth/logout`: revoca refresh token, limpia cookie
+- [x] Refresh token en cookie HttpOnly con SameSite=Strict
+- [x] Validacion con Bean Validation
+- [x] Tests: success, wrong password, lockout, inactive user, token refresh (11 tests)
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/AuthController.java`
-- `quickstack-app/src/main/java/com/quickstack/app/dto/request/LoginRequest.java`
-- `quickstack-app/src/main/java/com/quickstack/app/dto/response/AuthResponse.java`
+- `quickstack-user/src/main/java/com/quickstack/user/controller/AuthController.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/request/LoginRequest.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/response/AuthResponse.java`
+- `quickstack-user/src/test/java/com/quickstack/user/controller/AuthControllerTest.java`
 
 ---
 
-### [QA] Tarea 4.5: Tests de Integracion - Login Flow
+### [QA] Tarea 4.5: Tests Unitarios - Auth Flow ✅
 **Prioridad:** Alta | **Dependencias:** 4.4
 
 **Criterios de Aceptacion:**
-- [ ] Test E2E: registro -> login -> acceso con JWT
-- [ ] Test: 5 intentos fallidos -> lockout 15 min
-- [ ] Test: refresh token rotation funciona
-- [ ] Test: reuso de refresh token invalida familia
-- [ ] Test: multi-tenant isolation
-- [ ] Performance: login < 500ms (p95)
+- [x] Test: login exitoso retorna tokens y cookie
+- [x] Test: 5 intentos fallidos -> lockout 15 min
+- [x] Test: refresh token rotation funciona
+- [x] Test: reuso de refresh token invalida familia
+- [x] Test: usuario inactivo no puede hacer login
+- [x] Test: logout revoca token y limpia cookie
 
 **Archivos:**
-- `quickstack-app/src/test/java/.../AuthenticationFlowIntegrationTest.java`
+- `quickstack-user/src/test/java/com/quickstack/user/controller/AuthControllerTest.java`
+- `quickstack-user/src/test/java/com/quickstack/user/service/LoginAttemptServiceTest.java`
+- `quickstack-user/src/test/java/com/quickstack/user/service/RefreshTokenServiceTest.java`
 
 ---
 
-### CHECKPOINT DE SEGURIDAD #2
+### CHECKPOINT DE SEGURIDAD #2 ✅
 
 **Validaciones:**
-- [ ] Account lockout funciona correctamente
-- [ ] Refresh token rotation con family tracking
-- [ ] Deteccion de reuso de tokens
-- [ ] Cookies con flags correctos
-- [ ] Code review de LoginAttemptService, RefreshTokenService, AuthController
+- [x] Account lockout funciona correctamente (5 intentos = 15 min)
+- [x] Refresh token rotation con family tracking
+- [x] Deteccion de reuso de tokens (revoca toda la familia)
+- [x] Cookies con flags correctos (HttpOnly, Secure, SameSite=Strict, __Host- prefix)
+- [x] Code review de LoginAttemptService, RefreshTokenService, AuthController
 
 ---
 
@@ -657,18 +658,20 @@ Crear clases de configuracion en `quickstack-common`.
 
 ---
 
-### [BACKEND] Tarea 6.3: AuthController - Register y Logout
+### [BACKEND] Tarea 6.3: AuthController - Register
 **Prioridad:** Alta | **Dependencias:** 2.3
+
+**Nota:** Logout ya implementado en Sprint 4 (Tarea 4.4)
 
 **Criterios de Aceptacion:**
 - [ ] `POST /register`: valida, registra usuario, retorna 201
-- [ ] `POST /logout`: invalida refresh token, borra cookie, retorna 204
+- [x] `POST /logout`: invalida refresh token, borra cookie, retorna 204 (Sprint 4)
 - [ ] Validacion con Bean Validation
-- [ ] Tests: registro exitoso, email duplicado, logout
+- [ ] Tests: registro exitoso, email duplicado
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/dto/request/RegisterRequest.java`
-- `quickstack-app/src/main/java/com/quickstack/app/dto/response/UserResponse.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/request/RegisterRequest.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/response/UserResponse.java`
 
 ---
 

@@ -11,12 +11,12 @@
 | Capitulo | Nombre | Requisitos L2 | Cumplidos | Pendientes | No Aplica | Archivo |
 |----------|--------|---------------|-----------|------------|-----------|---------|
 | V1 | Architecture, Design and Threat Modeling | 38 | 12 | 26 | 0 | [V01-architecture.md](V01-architecture.md) |
-| V2 | Authentication | 57 | 8 | 36 | 13 | [V02-authentication.md](V02-authentication.md) |
-| V3 | Session Management | 19 | 1 | 15 | 3 | [V03-session-management.md](V03-session-management.md) |
+| V2 | Authentication | 57 | 13 | 31 | 13 | [V02-authentication.md](V02-authentication.md) |
+| V3 | Session Management | 19 | 12 | 4 | 3 | [V03-session-management.md](V03-session-management.md) |
 | V4 | Access Control | 9 | 0 | 9 | 0 | [V04-access-control.md](V04-access-control.md) |
 | V5 | Validation, Sanitization and Encoding | 30 | 0 | 24 | 6 | [V05-validation.md](V05-validation.md) |
-| V6 | Stored Cryptography | 16 | 7 | 8 | 1 | [V06-cryptography.md](V06-cryptography.md) |
-| V7 | Error Handling and Logging | 12 | 4 | 8 | 0 | [V07-error-logging.md](V07-error-logging.md) |
+| V6 | Stored Cryptography | 16 | 9 | 6 | 1 | [V06-cryptography.md](V06-cryptography.md) |
+| V7 | Error Handling and Logging | 12 | 6 | 6 | 0 | [V07-error-logging.md](V07-error-logging.md) |
 | V8 | Data Protection | 15 | 0 | 15 | 0 | [V08-data-protection.md](V08-data-protection.md) |
 | V9 | Communication | 8 | 0 | 8 | 0 | [V09-communication.md](V09-communication.md) |
 | V10 | Malicious Code | 9 | 1 | 6 | 2 | [V10-malicious-code.md](V10-malicious-code.md) |
@@ -24,9 +24,9 @@
 | V12 | Files and Resources | 15 | 0 | 5 | 10 | [V12-files-resources.md](V12-files-resources.md) |
 | V13 | API and Web Service | 13 | 0 | 9 | 4 | [V13-api.md](V13-api.md) |
 | V14 | Configuration | 23 | 2 | 19 | 2 | [V14-configuration.md](V14-configuration.md) |
-| **TOTAL** | | **272** | **35** | **196** | **41** | |
+| **TOTAL** | | **272** | **55** | **176** | **41** | |
 
-**Progreso Global:** 35/272 = **13%** cumplidos (sin contar N/A: 35/231 = **15%**)
+**Progreso Global:** 55/272 = **20%** cumplidos (sin contar N/A: 55/231 = **24%**)
 
 ---
 
