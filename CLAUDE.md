@@ -176,7 +176,7 @@ quickstack/
 | Rate limit email | 5 req/min |
 | Account lockout | 5 intentos = 15 min lock |
 
-## Base de Datos - 29 Tablas en 6 Módulos
+## Base de Datos - 32 Tablas en 6 Módulos
 
 | Módulo | Tablas |
 |--------|--------|
@@ -194,7 +194,7 @@ quickstack/
 | Capítulo | Cumplidos | Total | Archivo |
 |----------|-----------|-------|---------|
 | V1 - Architecture | 12 | 38 | `V01-architecture.md` |
-| V2 - Authentication | 5 | 57 | `V02-authentication.md` |
+| V2 - Authentication | 8 | 57 | `V02-authentication.md` |
 | V3 - Session Management | 1 | 19 | `V03-session-management.md` |
 | V4 - Access Control | 0 | 9 | `V04-access-control.md` |
 | V5 - Validation | 0 | 30 | `V05-validation.md` |
@@ -207,7 +207,7 @@ quickstack/
 | V12 - Files | 0 | 15 | `V12-files-resources.md` |
 | V13 - API | 0 | 13 | `V13-api.md` |
 | V14 - Configuration | 2 | 23 | `V14-configuration.md` |
-| **Total** | **32** | **272** | **12%** |
+| **Total** | **35** | **272** | **13%** |
 
 > Archivos en `docs/security/asvs/`. 41 requisitos marcados N/A (no aplican al MVP).
 

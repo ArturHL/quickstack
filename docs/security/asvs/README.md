@@ -11,7 +11,7 @@
 | Capitulo | Nombre | Requisitos L2 | Cumplidos | Pendientes | No Aplica | Archivo |
 |----------|--------|---------------|-----------|------------|-----------|---------|
 | V1 | Architecture, Design and Threat Modeling | 38 | 12 | 26 | 0 | [V01-architecture.md](V01-architecture.md) |
-| V2 | Authentication | 57 | 5 | 39 | 13 | [V02-authentication.md](V02-authentication.md) |
+| V2 | Authentication | 57 | 8 | 36 | 13 | [V02-authentication.md](V02-authentication.md) |
 | V3 | Session Management | 19 | 1 | 15 | 3 | [V03-session-management.md](V03-session-management.md) |
 | V4 | Access Control | 9 | 0 | 9 | 0 | [V04-access-control.md](V04-access-control.md) |
 | V5 | Validation, Sanitization and Encoding | 30 | 0 | 24 | 6 | [V05-validation.md](V05-validation.md) |
@@ -24,9 +24,9 @@
 | V12 | Files and Resources | 15 | 0 | 5 | 10 | [V12-files-resources.md](V12-files-resources.md) |
 | V13 | API and Web Service | 13 | 0 | 9 | 4 | [V13-api.md](V13-api.md) |
 | V14 | Configuration | 23 | 2 | 19 | 2 | [V14-configuration.md](V14-configuration.md) |
-| **TOTAL** | | **272** | **32** | **199** | **41** | |
+| **TOTAL** | | **272** | **35** | **196** | **41** | |
 
-**Progreso Global:** 32/272 = **12%** cumplidos (sin contar N/A: 32/231 = **14%**)
+**Progreso Global:** 35/272 = **13%** cumplidos (sin contar N/A: 35/231 = **15%**)
 
 ---
 

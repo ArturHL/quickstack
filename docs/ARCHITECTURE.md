@@ -23,7 +23,7 @@
 ### Backend
 | Tecnologia | Version | Proposito |
 |------------|---------|-----------|
-| Java | 21 LTS | Runtime |
+| Java | 17 LTS | Runtime |
 | Spring Boot | 3.5.x | Framework |
 | Spring Data JPA | 3.x | ORM / Data access |
 | Spring Security | 6.x | Security |
@@ -272,12 +272,12 @@ created_by UUID REFERENCES users(id),
 updated_by UUID REFERENCES users(id)
 ```
 
-**Modulos de Base de Datos (27 tablas en 6 modulos):**
+**Modulos de Base de Datos (32 tablas en 6 modulos):**
 
 | Modulo | Tablas | Descripcion |
 |--------|--------|-------------|
 | Global Catalogs | 5 | subscription_plans, roles, order_status_types, stock_movement_types, unit_types |
-| Core | 4 | tenants, branches, users, auth_identities |
+| Core | 6 | tenants, branches, users, password_reset_tokens, refresh_tokens, login_attempts |
 | Catalog | 7 | categories, products, product_variants, modifier_groups, modifiers, combos, combo_items |
 | Inventory | 6 | ingredients, suppliers, recipes, stock_movements, purchase_orders, purchase_order_items |
 | POS | 8 | areas, tables, customers, orders, order_items, order_item_modifiers, payments, order_status_history |
@@ -493,7 +493,7 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 │                           NEON                                       │
 │                     PostgreSQL Serverless                            │
 │  ┌─────────────────────────────────────────────────────────────┐   │
-│  │               6 Modulos - 29 Tablas                          │   │
+│  │               6 Modulos - 32 Tablas                          │   │
 │  │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │   │
 │  │  │  Global   │ │   Core    │ │  Catalog  │ │ Inventory │   │   │
 │  │  │ Catalogs  │ │           │ │           │ │           │   │   │

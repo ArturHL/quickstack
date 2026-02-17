@@ -1,9 +1,9 @@
 # V2: Authentication
 
 > **Capitulo:** V2
-> **Requisitos L2:** 52
-> **Cumplidos:** 7 (~13%)
-> **Ultima actualizacion:** 2026-02-11
+> **Requisitos L2:** 57
+> **Cumplidos:** 8 (~14%)
+> **Ultima actualizacion:** 2026-02-16
 
 ---
 
@@ -138,14 +138,14 @@
 
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
-| V2.1 Password Security | 12 | 0 | 12 | 0 |
+| V2.1 Password Security | 12 | 4 | 8 | 0 |
 | V2.2 General Authenticator | 7 | 0 | 6 | 1 |
 | V2.3 Authenticator Lifecycle | 3 | 0 | 1 | 2 |
-| V2.4 Credential Storage | 5 | 0 | 3 | 2 |
+| V2.4 Credential Storage | 5 | 3 | 0 | 2 |
 | V2.5 Credential Recovery | 7 | 0 | 6 | 1 |
 | V2.6 Look-up Secret | 3 | 0 | 3 | 0 |
 | V2.7 Out of Band | 6 | 0 | 6 | 0 |
 | V2.8 One Time Verifier | 7 | 0 | 0 | 7 |
 | V2.9 Cryptographic Verifier | 3 | 0 | 3 | 0 |
 | V2.10 Service Authentication | 4 | 1 | 3 | 0 |
-| **TOTAL** | **57** | **1** | **43** | **13** |
+| **TOTAL** | **57** | **8** | **36** | **13** |
