@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-11
-> **Estado:** Phase 0.3 en progreso (Sprint 1/6 completado)
+> **Estado:** Phase 0.3 en progreso (Sprint 2/6 completado)
 
 ## Vision Summary
 
@@ -64,7 +64,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 1/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 2/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ---
@@ -145,6 +145,13 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] Excepciones Custom: AuthenticationException, RateLimitExceededException, AccountLockedException, InvalidTokenException, PasswordCompromisedException, PasswordValidationException
 - [x] Utilidades de Seguridad: SecureTokenGenerator, IpAddressExtractor
 - [x] GlobalExceptionHandler actualizado con handlers de auth
+
+#### Sprint 2: Password Hashing & User Management ✅ (61 tests)
+- [x] PasswordService: Argon2id + pepper versionado + timing-safe comparison (29 tests)
+- [x] HibpClient: k-Anonymity breach detection con WireMock tests (16 tests)
+- [x] UserService: Registro multi-tenant con validación completa (16 tests)
+- [x] User Entity + UserRepository con queries multi-tenant
+- [x] Checkpoint de Seguridad #1 completado
 
 #### Endpoints de Auth API
 | Endpoint | Método | Descripción | ASVS |
@@ -611,6 +618,15 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ## Changelog
 
 ### 2026-02-11
+- **Phase 0.3 Sprint 2 completado (61 tests nuevos, 122 total):**
+  - PasswordService: Argon2id con pepper versionado y timing-safe comparison (29 tests)
+  - HibpClient: k-Anonymity breach detection con retry y WireMock tests (16 tests)
+  - UserService: Registro multi-tenant con validación completa (16 tests)
+  - User entity y UserRepository con queries multi-tenant
+  - PasswordBreachChecker interface para desacoplar HIBP de quickstack-user
+  - Checkpoint de Seguridad #1 completado (Argon2id, timing-safe, k-Anonymity)
+  - ASVS: V2.1.1, V2.1.7, V2.4.1, V2.4.5 cumplidos
+
 - **Phase 0.3 Sprint 1 completado (61 tests):**
   - Properties Classes: JwtProperties, PasswordProperties, RateLimitProperties, CookieProperties
   - Excepciones Custom con headers HTTP correctos (Retry-After, WWW-Authenticate, X-Locked-Until)

@@ -2,8 +2,8 @@
 
 > **Capitulo:** V2
 > **Requisitos L2:** 52
-> **Cumplidos:** 0 (0%)
-> **Ultima actualizacion:** 2026-02-10
+> **Cumplidos:** 7 (~13%)
+> **Ultima actualizacion:** 2026-02-11
 
 ---
 
@@ -11,15 +11,15 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 2.1.1 | Verificar que las contrasenas establecidas por el usuario tengan al menos 12 caracteres de longitud (despues de combinar espacios multiples) | L1 | ⏳ | **Pendiente Phase 0.3:** Validacion en `RegisterRequest` DTO con `@Size(min = 12)`. Configurado en `app.security.password-min-length=12`. |
-| 2.1.2 | Verificar que se permitan contrasenas de al menos 64 caracteres y que se denieguen contrasenas de mas de 128 caracteres | L1 | ⏳ | **Pendiente Phase 0.3:** `@Size(min = 12, max = 128)` en DTO. Sin limite arbitrario inferior a 64. |
+| 2.1.1 | Verificar que las contrasenas establecidas por el usuario tengan al menos 12 caracteres de longitud (despues de combinar espacios multiples) | L1 | ✅ | `PasswordService.validatePasswordPolicy()` valida minLength=12. Configurable via `PasswordProperties`. |
+| 2.1.2 | Verificar que se permitan contrasenas de al menos 64 caracteres y que se denieguen contrasenas de mas de 128 caracteres | L1 | ✅ | `PasswordService.validatePasswordPolicy()` permite 12-128 chars. Sin limite inferior a 64. |
 | 2.1.3 | Verificar que no se trunque la contrasena. Sin embargo, espacios multiples consecutivos pueden reemplazarse por un solo espacio | L1 | ⏳ | **Pendiente Phase 0.3:** Password procesado tal cual sin truncamiento. Normalizacion de espacios multiples. |
 | 2.1.4 | Verificar que cualquier caracter Unicode imprimible, incluyendo caracteres neutrales de idioma como espacios y Emojis, este permitido en contrasenas | L1 | ⏳ | **Pendiente Phase 0.3:** Sin restriccion de charset. UTF-8 completo permitido. |
 | 2.1.5 | Verificar que los usuarios puedan cambiar su contrasena | L1 | ⏳ | **Pendiente Phase 0.3:** Endpoint `PUT /api/v1/users/me/password`. Requiere contrasena actual. |
 | 2.1.6 | Verificar que la funcionalidad de cambio de contrasena requiera la contrasena actual y la nueva del usuario | L1 | ⏳ | **Pendiente Phase 0.3:** `ChangePasswordRequest` con `currentPassword` y `newPassword`. |
-| 2.1.7 | Verificar que las contrasenas enviadas durante el registro, login y cambio de contrasena sean verificadas contra un conjunto de contrasenas violadas ya sea localmente o usando una API externa. Si se usa API, debe usarse un protocolo zero-knowledge u otra proteccion de privacidad | L1 | ⏳ | **Pendiente Phase 0.3:** Integracion con HaveIBeenPwned API usando k-Anonymity (solo primeros 5 chars del hash SHA-1). |
+| 2.1.7 | Verificar que las contrasenas enviadas durante el registro, login y cambio de contrasena sean verificadas contra un conjunto de contrasenas violadas ya sea localmente o usando una API externa. Si se usa API, debe usarse un protocolo zero-knowledge u otra proteccion de privacidad | L1 | ✅ | `HibpClient` usa k-Anonymity: solo envia primeros 5 chars del SHA-1. Retry con backoff. Bloquea registro si HIBP falla (configurable). |
 | 2.1.8 | Verificar que se proporcione un medidor de fuerza de contrasena para ayudar a los usuarios a establecer una contrasena mas fuerte | L1 | ⏳ | **Pendiente Phase 0.4:** Frontend con biblioteca `zxcvbn` para feedback visual de fortaleza. |
-| 2.1.9 | Verificar que no haya reglas de composicion de contrasenas que limiten el tipo de caracteres permitidos. No debe haber requisito de mayusculas, minusculas, numeros o caracteres especiales | L1 | ⏳ | **Pendiente Phase 0.3:** Sin reglas de composicion. Solo longitud minima de 12 caracteres. |
+| 2.1.9 | Verificar que no haya reglas de composicion de contrasenas que limiten el tipo de caracteres permitidos. No debe haber requisito de mayusculas, minusculas, numeros o caracteres especiales | L1 | ✅ | `PasswordService.validatePasswordPolicy()` solo valida longitud. Sin reglas de composicion (mayusculas, numeros, simbolos). |
 | 2.1.10 | Verificar que no haya requisitos de rotacion periodica de contrasenas o historial de contrasenas | L1 | ⏳ | **Pendiente Phase 0.3:** Sin rotacion forzada. Campo `password_changed_at` solo informativo. Sin historial de passwords. |
 | 2.1.11 | Verificar que la funcionalidad "pegar" en campos de contrasena, ayudas de navegador para contrasenas, y gestores de contrasenas externos esten permitidos | L1 | ⏳ | **Pendiente Phase 0.4:** Frontend sin `autocomplete="off"` ni bloqueo de paste en campos de password. |
 | 2.1.12 | Verificar que el usuario pueda elegir ver temporalmente la contrasena enmascarada completa, o ver temporalmente el ultimo caracter escrito de la contrasena | L1 | ⏳ | **Pendiente Phase 0.4:** Icono "ojo" en campos de password para toggle de visibilidad. |
@@ -54,11 +54,11 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 2.4.1 | Verificar que las contrasenas se almacenen en una forma que sea resistente a ataques offline. Las contrasenas DEBEN usar salt con una funcion de derivacion de clave aprobada y segura o funcion de hashing de contrasenas. Las funciones de derivacion de clave y hashing de contrasenas toman una contrasena, un salt, y un factor de costo como entradas al generar un hash de contrasena | L1 | ⏳ | **Pendiente Phase 0.3:** Argon2id configurado en `SecurityConfig`. Parametros: memory=64MB, iterations=3, parallelism=1. Salt automatico por Spring Security. |
-| 2.4.2 | Verificar que el salt tenga al menos 32 bits de longitud y sea elegido arbitrariamente para minimizar colisiones de salt entre hashes almacenados. Para cada credencial, debe almacenarse un salt unico y el hash resultante | L1 | ⏳ | **Pendiente Phase 0.3:** Spring Security Argon2id usa salt de 16 bytes (128 bits) por defecto, generado con SecureRandom. |
+| 2.4.1 | Verificar que las contrasenas se almacenen en una forma que sea resistente a ataques offline. Las contrasenas DEBEN usar salt con una funcion de derivacion de clave aprobada y segura o funcion de hashing de contrasenas. Las funciones de derivacion de clave y hashing de contrasenas toman una contrasena, un salt, y un factor de costo como entradas al generar un hash de contrasena | L1 | ✅ | `PasswordService` usa `Argon2PasswordEncoder`. Parametros: memory=64MB, iterations=3, parallelism=4. Salt 16 bytes por hash. |
+| 2.4.2 | Verificar que el salt tenga al menos 32 bits de longitud y sea elegido arbitrariamente para minimizar colisiones de salt entre hashes almacenados. Para cada credencial, debe almacenarse un salt unico y el hash resultante | L1 | ✅ | Spring Security Argon2id usa salt de 16 bytes (128 bits), generado con SecureRandom. Incluido en hash output. |
 | 2.4.3 | Verificar que si se usa PBKDF2, el conteo de iteraciones DEBE ser tan grande como el rendimiento del servidor de verificacion permita, tipicamente al menos 100,000 iteraciones | L1 | N/A | **No aplica:** Usamos Argon2id, no PBKDF2. Argon2id es la recomendacion actual de OWASP. |
 | 2.4.4 | Verificar que si se usa bcrypt, el factor de trabajo DEBE ser tan grande como el rendimiento del servidor permita, con un minimo de 10 | L1 | N/A | **No aplica:** Usamos Argon2id, no bcrypt. |
-| 2.4.5 | Verificar que una iteracion adicional de una funcion de derivacion de clave se realice, usando un valor de salt secreto y conocido solo por el verificador. Generar el valor de salt usando un generador de bits aleatorios aprobado [SP 800-90Ar1] y proporcionar al menos la fuerza de seguridad minima especificada en la ultima revision de SP 800-131A. El valor secreto de salt DEBE almacenarse separadamente de las contrasenas hasheadas (por ejemplo, en un dispositivo especializado como HSM) | L2 | ⏳ | **Pendiente Phase 0.3:** Pepper (salt global secreto) almacenado en variable de entorno separada de BD. Aplicado antes de hash Argon2id. |
+| 2.4.5 | Verificar que una iteracion adicional de una funcion de derivacion de clave se realice, usando un valor de salt secreto y conocido solo por el verificador. Generar el valor de salt usando un generador de bits aleatorios aprobado [SP 800-90Ar1] y proporcionar al menos la fuerza de seguridad minima especificada en la ultima revision de SP 800-131A. El valor secreto de salt DEBE almacenarse separadamente de las contrasenas hasheadas (por ejemplo, en un dispositivo especializado como HSM) | L2 | ✅ | `PasswordService` aplica pepper (16 bytes min) antes de Argon2id. Pepper versionado en env var, separado de BD. Soporte para rotacion con `previousVersions`. |
 
 ---
 

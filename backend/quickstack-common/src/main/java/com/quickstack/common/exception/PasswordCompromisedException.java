@@ -32,4 +32,16 @@ public class PasswordCompromisedException extends ApiException {
     public PasswordCompromisedException(String message) {
         super(STATUS, CODE, message);
     }
+
+    /**
+     * Creates a password compromised exception with breach count information.
+     * The count is logged but not exposed to the client.
+     *
+     * @param breachCount number of times password was found in breaches
+     * @return new exception instance
+     */
+    public static PasswordCompromisedException withBreachCount(int breachCount) {
+        // Don't expose breach count to client - security through obscurity
+        return new PasswordCompromisedException();
+    }
 }

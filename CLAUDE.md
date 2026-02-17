@@ -96,7 +96,7 @@ quickstack/
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 1/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 2/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ## Estado Actual (Phase 0.3)
@@ -122,12 +122,19 @@ quickstack/
 - [x] `GlobalExceptionHandler` actualizado con handlers de auth
 - [x] `application.yml` actualizado con configuración `quickstack:`
 
-### Phase 0.3 - Pendiente
+### Phase 0.3 - Sprint 2 Completado ✅
 
-**Sprint 2: Password Hashing & User Management**
-- [ ] PasswordService con Argon2id + pepper
-- [ ] HibpClient para breach detection
-- [ ] UserService con registro
+**Password Hashing & User Management (61 tests)**
+
+- [x] `PasswordService` - Argon2id con pepper versionado, timing-safe (29 tests)
+- [x] `HibpClient` - k-Anonymity breach detection con retry (16 tests)
+- [x] `UserService` - Registro multi-tenant con validación completa (16 tests)
+- [x] `User` entity - Entidad JPA con soporte multi-tenant
+- [x] `UserRepository` - Queries multi-tenant (email uniqueness, lookup)
+- [x] `PasswordBreachChecker` - Interface para desacoplar HIBP
+- [x] Checkpoint de Seguridad #1 completado
+
+### Phase 0.3 - Pendiente
 
 **Sprint 3: JWT Generation & Validation**
 - [ ] JwtConfig y KeyPair RS256
@@ -183,7 +190,7 @@ quickstack/
 | Capítulo | Cumplidos | Total | Archivo |
 |----------|-----------|-------|---------|
 | V1 - Architecture | 12 | 38 | `V01-architecture.md` |
-| V2 - Authentication | 1 | 57 | `V02-authentication.md` |
+| V2 - Authentication | 5 | 57 | `V02-authentication.md` |
 | V3 - Session Management | 0 | 19 | `V03-session-management.md` |
 | V4 - Access Control | 0 | 9 | `V04-access-control.md` |
 | V5 - Validation | 0 | 30 | `V05-validation.md` |
@@ -196,7 +203,7 @@ quickstack/
 | V12 - Files | 0 | 15 | `V12-files-resources.md` |
 | V13 - API | 0 | 13 | `V13-api.md` |
 | V14 - Configuration | 2 | 23 | `V14-configuration.md` |
-| **Total** | **20** | **272** | **7%** |
+| **Total** | **24** | **272** | **9%** |
 
 > Archivos en `docs/security/asvs/`. 41 requisitos marcados N/A (no aplican al MVP).
 
@@ -270,6 +277,63 @@ Los siguientes agentes están configurados en `.claude/agents/`:
 - `tech-code-reviewer` - Code review
 - `qa-engineer-preventivo` - Testing y QA
 - `technical-mentor` - Explicación de conceptos
+
+## Protocolo de Mentoría
+
+Cuando el usuario pida **aprender**, **entender** o **comprender** algo (código, conceptos, arquitectura), usar el agente `technical-mentor` con el siguiente protocolo:
+
+### Ciclo de Aprendizaje
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. EXPLICAR                                                │
+│     - Concepto con analogías simples                        │
+│     - Por qué existe (el problema que resuelve)             │
+│     - Cómo se relaciona con seguridad/arquitectura          │
+│                                                             │
+│  2. VERIFICAR                                               │
+│     - Hacer 2-3 preguntas de comprensión                    │
+│     - Esperar respuesta del usuario                         │
+│                                                             │
+│  3. EVALUAR                                                 │
+│     - Si responde correctamente → felicitar y continuar     │
+│     - Si responde incorrectamente → corregir amablemente    │
+│                                                             │
+│  4. PROFUNDIZAR (si hay error)                              │
+│     - Explicar con más detalle                              │
+│     - Usar ejemplos concretos                               │
+│     - Volver a paso 2                                       │
+│                                                             │
+│  5. REPETIR hasta demostrar comprensión                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Principios del Protocolo
+
+| Principio | Descripción |
+|-----------|-------------|
+| **Analogías primero** | Usar comparaciones del mundo real antes de código |
+| **No dar respuestas** | Guiar con preguntas (método socrático) |
+| **Corregir sin juzgar** | "Eso no es exacto, déjame explicar..." |
+| **Verificar siempre** | Nunca asumir que entendió sin preguntar |
+| **Conectar conceptos** | Relacionar con OWASP, arquitectura, decisiones previas |
+
+### Documentación de Sesiones
+
+Las notas de mentoría se guardan en `MENTORSHIP_NOTES.md` (excluido de git) con:
+- Preguntas y respuestas
+- Correcciones hechas
+- Aprendizajes clave
+- Conexión con OWASP ASVS
+
+### Activación
+
+El usuario activa este protocolo con frases como:
+- "Quiero entender..."
+- "Explícame..."
+- "No entiendo..."
+- "¿Por qué funciona...?"
+- "Hazme una sesión de mentoría sobre..."
 
 ## Comandos Útiles
 

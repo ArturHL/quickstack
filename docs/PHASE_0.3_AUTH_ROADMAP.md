@@ -3,7 +3,7 @@
 > **Version:** 1.0.0
 > **Fecha:** 2026-02-11
 > **Standard:** OWASP ASVS L2
-> **Status:** En progreso - Sprint 1/6 completado
+> **Status:** En progreso - Sprint 2/6 completado
 
 ---
 
@@ -255,93 +255,98 @@ Crear clases de configuracion en `quickstack-common`.
 
 ---
 
-## Sprint 2: Password Hashing & User Management
+## Sprint 2: Password Hashing & User Management ✅
 
-**Duracion:** 2 dias
+**Duracion:** 2 dias | **Status:** COMPLETADO (61 tests)
 
-### [BACKEND] Tarea 2.1: PasswordService con Argon2id
+### [BACKEND] Tarea 2.1: PasswordService con Argon2id ✅
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 **Criterios de Aceptacion:**
-- [ ] Usa `Argon2PasswordEncoder` de Spring Security 6
-- [ ] Params: iterations=3, memory=65536 KB, parallelism=4
-- [ ] `hashPassword()` aplica pepper antes de hash
-- [ ] `verifyPassword()` con timing-safe comparison (`MessageDigest.isEqual`)
-- [ ] Pepper versionado (soporte para rotacion)
-- [ ] Tests: hash unico por salt, verificacion, timing safety
+- [x] Usa `Argon2PasswordEncoder` de Spring Security 6
+- [x] Params: iterations=3, memory=65536 KB, parallelism=4
+- [x] `hashPassword()` aplica pepper antes de hash
+- [x] `verifyPassword()` con timing-safe comparison (via Spring Security)
+- [x] Pepper versionado (soporte para rotacion)
+- [x] Tests: hash unico por salt, verificacion, timing safety (29 tests)
 
 **Archivos:**
 - `quickstack-user/src/main/java/com/quickstack/user/service/PasswordService.java`
+- `quickstack-user/src/test/java/.../PasswordServiceTest.java`
 
 ---
 
-### [BACKEND] Tarea 2.2: HibpClient
+### [BACKEND] Tarea 2.2: HibpClient ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 **Criterios de Aceptacion:**
-- [ ] k-Anonymity: envia solo primeros 5 chars del SHA-1
-- [ ] Timeout 3 segundos
-- [ ] Retry con backoff (max 2 reintentos)
-- [ ] **Si falla: lanza excepcion (bloquea registro)**
-- [ ] Tests con WireMock
+- [x] k-Anonymity: envia solo primeros 5 chars del SHA-1
+- [x] Timeout 3 segundos
+- [x] Retry con backoff (max 2 reintentos)
+- [x] **Si falla: lanza excepcion (bloquea registro)**
+- [x] Tests con WireMock (16 tests)
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/security/HibpClient.java`
+- `quickstack-app/src/test/java/.../HibpClientTest.java`
 
 ---
 
-### [BACKEND] Tarea 2.3: UserService con Registro
+### [BACKEND] Tarea 2.3: UserService con Registro ✅
 **Prioridad:** Alta | **Dependencias:** 2.1, 2.2
 
 **Criterios de Aceptacion:**
-- [ ] `registerUser()` valida: email unico por tenant, password policy, HIBP
-- [ ] Password: min 12 chars, max 128, sin reglas de composicion
-- [ ] Hash con `PasswordService`
-- [ ] Transaccional con rollback
-- [ ] Tests: registro exitoso, email duplicado, HIBP breach
+- [x] `registerUser()` valida: email unico por tenant, password policy, HIBP
+- [x] Password: min 12 chars, max 128, sin reglas de composicion
+- [x] Hash con `PasswordService`
+- [x] Transaccional con rollback
+- [x] Tests: registro exitoso, email duplicado, HIBP breach (16 tests)
 
 **Archivos:**
 - `quickstack-user/src/main/java/com/quickstack/user/service/UserService.java`
+- `quickstack-user/src/main/java/com/quickstack/user/entity/User.java`
+- `quickstack-user/src/main/java/com/quickstack/user/repository/UserRepository.java`
+- `quickstack-user/src/test/java/.../UserServiceTest.java`
 
 ---
 
-### [QA] Tarea 2.4: Tests de Seguridad - Password Hashing
+### [QA] Tarea 2.4: Tests de Seguridad - Password Hashing ✅
 **Prioridad:** Alta | **Dependencias:** 2.1
 
 **Criterios de Aceptacion:**
-- [ ] Verificar Argon2id con params minimos
-- [ ] Test: mismo password genera hashes diferentes
-- [ ] Test: timing attack mitigation
-- [ ] Test: pepper aplicado correctamente
-- [ ] Performance: hash < 200ms
+- [x] Verificar Argon2id con params minimos
+- [x] Test: mismo password genera hashes diferentes
+- [x] Test: timing attack mitigation
+- [x] Test: pepper aplicado correctamente
+- [x] Performance: hash < 200ms
 
 **Archivos:**
-- `quickstack-user/src/test/java/.../PasswordServiceSecurityTest.java`
+- `quickstack-user/src/test/java/.../PasswordServiceTest.java` (29 tests incluidos en 2.1)
 
 ---
 
-### [QA] Tarea 2.5: Tests de Seguridad - HIBP
+### [QA] Tarea 2.5: Tests de Seguridad - HIBP ✅
 **Prioridad:** Media | **Dependencias:** 2.2
 
 **Criterios de Aceptacion:**
-- [ ] Test: password conocido es rechazado
-- [ ] Test: k-Anonymity correcto (solo 5 chars enviados)
-- [ ] Test: fallo de HIBP bloquea registro
-- [ ] Test: no loguear passwords
+- [x] Test: password conocido es rechazado
+- [x] Test: k-Anonymity correcto (solo 5 chars enviados)
+- [x] Test: fallo de HIBP bloquea registro
+- [x] Test: no loguear passwords
 
 **Archivos:**
-- `quickstack-app/src/test/java/.../HibpClientSecurityTest.java`
+- `quickstack-app/src/test/java/.../HibpClientTest.java` (16 tests incluidos en 2.2)
 
 ---
 
-### CHECKPOINT DE SEGURIDAD #1
+### CHECKPOINT DE SEGURIDAD #1 ✅
 
 **Validaciones:**
-- [ ] Argon2id configurado correctamente
-- [ ] Timing-safe password comparison
-- [ ] HIBP con k-Anonymity
-- [ ] Passwords nunca en logs
-- [ ] Code review de PasswordService y HibpClient
+- [x] Argon2id configurado correctamente
+- [x] Timing-safe password comparison
+- [x] HIBP con k-Anonymity
+- [x] Passwords nunca en logs
+- [x] Code review de PasswordService y HibpClient
 
 ---
 
