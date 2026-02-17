@@ -1,9 +1,9 @@
 # V3: Session Management
 
 > **Capitulo:** V3
-> **Requisitos L2:** 22
-> **Cumplidos:** 0 (0%)
-> **Ultima actualizacion:** 2026-02-10
+> **Requisitos L2:** 19
+> **Cumplidos:** 1 (5%)
+> **Ultima actualizacion:** 2026-02-16
 
 ---
 
@@ -54,7 +54,7 @@
 |----|-----------|-------|--------|---------------------|
 | 3.5.1 | Verificar que la aplicacion permita a los usuarios revocar tokens OAuth que forman relaciones de confianza con aplicaciones vinculadas | L2 | N/A | **No aplica:** No hay OAuth con aplicaciones de terceros. Autenticacion nativa. |
 | 3.5.2 | Verificar que la aplicacion use tokens de sesion en lugar de secretos y claves API estaticas, excepto con implementaciones heredadas | L2 | ⏳ | **Pendiente Phase 0.3:** JWTs para autenticacion de usuarios. No API keys estaticas para usuarios. Service-to-service usa env vars. |
-| 3.5.3 | Verificar que tokens de sesion sin estado usen firmas digitales, cifrado, y otras contramedidas para proteger contra ataques de manipulacion, envolvimiento, replay, cipher nulo, y sustitucion de clave | L2 | ⏳ | **Pendiente Phase 0.3:** JWT firmado con RS256 (RSA + SHA-256). Claims incluyen `iat`, `exp`, `jti`. Verificacion de firma en cada request. No cipher nulo. |
+| 3.5.3 | Verificar que tokens de sesion sin estado usen firmas digitales, cifrado, y otras contramedidas para proteger contra ataques de manipulacion, envolvimiento, replay, cipher nulo, y sustitucion de clave | L2 | ✅ | JWT firmado con RS256 (RSA 2048-bit + SHA-256). Claims incluyen `iat`, `exp`, `jti` unico. JwtService rechaza algoritmos inseguros (HS256, none). Verificacion de firma en cada request via JwtAuthenticationFilter. |
 
 ---
 
@@ -83,7 +83,7 @@
 | V3.2 Session Binding | 3 | 0 | 3 | 0 |
 | V3.3 Session Termination | 4 | 0 | 4 | 0 |
 | V3.4 Cookie-based | 5 | 0 | 5 | 0 |
-| V3.5 Token-based | 3 | 0 | 2 | 1 |
+| V3.5 Token-based | 3 | 1 | 1 | 1 |
 | V3.6 Federated | 2 | 0 | 0 | 2 |
 | V3.7 Defenses | 1 | 0 | 1 | 0 |
-| **TOTAL** | **19** | **0** | **16** | **3** |
+| **TOTAL** | **19** | **1** | **15** | **3** |

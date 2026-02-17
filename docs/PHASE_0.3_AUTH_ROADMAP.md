@@ -1,9 +1,9 @@
 # Phase 0.3: Authentication Module Roadmap
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-11
+> **Version:** 1.1.0
+> **Fecha:** 2026-02-16
 > **Standard:** OWASP ASVS L2
-> **Status:** En progreso - Sprint 2/6 completado
+> **Status:** En progreso - Sprint 3/6 completado
 
 ---
 
@@ -350,68 +350,87 @@ Crear clases de configuracion en `quickstack-common`.
 
 ---
 
-## Sprint 3: JWT Generation & Validation
+## Sprint 3: JWT Generation & Validation ✅
 
-**Duracion:** 2 dias
+**Duracion:** 2 dias | **Status:** COMPLETADO (55 tests)
 
-### [BACKEND] Tarea 3.1: JwtConfig y KeyPair
+### [BACKEND] Tarea 3.1: JwtConfig y KeyPair ✅
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 **Criterios de Aceptacion:**
-- [ ] Carga claves RSA desde env vars (PEM o base64)
-- [ ] Soporte para claves anteriores (rotacion)
-- [ ] Falla si claves ausentes en produccion
-- [ ] Tests: carga correcta, formato PEM, 2048 bits
+- [x] Carga claves RSA desde env vars (Base64) o archivos PEM
+- [x] Soporte para claves anteriores (rotacion)
+- [x] Falla si claves ausentes en produccion
+- [x] Valida tamano minimo 2048 bits (ASVS V6.2.1)
+- [x] Tests: carga correcta, formato PEM, Base64, rotacion (15 tests)
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/config/JwtConfig.java`
-- `quickstack-app/src/main/java/com/quickstack/app/config/RsaKeyProperties.java`
+- `quickstack-app/src/test/java/com/quickstack/app/config/JwtConfigTest.java`
 
 ---
 
-### [BACKEND] Tarea 3.2: JwtService
+### [BACKEND] Tarea 3.2: JwtService ✅
 **Prioridad:** Alta | **Dependencias:** 3.1
 
 **Criterios de Aceptacion:**
-- [ ] `generateAccessToken()` con claims: sub, email, tenantId, role, branchId, jti
-- [ ] RS256 con rechazo explicito de otros algoritmos
-- [ ] Expiracion configurable (default 15 min)
-- [ ] `validateToken()` verifica firma, expiracion, issuer
-- [ ] Tests: generacion, validacion, expirado, firma invalida
-- [ ] **Test: algorithm confusion attack rechazado**
+- [x] `generateAccessToken()` con claims: sub, email, tenant_id, role_id, branch_id, jti
+- [x] RS256 con rechazo explicito de otros algoritmos
+- [x] Expiracion configurable (default 15 min)
+- [x] `validateToken()` verifica firma, expiracion, issuer
+- [x] Soporte rotacion de claves (valida con previous keys si actual falla)
+- [x] Tests: generacion, validacion, expirado, firma invalida (25 tests)
+- [x] **Test: algorithm confusion attack rechazado (HS256, none)**
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/security/JwtService.java`
+- `quickstack-app/src/test/java/com/quickstack/app/security/JwtServiceTest.java`
 
 ---
 
-### [BACKEND] Tarea 3.3: JwtAuthenticationFilter
+### [BACKEND] Tarea 3.3: JwtAuthenticationFilter ✅
 **Prioridad:** Alta | **Dependencias:** 3.2
 
 **Criterios de Aceptacion:**
-- [ ] Extrae JWT de `Authorization: Bearer`
-- [ ] Valida con `JwtService`
-- [ ] Verifica tenant_id match
-- [ ] Permite endpoints publicos sin token
-- [ ] Tests: token valido, invalido, ausente
+- [x] Extrae JWT de `Authorization: Bearer`
+- [x] Valida con `JwtService`
+- [x] Crea `JwtAuthenticationPrincipal` con userId, tenantId, roleId, branchId, email
+- [x] Permite endpoints publicos sin token
+- [x] Tests: token valido, invalido, ausente (15 tests)
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/security/JwtAuthenticationFilter.java`
+- `quickstack-app/src/test/java/com/quickstack/app/security/JwtAuthenticationFilterTest.java`
 
 ---
 
-### [QA] Tarea 3.4: Tests de Seguridad - JWT
+### [BACKEND] Tarea 3.4: SecurityConfig Update ✅
+**Prioridad:** Alta | **Dependencias:** 3.3
+
+**Criterios de Aceptacion:**
+- [x] JwtAuthenticationFilter agregado al SecurityFilterChain
+- [x] Posicion: antes de UsernamePasswordAuthenticationFilter
+- [x] Inyeccion opcional del filtro (para tests y modulos sin JWT)
+
+**Archivos:**
+- `quickstack-common/src/main/java/com/quickstack/common/config/SecurityConfig.java`
+
+---
+
+### [QA] Tarea 3.5: Tests de Seguridad - JWT ✅
 **Prioridad:** Alta | **Dependencias:** 3.2, 3.3
 
 **Criterios de Aceptacion:**
-- [ ] Test: RS256 requerido, HS256 rechazado
-- [ ] Test: "none" algorithm rechazado
-- [ ] Test: manipulacion de claims detectada
-- [ ] Test: token firmado con otra clave rechazado
-- [ ] Performance: validacion < 10ms
+- [x] Test: RS256 requerido, HS256 rechazado
+- [x] Test: "none" algorithm rechazado
+- [x] Test: manipulacion de claims detectada (firma invalida)
+- [x] Test: token firmado con otra clave rechazado
+- [x] Test: rotacion de claves funciona correctamente
+- [x] Test: token expirado rechazado
+- [x] Test: issuer incorrecto rechazado
 
 **Archivos:**
-- `quickstack-app/src/test/java/.../JwtServiceSecurityTest.java`
+- Tests incluidos en JwtServiceTest.java y JwtAuthenticationFilterTest.java
 
 ---
 

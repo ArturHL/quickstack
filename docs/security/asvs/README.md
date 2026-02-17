@@ -2,7 +2,7 @@
 
 > **Estandar:** OWASP Application Security Verification Standard (ASVS) 4.0.3
 > **Nivel Objetivo:** Level 2 - Standard
-> **Ultima actualizacion:** 2026-02-10
+> **Ultima actualizacion:** 2026-02-16
 
 ---
 
@@ -11,11 +11,11 @@
 | Capitulo | Nombre | Requisitos L2 | Cumplidos | Pendientes | No Aplica | Archivo |
 |----------|--------|---------------|-----------|------------|-----------|---------|
 | V1 | Architecture, Design and Threat Modeling | 38 | 12 | 26 | 0 | [V01-architecture.md](V01-architecture.md) |
-| V2 | Authentication | 57 | 1 | 43 | 13 | [V02-authentication.md](V02-authentication.md) |
-| V3 | Session Management | 19 | 0 | 16 | 3 | [V03-session-management.md](V03-session-management.md) |
+| V2 | Authentication | 57 | 5 | 39 | 13 | [V02-authentication.md](V02-authentication.md) |
+| V3 | Session Management | 19 | 1 | 15 | 3 | [V03-session-management.md](V03-session-management.md) |
 | V4 | Access Control | 9 | 0 | 9 | 0 | [V04-access-control.md](V04-access-control.md) |
 | V5 | Validation, Sanitization and Encoding | 30 | 0 | 24 | 6 | [V05-validation.md](V05-validation.md) |
-| V6 | Stored Cryptography | 16 | 0 | 15 | 1 | [V06-cryptography.md](V06-cryptography.md) |
+| V6 | Stored Cryptography | 16 | 7 | 8 | 1 | [V06-cryptography.md](V06-cryptography.md) |
 | V7 | Error Handling and Logging | 12 | 4 | 8 | 0 | [V07-error-logging.md](V07-error-logging.md) |
 | V8 | Data Protection | 15 | 0 | 15 | 0 | [V08-data-protection.md](V08-data-protection.md) |
 | V9 | Communication | 8 | 0 | 8 | 0 | [V09-communication.md](V09-communication.md) |
@@ -24,9 +24,9 @@
 | V12 | Files and Resources | 15 | 0 | 5 | 10 | [V12-files-resources.md](V12-files-resources.md) |
 | V13 | API and Web Service | 13 | 0 | 9 | 4 | [V13-api.md](V13-api.md) |
 | V14 | Configuration | 23 | 2 | 19 | 2 | [V14-configuration.md](V14-configuration.md) |
-| **TOTAL** | | **272** | **20** | **211** | **41** | |
+| **TOTAL** | | **272** | **32** | **199** | **41** | |
 
-**Progreso Global:** 20/272 = **7%** cumplidos (sin contar N/A: 20/231 = **9%**)
+**Progreso Global:** 32/272 = **12%** cumplidos (sin contar N/A: 32/231 = **14%**)
 
 ---
 

@@ -1,7 +1,7 @@
 # QuickStack POS - Contexto del Proyecto
 
 > Este archivo contiene el contexto necesario para continuar el desarrollo con Claude Code.
-> **Última actualización:** 2026-02-11
+> **Última actualización:** 2026-02-16
 
 ## Resumen del Proyecto
 
@@ -96,7 +96,7 @@ quickstack/
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 2/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 3/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ## Estado Actual (Phase 0.3)
@@ -134,12 +134,16 @@ quickstack/
 - [x] `PasswordBreachChecker` - Interface para desacoplar HIBP
 - [x] Checkpoint de Seguridad #1 completado
 
-### Phase 0.3 - Pendiente
+### Phase 0.3 - Sprint 3 Completado ✅
 
-**Sprint 3: JWT Generation & Validation**
-- [ ] JwtConfig y KeyPair RS256
-- [ ] JwtService
-- [ ] JwtAuthenticationFilter
+**JWT Generation & Validation (55 tests)**
+
+- [x] `JwtConfig` - Carga RSA keys desde Base64/PEM, rotación, validación 2048 bits (15 tests)
+- [x] `JwtService` - RS256 signing, claims completos, algorithm confusion protection (25 tests)
+- [x] `JwtAuthenticationFilter` - Extracción Bearer token, SecurityContext (15 tests)
+- [x] `SecurityConfig` actualizado con JWT filter opcional
+
+### Phase 0.3 - Pendiente
 
 **Sprint 4: Login, Refresh & Session Management**
 - [ ] Entidades: RefreshToken, LoginAttempt
@@ -191,10 +195,10 @@ quickstack/
 |----------|-----------|-------|---------|
 | V1 - Architecture | 12 | 38 | `V01-architecture.md` |
 | V2 - Authentication | 5 | 57 | `V02-authentication.md` |
-| V3 - Session Management | 0 | 19 | `V03-session-management.md` |
+| V3 - Session Management | 1 | 19 | `V03-session-management.md` |
 | V4 - Access Control | 0 | 9 | `V04-access-control.md` |
 | V5 - Validation | 0 | 30 | `V05-validation.md` |
-| V6 - Cryptography | 0 | 16 | `V06-cryptography.md` |
+| V6 - Cryptography | 7 | 16 | `V06-cryptography.md` |
 | V7 - Error/Logging | 4 | 12 | `V07-error-logging.md` |
 | V8 - Data Protection | 0 | 15 | `V08-data-protection.md` |
 | V9 - Communication | 0 | 8 | `V09-communication.md` |
@@ -203,7 +207,7 @@ quickstack/
 | V12 - Files | 0 | 15 | `V12-files-resources.md` |
 | V13 - API | 0 | 13 | `V13-api.md` |
 | V14 - Configuration | 2 | 23 | `V14-configuration.md` |
-| **Total** | **24** | **272** | **9%** |
+| **Total** | **32** | **272** | **12%** |
 
 > Archivos en `docs/security/asvs/`. 41 requisitos marcados N/A (no aplican al MVP).
 

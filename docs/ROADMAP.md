@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-11
-> **Estado:** Phase 0.3 en progreso (Sprint 2/6 completado)
+> **Última actualización:** 2026-02-16
+> **Estado:** Phase 0.3 en progreso (Sprint 3/6 completado)
 
 ## Vision Summary
 
@@ -64,7 +64,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 2/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 3/6 completado |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ---
@@ -153,6 +153,12 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] User Entity + UserRepository con queries multi-tenant
 - [x] Checkpoint de Seguridad #1 completado
 
+#### Sprint 3: JWT Generation & Validation ✅ (55 tests)
+- [x] JwtConfig: Carga RSA keys desde Base64/PEM, rotación, validación 2048 bits (15 tests)
+- [x] JwtService: RS256 signing, claims completos, protección algorithm confusion (25 tests)
+- [x] JwtAuthenticationFilter: Extracción Bearer token, SecurityContext (15 tests)
+- [x] SecurityConfig actualizado con JWT filter
+
 #### Endpoints de Auth API
 | Endpoint | Método | Descripción | ASVS |
 |----------|--------|-------------|------|
@@ -178,7 +184,10 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [ ] Registro en login_attempts
 
 #### Tokens JWT (ASVS V3)
-- [ ] Access token: RS256, 15-30 min expiry
+- [x] Access token: RS256, 15 min expiry (configurable)
+- [x] JWT claims: sub, email, tenant_id, role_id, branch_id, jti, iss, iat, exp
+- [x] Algorithm confusion attack protection (rechaza HS256, none)
+- [x] Key rotation support con previous keys
 - [ ] Refresh token: almacenado en BD, 7 días expiry
 - [ ] Refresh token rotation en cada uso
 - [ ] Family tracking para detectar reuso
@@ -616,6 +625,14 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-16
+- **Phase 0.3 Sprint 3 completado (55 tests nuevos, 177 total):**
+  - JwtConfig: Carga RSA keys desde Base64 o PEM, validación 2048 bits, rotación (15 tests)
+  - JwtService: Generación y validación JWT con RS256, algorithm confusion protection (25 tests)
+  - JwtAuthenticationFilter: Extracción Bearer token, SecurityContext con principal (15 tests)
+  - SecurityConfig actualizado para incluir JWT filter
+  - ASVS: V3.5.3, V6.2.1, V6.2.2, V6.2.5, V6.2.6, V6.2.7, V6.3.1, V6.3.2 cumplidos
 
 ### 2026-02-11
 - **Phase 0.3 Sprint 2 completado (61 tests nuevos, 122 total):**
