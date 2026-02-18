@@ -1,12 +1,12 @@
 # QuickStack Frontend
 
-React 18 + Vite + TypeScript + MUI
+React 19 + Vite + TypeScript + MUI
 
 ## Stack
 
 | Librería | Propósito |
 |----------|-----------|
-| React 18 | UI framework |
+| React 19 | UI framework |
 | Vite | Build tool |
 | TypeScript | Type safety |
 | MUI | Component library |
