@@ -201,7 +201,7 @@ public class HibpClient implements PasswordBreachChecker {
 
     private String sha1Hash(String input) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            MessageDigest digest = MessageDigest.getInstance("SHA-1"); // nosemgrep: java.lang.security.audit.crypto.use-of-sha1.use-of-sha1
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(hash);
         } catch (NoSuchAlgorithmException e) {
