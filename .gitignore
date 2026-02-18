@@ -111,3 +111,9 @@ docker-compose.override.yml
 MENTORSHIP_NOTES.md
 PERSONAL_NOTES.md
 *.personal.md
+
+# ============================
+# Claude Code Context (local)
+# ============================
+.context/
+CLAUDE.md.backup
