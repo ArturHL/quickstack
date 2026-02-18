@@ -1,0 +1,43 @@
+# Test profile configuration
+# Datasource and JWT keys are overridden at runtime by @DynamicPropertySource in BaseIntegrationTest
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+
+quickstack:
+  password:
+    pepper:
+      value: test-pepper-value-minimum-16-chars!
+      version: 1
+      previous-versions:
+    hibp:
+      enabled: false
+      block-on-failure: false
+
+  rate-limit:
+    enabled: false
+
+  jwt:
+    issuer: quickstack-test
+    access-token-expiration: 15m
+    refresh-token-expiration: 7d
+    # private-key-base64 and public-key-base64 set via @DynamicPropertySource
+
+logging:
+  level:
+    com.quickstack: INFO
+    org.springframework.security: WARN
+    org.testcontainers: WARN
+    com.zaxxer.hikari: WARN
+    org.flywaydb: WARN
