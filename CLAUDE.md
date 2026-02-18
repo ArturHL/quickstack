@@ -19,11 +19,13 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 
 ## Estado Actual
 
-**Phase 0.3** - Módulo de Autenticación | Sprint 5/6 completado
+**Phase 0.3** - Módulo de Autenticación | **COMPLETADO** (6/6 sprints)
 
-Próximo: Sprint 6 - Final Endpoints & Integration
+340 tests | 8 endpoints | ASVS L2: V2 26%, V3 74%, V6 56%
 
-Ver: `.context/current-sprint.md` para tareas pendientes
+Próximo: Phase 0.4 - Product & Menu Management
+
+Ver: `.context/completed-sprints.md` para historial
 
 ## Comandos
 

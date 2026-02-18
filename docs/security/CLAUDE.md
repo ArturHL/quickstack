@@ -4,14 +4,14 @@ OWASP ASVS L2 | Spring Security 6
 
 ## Progreso ASVS
 
-**55/272 requisitos cumplidos (20%)**
+**58/272 requisitos cumplidos (21%)**
 
-Ver detalle completo: `asvs/README.md`
+Ver detalle completo: `asvs/README.md` | `ASVS_COMPLIANCE_REPORT.md`
 
 Capítulos prioritarios (auth):
-- `asvs/V02-authentication.md` - 13/57 cumplidos
-- `asvs/V03-session-management.md` - 12/19 cumplidos
-- `asvs/V06-cryptography.md` - 9/16 cumplidos
+- `asvs/V02-authentication.md` - 14/57 cumplidos (25%)
+- `asvs/V03-session-management.md` - 14/19 cumplidos (74%)
+- `asvs/V06-cryptography.md` - 9/16 cumplidos (56%)
 
 ## Decisiones de Seguridad
 

@@ -21,7 +21,7 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 - **Tests**: `*Test.java` (unit), `*IntegrationTest.java` (integration)
 - **Exceptions**: Custom en `common/exception/`, handler en GlobalExceptionHandler
 
-## Auth Actual (Phase 0.3 - Sprint 5/6)
+## Auth Actual (Phase 0.3 - COMPLETADO)
 
 | Aspecto | Implementación |
 |---------|----------------|
@@ -32,6 +32,8 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 | Cookies | HttpOnly, Secure, SameSite=Strict |
 | Password Reset | Token 32 bytes, 1 hora expiry, HIBP check |
 | Session Management | Refresh token rotation + family tracking |
+| Register | POST /api/v1/auth/register con Bean Validation |
+| Sessions API | GET/DELETE /api/v1/users/me/sessions con IDOR check |
 
 ## Archivos Clave
 
@@ -50,7 +52,7 @@ quickstack-user/src/main/java/.../user/
 quickstack-app/src/main/java/.../app/
 ├── config/              # SecurityConfig, JwtConfig, RateLimitConfig
 ├── security/            # JwtService, JwtAuthenticationFilter, RateLimitFilter, HibpClient
-└── controller/          # (UserController en Sprint 6)
+└── controller/          # UserController (GET/DELETE /users/me/sessions)
 
 quickstack-app/src/main/resources/
 ├── application.yml      # Config con quickstack.* properties

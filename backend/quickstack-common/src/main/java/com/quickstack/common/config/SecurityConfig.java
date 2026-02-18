@@ -2,8 +2,10 @@ package com.quickstack.common.config;
 
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
  * - Argon2id password hashing
  * - CSRF disabled (stateless API)
  * - CORS from CorsConfig
+ * - Rate limiting filter before JWT authentication
  * - JWT authentication filter
  */
 @Configuration
@@ -32,16 +35,21 @@ public class SecurityConfig {
 
     private final CorsConfigurationSource corsConfigurationSource;
     private final Filter jwtAuthenticationFilter;
+    private final Filter rateLimitFilter;
 
     /**
-     * Constructor with optional JWT filter.
-     * Filter is optional for testing and modules that don't need JWT.
+     * Constructor with optional filters.
+     * Filters are optional for testing and modules that don't need them.
+     * <p>
+     * Filter execution order: RateLimitFilter -> JwtAuthenticationFilter -> Spring Security
      */
     public SecurityConfig(
             CorsConfigurationSource corsConfigurationSource,
-            @Autowired(required = false) Filter jwtAuthenticationFilter) {
+            @Autowired(required = false) Filter jwtAuthenticationFilter,
+            @Autowired(required = false) @Qualifier("rateLimitFilter") Filter rateLimitFilter) {
         this.corsConfigurationSource = corsConfigurationSource;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -60,10 +68,23 @@ public class SecurityConfig {
 
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/actuator/info").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                // Public endpoints (actuator)
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+
+                // Public auth endpoints (no JWT required)
+                .requestMatchers(HttpMethod.POST,
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/register",
+                        "/api/v1/auth/forgot-password",
+                        "/api/v1/auth/reset-password").permitAll()
+
+                // Cookie-based auth endpoints (refresh token, no JWT required)
+                .requestMatchers(HttpMethod.POST,
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/logout").permitAll()
+
+                // Session management requires JWT
+                .requestMatchers("/api/v1/users/**").authenticated()
 
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
@@ -73,9 +94,17 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
 
-        // Add JWT filter if available
+        // Add JWT filter if available (validates Bearer tokens)
         if (jwtAuthenticationFilter != null) {
             http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+
+        // Add Rate Limit filter before JWT filter (checks limits before any processing)
+        if (rateLimitFilter != null) {
+            Class<? extends Filter> beforeClass = jwtAuthenticationFilter != null
+                    ? jwtAuthenticationFilter.getClass()
+                    : UsernamePasswordAuthenticationFilter.class;
+            http.addFilterBefore(rateLimitFilter, beforeClass);
         }
 
         return http.build();

@@ -2,8 +2,8 @@
 
 > **Capitulo:** V2
 > **Requisitos L2:** 57
-> **Cumplidos:** 13 (~23%)
-> **Ultima actualizacion:** 2026-02-16
+> **Cumplidos:** 14 (~25%)
+> **Ultima actualizacion:** 2026-02-18
 
 ---
 
@@ -30,7 +30,7 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 2.2.1 | Verificar que los controles anti-automatizacion sean efectivos para mitigar ataques de breach testing, brute force y account lockout. Tales controles incluyen bloquear las contrasenas violadas mas comunes, soft lockouts, rate limiting, CAPTCHA, delays crecientes entre intentos, restricciones de IP, o restricciones basadas en riesgo como ubicacion, primer login en dispositivo, intentos recientes de desbloqueo, o similares | L1 | ⏳ | **Parcialmente implementado:** ✅ HibpClient verifica breach. ✅ `LoginAttemptService` con lockout 5 intentos = 15 min. ✅ Registro en `login_attempts`. **Pendiente Sprint 5:** Rate limiting con Bucket4j (IP + email). |
+| 2.2.1 | Verificar que los controles anti-automatizacion sean efectivos para mitigar ataques de breach testing, brute force y account lockout. Tales controles incluyen bloquear las contrasenas violadas mas comunes, soft lockouts, rate limiting, CAPTCHA, delays crecientes entre intentos, restricciones de IP, o restricciones basadas en riesgo como ubicacion, primer login en dispositivo, intentos recientes de desbloqueo, o similares | L1 | ✅ | `HibpClient` verifica breach (k-Anonymity). `LoginAttemptService` con lockout 5 intentos = 15 min + auto-unlock. `RateLimitFilter` con Bucket4j: 10 req/min por IP, 5 req/min por email en `/login`, `/register`, `/forgot-password`, `/reset-password`. |
 | 2.2.2 | Verificar que el uso de autenticadores debiles (como SMS y email) se limite a verificacion secundaria y aprobacion de transacciones y no como reemplazo de metodos de autenticacion mas seguros. Verificar que se ofrezcan metodos mas fuertes antes que los debiles, que los usuarios esten conscientes de los riesgos, o que medidas apropiadas esten en lugar para limitar riesgos de compromiso de cuenta | L1 | ⏳ | **Pendiente Phase 0.3:** Email solo para password recovery (no como 2FA). SMS no usado. Password reset tokens con expiracion de 1 hora. |
 | 2.2.3 | Verificar que notificaciones seguras se envien a los usuarios despues de actualizaciones a detalles de autenticacion, como reseteo de credenciales, cambios de email o direccion, login desde ubicaciones desconocidas o riesgosas. Se prefiere el uso de notificaciones push sobre SMS o email, pero en ausencia de push, SMS o email son aceptables mientras no haya informacion sensible en la notificacion | L1 | ⏳ | **Pendiente Phase 0.3:** Email de notificacion en: password change, password reset request, login desde nueva IP. Sin detalles sensibles en notificacion. |
 | 2.2.4 | Verificar resistencia a impersonacion contra phishing, como el uso de autenticacion multi-factor, dispositivos criptograficos con intencion (como claves conectadas con push para autenticar), o en niveles AAL mas altos, certificados del lado del cliente | L2 | ⏳ | **MVP:** No MFA (fuera de alcance). Mitigaciones: HTTPS obligatorio, HSTS, login attempts logging para detectar anomalias. **Futuro:** TOTP como opcion para OWNER. |
@@ -139,7 +139,7 @@
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
 | V2.1 Password Security | 12 | 6 | 6 | 0 |
-| V2.2 General Authenticator | 7 | 1 | 5 | 1 |
+| V2.2 General Authenticator | 7 | 2 | 4 | 1 |
 | V2.3 Authenticator Lifecycle | 3 | 0 | 1 | 2 |
 | V2.4 Credential Storage | 5 | 3 | 0 | 2 |
 | V2.5 Credential Recovery | 7 | 0 | 6 | 1 |
@@ -148,4 +148,4 @@
 | V2.8 One Time Verifier | 7 | 0 | 0 | 7 |
 | V2.9 Cryptographic Verifier | 3 | 2 | 1 | 0 |
 | V2.10 Service Authentication | 4 | 1 | 3 | 0 |
-| **TOTAL** | **57** | **13** | **31** | **13** |
+| **TOTAL** | **57** | **14** | **30** | **13** |

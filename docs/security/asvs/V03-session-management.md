@@ -2,8 +2,8 @@
 
 > **Capitulo:** V3
 > **Requisitos L2:** 19
-> **Cumplidos:** 12 (63%)
-> **Ultima actualizacion:** 2026-02-16
+> **Cumplidos:** 14 (74%)
+> **Ultima actualizacion:** 2026-02-18
 
 ---
 
@@ -31,8 +31,8 @@
 |----|-----------|-------|--------|---------------------|
 | 3.3.1 | Verificar que el logout y la expiracion invaliden el token de sesion, de tal manera que el boton de atras o una parte dependiente aguas abajo no reanude una sesion autenticada, incluyendo a traves de partes dependientes | L1 | ✅ | `AuthController.logout()` revoca refresh token en BD (`revoked_at`). Access tokens expiran en 15 min. `RefreshTokenService.validateToken()` verifica token no revocado antes de emitir nuevo access token. |
 | 3.3.2 | Si los autenticadores permiten que los usuarios permanezcan logueados, verificar que la reautenticacion ocurra periodicamente tanto cuando se usa activamente como despues de un periodo de inactividad | L1 | ⏳ | **Pendiente Phase 0.3:** Access token expira en 15 min (requiere refresh). Refresh token expira en 7 dias. Sesion inactiva 30 min requiere re-login. |
-| 3.3.3 | Verificar que la aplicacion ofrezca la opcion de terminar todas las otras sesiones activas despues de un cambio de contrasena exitoso (incluyendo cambio via reset/recuperacion de contrasena), y que esto sea efectivo en toda la aplicacion, login federado (si presente), y cualquier parte dependiente | L2 | ⏳ | **Pendiente Phase 0.3:** Password change revoca toda la familia de refresh tokens del usuario. Frontend limpia access token. Sesiones en otros dispositivos invalidadas. |
-| 3.3.4 | Verificar que los usuarios puedan ver y (habiendo reingresado credenciales de login) cerrar sesion en cualquiera o todas las sesiones y dispositivos actualmente activos | L2 | ⏳ | **Pendiente Phase 0.3:** Endpoint `GET /api/v1/users/me/sessions` lista refresh tokens activos (user_agent, ip, created_at). `DELETE /api/v1/users/me/sessions/{id}` revoca sesion especifica. |
+| 3.3.3 | Verificar que la aplicacion ofrezca la opcion de terminar todas las otras sesiones activas despues de un cambio de contrasena exitoso (incluyendo cambio via reset/recuperacion de contrasena), y que esto sea efectivo en toda la aplicacion, login federado (si presente), y cualquier parte dependiente | L2 | ✅ | `PasswordResetService.resetPassword()` llama `refreshTokenService.revokeAllUserTokens()` con razon `password_change`. Todos los refresh tokens del usuario son invalidados. Access tokens existentes expiran en 15 min. |
+| 3.3.4 | Verificar que los usuarios puedan ver y (habiendo reingresado credenciales de login) cerrar sesion en cualquiera o todas las sesiones y dispositivos actualmente activos | L2 | ✅ | `GET /api/v1/users/me/sessions` lista sesiones activas con metadata (ip, user_agent, createdAt, expiresAt). `DELETE /api/v1/users/me/sessions/{id}` revoca sesion especifica con verificacion IDOR. `SessionService` valida propiedad antes de revocar. |
 
 ---
 
@@ -81,9 +81,9 @@
 |---------|------------------|-----------|------------|-----------|
 | V3.1 Fundamental | 1 | 1 | 0 | 0 |
 | V3.2 Session Binding | 3 | 3 | 0 | 0 |
-| V3.3 Session Termination | 4 | 1 | 3 | 0 |
+| V3.3 Session Termination | 4 | 3 | 1 | 0 |
 | V3.4 Cookie-based | 5 | 5 | 0 | 0 |
 | V3.5 Token-based | 3 | 2 | 0 | 1 |
 | V3.6 Federated | 2 | 0 | 0 | 2 |
 | V3.7 Defenses | 1 | 0 | 1 | 0 |
-| **TOTAL** | **19** | **12** | **4** | **3** |
+| **TOTAL** | **19** | **14** | **2** | **3** |

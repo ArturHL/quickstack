@@ -7,8 +7,10 @@ import com.quickstack.common.exception.AuthenticationException;
 import com.quickstack.common.security.IpAddressExtractor;
 import com.quickstack.user.dto.request.ForgotPasswordRequest;
 import com.quickstack.user.dto.request.LoginRequest;
+import com.quickstack.user.dto.request.RegisterRequest;
 import com.quickstack.user.dto.request.ResetPasswordRequest;
 import com.quickstack.user.dto.response.AuthResponse;
+import com.quickstack.user.dto.response.UserResponse;
 import com.quickstack.user.entity.LoginAttempt;
 import com.quickstack.user.entity.User;
 import com.quickstack.user.repository.UserRepository;
@@ -16,6 +18,7 @@ import com.quickstack.user.service.LoginAttemptService;
 import com.quickstack.user.service.PasswordResetService;
 import com.quickstack.user.service.PasswordService;
 import com.quickstack.user.service.RefreshTokenService;
+import com.quickstack.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,6 +62,7 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordService passwordService;
     private final PasswordResetService passwordResetService;
     private final LoginAttemptService loginAttemptService;
@@ -77,6 +81,7 @@ public class AuthController {
 
     public AuthController(
             UserRepository userRepository,
+            UserService userService,
             PasswordService passwordService,
             PasswordResetService passwordResetService,
             LoginAttemptService loginAttemptService,
@@ -86,6 +91,7 @@ public class AuthController {
             JwtServiceAdapter jwtService
     ) {
         this.userRepository = userRepository;
+        this.userService = userService;
         this.passwordService = passwordService;
         this.passwordResetService = passwordResetService;
         this.loginAttemptService = loginAttemptService;
@@ -93,6 +99,45 @@ public class AuthController {
         this.jwtProperties = jwtProperties;
         this.cookieProperties = cookieProperties;
         this.jwtService = jwtService;
+    }
+
+    /**
+     * Registers a new user for the given tenant.
+     * <p>
+     * Validates:
+     * - Email uniqueness within the tenant
+     * - Password policy (12-128 characters)
+     * - Password not in breach database (HIBP)
+     *
+     * @param request registration data
+     * @return 201 Created with user info
+     */
+    @PostMapping("/register")
+    @Transactional
+    public ResponseEntity<ApiResponse<UserResponse>> register(
+            @Valid @RequestBody RegisterRequest request
+    ) {
+        UUID tenantId = UUID.fromString(request.tenantId());
+        UUID roleId = UUID.fromString(request.roleId());
+        UUID branchId = request.branchId() != null ? UUID.fromString(request.branchId()) : null;
+
+        log.info("Registration attempt for tenant {}", tenantId);
+
+        UserService.RegisterUserCommand command = new UserService.RegisterUserCommand(
+                tenantId,
+                request.email(),
+                request.password(),
+                request.fullName(),
+                roleId,
+                branchId,
+                request.phone()
+        );
+
+        User user = userService.registerUser(command);
+
+        log.info("User registered successfully: userId={}", user.getId());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
+                .body(ApiResponse.success(UserResponse.from(user)));
     }
 
     /**

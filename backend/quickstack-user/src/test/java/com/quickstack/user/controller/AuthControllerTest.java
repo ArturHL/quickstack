@@ -17,6 +17,8 @@ import com.quickstack.user.service.LoginAttemptService;
 import com.quickstack.user.service.PasswordResetService;
 import com.quickstack.user.service.PasswordService;
 import com.quickstack.user.service.RefreshTokenService;
+import com.quickstack.user.service.UserService;
+import com.quickstack.user.dto.request.RegisterRequest;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +55,9 @@ class AuthControllerTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private PasswordService passwordService;
@@ -105,6 +110,7 @@ class AuthControllerTest {
         // Create controller
         authController = new AuthController(
                 userRepository,
+                userService,
                 passwordService,
                 passwordResetService,
                 loginAttemptService,
@@ -515,6 +521,81 @@ class AuthControllerTest {
 
             assertThatThrownBy(() -> authController.resetPassword(request))
                     .isInstanceOf(PasswordCompromisedException.class);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Register Tests
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("Register")
+    class RegisterTests {
+
+        private RegisterRequest validRequest;
+
+        @BeforeEach
+        void setUpRegisterTests() {
+            validRequest = new RegisterRequest(
+                    TENANT_ID.toString(),
+                    EMAIL,
+                    "SecurePassword123!",
+                    "John Doe",
+                    ROLE_ID.toString(),
+                    null,
+                    null
+            );
+        }
+
+        @Test
+        @DisplayName("should return 201 with user info on successful registration")
+        void shouldReturn201OnSuccessfulRegistration() {
+            when(userService.registerUser(any(UserService.RegisterUserCommand.class)))
+                    .thenReturn(testUser);
+
+            var response = authController.register(validRequest);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().data()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("should propagate EmailAlreadyExistsException for duplicate email")
+        void shouldPropagateEmailAlreadyExistsException() {
+            doThrow(new UserService.EmailAlreadyExistsException())
+                    .when(userService).registerUser(any(UserService.RegisterUserCommand.class));
+
+            assertThatThrownBy(() -> authController.register(validRequest))
+                    .isInstanceOf(UserService.EmailAlreadyExistsException.class);
+        }
+
+        @Test
+        @DisplayName("should propagate PasswordCompromisedException for breached password")
+        void shouldPropagatePasswordCompromisedException() {
+            doThrow(PasswordCompromisedException.withBreachCount(100))
+                    .when(userService).registerUser(any(UserService.RegisterUserCommand.class));
+
+            assertThatThrownBy(() -> authController.register(validRequest))
+                    .isInstanceOf(PasswordCompromisedException.class);
+        }
+
+        @Test
+        @DisplayName("should create RegisterUserCommand with correct tenant and role")
+        void shouldCreateCommandWithCorrectTenantAndRole() {
+            when(userService.registerUser(any(UserService.RegisterUserCommand.class)))
+                    .thenReturn(testUser);
+
+            authController.register(validRequest);
+
+            var captor = org.mockito.ArgumentCaptor.forClass(UserService.RegisterUserCommand.class);
+            verify(userService).registerUser(captor.capture());
+
+            UserService.RegisterUserCommand command = captor.getValue();
+            assertThat(command.tenantId()).isEqualTo(TENANT_ID);
+            assertThat(command.email()).isEqualTo(EMAIL);
+            assertThat(command.roleId()).isEqualTo(ROLE_ID);
+            assertThat(command.branchId()).isNull();
         }
     }
 }
