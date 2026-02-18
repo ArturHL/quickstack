@@ -261,6 +261,33 @@ El reviewer debe verificar:
 
 ---
 
+## Checklist de Seguridad por Sprint
+
+Aplicar al inicio y cierre de cada sprint que toque autenticacion, autorizacion, o datos sensibles.
+
+### Preparacion (inicio de sprint)
+- [ ] Revisar tareas contra requisitos ASVS relevantes
+- [ ] Identificar endpoints con datos sensibles o modificadores de estado
+- [ ] Incluir tests de seguridad en Definition of Done
+
+### Durante Desarrollo
+- [ ] No hardcodear secretos (usar env vars)
+- [ ] Logging sin PII, passwords, ni tokens
+- [ ] Parametrizar todas las queries (no concatenacion de strings)
+- [ ] Constant-time comparison para secretos (`MessageDigest.isEqual`)
+- [ ] Tenant isolation en toda query nueva
+
+### Pre-Merge
+- [ ] Semgrep sin warnings de seguridad
+- [ ] OWASP Dependency-Check sin CVE criticos
+- [ ] Code review enfocado en autorizacion, inyeccion, datos sensibles, tenant isolation
+
+### Post-Merge
+- [ ] Tests de seguridad pasan en CI
+- [ ] Documentar deuda de seguridad si existe (en `docs/ARCHITECTURE.md#deuda-tecnica`)
+
+---
+
 ## Referencias
 
 - [OWASP ASVS 4.0.3](https://github.com/OWASP/ASVS/tree/v4.0.3)

@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-16
-> **Estado:** Phase 0.3 en progreso (Sprint 3/6 completado)
+> **Última actualización:** 2026-02-18
+> **Estado:** Phase 0.3 COMPLETADO (340 tests, 6/6 sprints) | Próximo: Phase 0.4
 
 ## Vision Summary
 
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 50% (0.1 ✅, 0.2 ✅) |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 75% (0.1 ✅, 0.2 ✅, 0.3 ✅) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -64,7 +64,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | 🔄 Sprint 3/6 completado |
+| 0.3 | Módulo de Autenticación (ASVS L2) | ✅ Completado (340 tests, 8 endpoints) |
 | 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
 
 ---
@@ -132,88 +132,25 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ---
 
-### Phase 0.3: Módulo de Autenticación (ASVS L2)
+### Phase 0.3: Módulo de Autenticación (ASVS L2) ✅
 
-**Est. Effort:** 5-7 días
+**340 tests | 6 sprints | 8 endpoints**
 
-**Objetivo:** Implementación completa de auth nativo cumpliendo OWASP ASVS L2.
+> **Roadmap detallado archivado:** `docs/archive/PHASE_0.3_AUTH_ROADMAP.md`
 
-> **Roadmap detallado:** `docs/PHASE_0.3_AUTH_ROADMAP.md`
+- [x] Sprint 1: Properties, excepciones custom, SecureTokenGenerator, IpAddressExtractor (61 tests)
+- [x] Sprint 2: Argon2id + pepper, HIBP k-Anonymity, UserService multi-tenant (61 tests)
+- [x] Sprint 3: JWT RS256 2048-bit, algorithm confusion protection, key rotation (55 tests)
+- [x] Sprint 4: Login/Refresh/Logout, account lockout (5 intentos/15 min), cookie `__Host-` (40 tests)
+- [x] Sprint 5: Rate limiting Bucket4j (IP: 10/min, email: 5/min), password reset timing-safe (~80 tests)
+- [x] Sprint 6: SessionService, register endpoint, multi-tenant isolation, penetration tests (123 tests)
 
-#### Sprint 1: Foundation & Core Infrastructure ✅ (61 tests)
-- [x] Properties Classes: JwtProperties, PasswordProperties, RateLimitProperties, CookieProperties
-- [x] Excepciones Custom: AuthenticationException, RateLimitExceededException, AccountLockedException, InvalidTokenException, PasswordCompromisedException, PasswordValidationException
-- [x] Utilidades de Seguridad: SecureTokenGenerator, IpAddressExtractor
-- [x] GlobalExceptionHandler actualizado con handlers de auth
+**Endpoints:** `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`,
+`/auth/forgot-password`, `/auth/reset-password`, `/users/me/sessions` (GET + DELETE)
 
-#### Sprint 2: Password Hashing & User Management ✅ (61 tests)
-- [x] PasswordService: Argon2id + pepper versionado + timing-safe comparison (29 tests)
-- [x] HibpClient: k-Anonymity breach detection con WireMock tests (16 tests)
-- [x] UserService: Registro multi-tenant con validación completa (16 tests)
-- [x] User Entity + UserRepository con queries multi-tenant
-- [x] Checkpoint de Seguridad #1 completado
+**ASVS Compliance:** V2 26% | V3 74% | V6 56%
 
-#### Sprint 3: JWT Generation & Validation ✅ (55 tests)
-- [x] JwtConfig: Carga RSA keys desde Base64/PEM, rotación, validación 2048 bits (15 tests)
-- [x] JwtService: RS256 signing, claims completos, protección algorithm confusion (25 tests)
-- [x] JwtAuthenticationFilter: Extracción Bearer token, SecurityContext (15 tests)
-- [x] SecurityConfig actualizado con JWT filter
-
-#### Endpoints de Auth API
-| Endpoint | Método | Descripción | ASVS |
-|----------|--------|-------------|------|
-| `/api/v1/auth/register` | POST | Crear cuenta | V2.1 |
-| `/api/v1/auth/login` | POST | Obtener tokens | V2.2 |
-| `/api/v1/auth/refresh` | POST | Rotar refresh token | V3.5 |
-| `/api/v1/auth/logout` | POST | Revocar tokens | V3.3 |
-| `/api/v1/auth/forgot-password` | POST | Solicitar reset | V2.5 |
-| `/api/v1/auth/reset-password` | POST | Cambiar password | V2.5 |
-| `/api/v1/auth/me` | GET | Info usuario actual | - |
-
-#### Seguridad de Passwords (ASVS V2.1, V2.4)
-- [ ] Argon2id para hashing (Spring Security 6)
-- [ ] Mínimo 12 caracteres
-- [ ] Sin reglas de composición (no "requiere mayúscula")
-- [ ] Check contra HaveIBeenPwned API
-- [ ] Validación de fuerza (zxcvbn o nbvcxz)
-
-#### Protección de Cuentas (ASVS V2.2)
-- [ ] Rate limiting por IP/email (Bucket4j)
-- [ ] Account lockout después de 5 intentos
-- [ ] Lockout duration: 15 minutos
-- [ ] Registro en login_attempts
-
-#### Tokens JWT (ASVS V3)
-- [x] Access token: RS256, 15 min expiry (configurable)
-- [x] JWT claims: sub, email, tenant_id, role_id, branch_id, jti, iss, iat, exp
-- [x] Algorithm confusion attack protection (rechaza HS256, none)
-- [x] Key rotation support con previous keys
-- [ ] Refresh token: almacenado en BD, 7 días expiry
-- [ ] Refresh token rotation en cada uso
-- [ ] Family tracking para detectar reuso
-- [ ] Revocación de familia completa si reuso detectado
-
-#### Password Recovery (ASVS V2.5)
-- [ ] Token único, hasheado en BD (SHA-256)
-- [ ] Expira en 1 hora
-- [ ] Single use (marked as used_at)
-- [ ] Invalida tokens anteriores del mismo usuario
-
-#### Tests de Seguridad
-- [ ] Test: Login con credenciales inválidas
-- [ ] Test: Account lockout después de N intentos
-- [ ] Test: Refresh token rotation
-- [ ] Test: Refresh token reuse detection
-- [ ] Test: Password reset flow completo
-- [ ] Test: Token expirado rechazado
-- [ ] Test: Rate limiting funciona
-
-**Success Criteria 0.3:**
-- Todos los endpoints funcionan
-- Tests de seguridad pasan al 100%
-- Rate limiting bloquea después de umbral
-- Lockout funciona correctamente
-- Refresh token rotation implementado
+**Success Criteria 0.3:** ✅ Completado
 
 ---
 
@@ -625,6 +562,21 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-18
+- **Reorganizacion de documentacion:**
+  - `PHASE_0.3_AUTH_ROADMAP.md` archivado en `docs/archive/`
+  - ROADMAP.md actualizado con estado real de Phase 0.3 (completado)
+  - Decisiones criticas de auth migradas a ARCHITECTURE.md y SECURITY.md
+  - Convencion de archivado documentada en `docs/archive/README.md`
+
+### 2026-02-17
+- **Phase 0.3 COMPLETADO (340 tests totales, 6/6 sprints):**
+  - Sprint 6: SessionService, register endpoint, multi-tenant isolation, penetration tests (123 tests nuevos)
+  - Sprint 5: Rate limiting Bucket4j (IP: 10/min, email: 5/min), password reset (SHA-256, timing-safe, ~80 tests)
+  - Sprint 4: Login/Refresh/Logout, account lockout, refresh token rotation con family tracking (40 tests)
+  - ASVS: V2 26%, V3 74%, V6 56%
+  - Checkpoint de Seguridad #3 completado (penetration tests, multi-tenant isolation)
 
 ### 2026-02-16
 - **Phase 0.3 Sprint 3 completado (55 tests nuevos, 177 total):**

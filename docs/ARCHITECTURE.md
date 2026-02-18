@@ -1,7 +1,7 @@
 # QuickStack POS - Arquitectura Tecnica
 
-> **Ultima actualizacion:** 2026-02-05
-> **Fase actual:** Phase 0 - Foundation
+> **Ultima actualizacion:** 2026-02-18
+> **Fase actual:** Phase 0 - Foundation (0.3 completado, 0.4 pendiente)
 
 ---
 
@@ -176,11 +176,58 @@ CREATE INDEX idx_products_tenant ON products(tenant_id);
 3. Backend rota refresh token (invalida el anterior, genera nuevo)
 4. Retorna nuevo access token + nuevo refresh token
 
-**Seguridad (ASVS L2):**
-- Passwords: Argon2id, min 12 caracteres, check HaveIBeenPwned
-- Account lockout: 5 intentos fallidos = bloqueo 15 min
-- Refresh token rotation: Cada uso genera nuevo token
-- Family tracking: Si token antiguo reutilizado, revoca toda la familia
+**Decisiones de Seguridad (ASVS L2):**
+
+| Parametro | Valor | Razon |
+|-----------|-------|-------|
+| Password hashing | Argon2id (iterations=3, memory=65536 KB, parallelism=4) + pepper versionado | Recomendacion OWASP 2024 |
+| Password minimo | 12 caracteres, max 128, sin reglas de composicion | ASVS V2.1 |
+| HIBP falla | Bloquear registro (blockOnFailure=true) | Seguridad sobre UX |
+| JWT signing | RS256 2048-bit, rechaza HS256 y `none` | Asimetrico + algorithm confusion protection |
+| Access token expiry | 15 minutos | Balance seguridad/UX |
+| Refresh token expiry | 7 dias, rotation en cada uso | Con family tracking |
+| Refresh token reuso | Revoca toda la familia de tokens | Detecta token theft |
+| Rate limit por IP | 10 req/min (Bucket4j + Caffeine) | Mitiga brute force |
+| Rate limit por email | 5 req/min | Mitiga credential stuffing |
+| Account lockout | 5 intentos fallidos = 15 min, auto-unlock | ASVS V2.2 |
+
+**Configuracion de Cookie (Refresh Token):**
+
+```
+Name:     __Host-refreshToken
+HttpOnly: true
+Secure:   true
+SameSite: Strict
+Path:     /api/v1/auth
+Max-Age:  604800 (7 dias)
+```
+
+**Procedimiento de Rotacion de JWT Keys:**
+
+```bash
+# Generar nuevo par RSA 2048-bit
+openssl genrsa -out jwt-private.pem 2048
+openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+
+# Codificar para env vars
+base64 -w 0 jwt-private.pem > jwt-private.b64
+base64 -w 0 jwt-public.pem > jwt-public.b64
+```
+
+Proceso de rotacion normal (anual):
+
+| Paso | Accion |
+|------|--------|
+| 1 | Generar nuevo par de claves |
+| 2 | Agregar public key actual a `JWT_PREVIOUS_PUBLIC_KEYS` (gracia 7 dias) |
+| 3 | Actualizar `JWT_PRIVATE_KEY` y `JWT_PUBLIC_KEY` con nuevas claves |
+| 4 | Deploy en Render |
+| 5 | Despues de 7 dias, remover clave anterior de `JWT_PREVIOUS_PUBLIC_KEYS` |
+
+Rotacion de emergencia (compromiso de clave):
+- **NO** agregar clave comprometida a `JWT_PREVIOUS_PUBLIC_KEYS`
+- Deploy inmediato — todos los usuarios tendran que re-autenticarse
+- Documentar incidente
 
 **Roles:**
 | Rol | Permisos |
@@ -661,7 +708,27 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 
 ---
 
+---
+
+## Deuda Tecnica Aceptada
+
+| Deuda | Riesgo | Plan de Remediacion |
+|-------|--------|---------------------|
+| Sin MFA en MVP | Medio-Alto | TOTP para OWNER en Phase 1 |
+| JWT keys en env vars | Medio | Migrar a AWS KMS o Vault post-piloto |
+| Rate limiting in-memory (Caffeine) | Bajo | Redis si multiples instancias de backend |
+| Sin vault de secretos | Medio | Evaluar HashiCorp Vault post-piloto |
+| zxcvbn no implementado | Bajo | Longitud minima (12 chars) como proxy de fuerza |
+
+---
+
 ## Changelog
+
+### 2026-02-18
+- Agregadas decisiones de seguridad detalladas (parametros Argon2id, rate limiting, cookie config)
+- Agregado procedimiento de rotacion de JWT keys
+- Agregada seccion de Deuda Tecnica Aceptada
+- Actualizado conteo de tablas a 32 (29 originales + 3 de auth: refresh_tokens, password_reset_tokens, login_attempts)
 
 ### 2026-02-05
 - Actualizado Spring Boot a version 3.5.x
