@@ -2,8 +2,8 @@
 
 > **Capitulo:** V1
 > **Requisitos L2:** 38
-> **Cumplidos:** 12 (32%)
-> **Ultima actualizacion:** 2026-02-09
+> **Cumplidos:** 19 (50%)
+> **Ultima actualizacion:** 2026-02-18
 
 ---
 
@@ -27,8 +27,8 @@
 |----|-----------|-------|--------|---------------------|
 | 1.2.1 | Verificar el uso de cuentas de sistema operativo unicas o especiales de bajo privilegio para todos los componentes de la aplicacion, servicios y servidores | L2 | ✅ | **Implementacion:** Dockerfile multi-stage con usuario no-root (`USER quickstack:quickstack` con UID/GID 1000). Imagen base Alpine minimalista. Pendiente en Neon: roles con privilegios minimos (`quickstack_app` CRUD, `quickstack_readonly` SELECT). |
 | 1.2.2 | Verificar que las comunicaciones entre componentes de la aplicacion, incluyendo APIs, middleware y capas de datos, esten autenticadas. Los componentes deben tener los privilegios minimos necesarios | L2 | ⏳ | **Implementacion:** Backend -> Neon: conexion SSL obligatoria con certificado validado. WebSocket: autenticacion JWT en handshake. Cada componente tiene credenciales unicas (no compartidas). JWTs firmados con clave privada RS256 almacenada en backend. |
-| 1.2.3 | Verificar que la aplicacion usa un unico mecanismo de autenticacion verificado que sea seguro, extensible para incluir autenticacion fuerte, y tenga suficiente logging y monitoreo para detectar abuso de cuentas o brechas | L2 | ⏳ | **Implementacion:** Spring Security como unico mecanismo de auth. Passwords almacenados con Argon2id (ASVS 2.4.1). JWT firmados con RS256, clave privada en backend. Brute force protection via `failed_login_attempts` + account lockout. Todos los login attempts loggeados en tabla `login_attempts`. Claims JWT incluyen tenant_id/branch_id/roles. |
-| 1.2.4 | Verificar que todas las rutas de autenticacion y APIs de gestion de identidad implementen fuerza de control de seguridad de autenticacion consistente | L2 | ⏳ | **Implementacion:** Endpoints de auth: `/api/v1/auth/login`, `/register`, `/forgot-password`, `/reset-password`, `/refresh-token`. Todas las demas APIs requieren JWT valido. Spring Security con `JwtAuthenticationConverter` personalizado extrae claims y roles. Rate limiting en endpoints de auth (Bucket4j o similar). |
+| 1.2.3 | Verificar que la aplicacion usa un unico mecanismo de autenticacion verificado que sea seguro, extensible para incluir autenticacion fuerte, y tenga suficiente logging y monitoreo para detectar abuso de cuentas o brechas | L2 | ✅ | **Implementacion:** Spring Security como unico mecanismo de auth. Passwords almacenados con Argon2id (ASVS 2.4.1). JWT firmados con RS256, clave privada en backend. Brute force protection via `failed_login_attempts` + account lockout. Todos los login attempts loggeados en tabla `login_attempts`. Claims JWT incluyen tenant_id/branch_id/roles. |
+| 1.2.4 | Verificar que todas las rutas de autenticacion y APIs de gestion de identidad implementen fuerza de control de seguridad de autenticacion consistente | L2 | ✅ | **Implementacion:** Endpoints de auth: `/api/v1/auth/login`, `/register`, `/forgot-password`, `/reset-password`, `/refresh-token`. Todas las demas APIs requieren JWT valido. Spring Security con `JwtAuthenticationConverter` personalizado extrae claims y roles. Rate limiting en endpoints de auth (Bucket4j o similar). |
 
 ---
 
@@ -98,8 +98,8 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.9.1 | Verificar que la aplicacion cifre las comunicaciones entre componentes, particularmente cuando esten en diferentes contenedores, sistemas, sitios o proveedores de nube | L2 | ⏳ | **Implementacion:** Frontend -> Backend: HTTPS obligatorio (TLS 1.2+). Backend -> Neon: SSL mode=require con validacion de certificado. Backend -> Twilio/SendGrid: HTTPS. WebSocket: WSS (WebSocket Secure). No hay comunicacion en texto plano. |
-| 1.9.2 | Verificar que los componentes de la aplicacion verifiquen la autenticidad de cada lado en un enlace de comunicacion para prevenir ataques person-in-the-middle. Por ejemplo, los componentes de la aplicacion deben validar certificados y cadenas TLS | L2 | ⏳ | **Implementacion:** Backend valida certificados TLS de Neon y servicios externos (default JVM trust store + actualizaciones). JWTs firmados localmente con RS256, verificados con clave publica. HSTS header en respuestas (max-age=31536000). |
+| 1.9.1 | Verificar que la aplicacion cifre las comunicaciones entre componentes, particularmente cuando esten en diferentes contenedores, sistemas, sitios o proveedores de nube | L2 | ✅ | **Implementacion:** Frontend -> Backend: HTTPS obligatorio (TLS 1.2+). Backend -> Neon: SSL mode=require con validacion de certificado. Backend -> Twilio/SendGrid: HTTPS. WebSocket: WSS (WebSocket Secure). No hay comunicacion en texto plano. |
+| 1.9.2 | Verificar que los componentes de la aplicacion verifiquen la autenticidad de cada lado en un enlace de comunicacion para prevenir ataques person-in-the-middle. Por ejemplo, los componentes de la aplicacion deben validar certificados y cadenas TLS | L2 | ✅ | **Implementacion:** Backend valida certificados TLS de Neon y servicios externos (default JVM trust store + actualizaciones). JWTs firmados localmente con RS256, verificados con clave publica. HSTS header en respuestas (max-age=31536000). |
 
 ---
 
@@ -116,7 +116,7 @@
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.11.1 | Verificar la definicion y documentacion de todos los componentes de la aplicacion en terminos de las funciones de negocio o seguridad que proporcionan | L2 | ✅ | **Implementacion:** Modulos documentados en ARCHITECTURE.md y DATABASE_SCHEMA.md. Cada modulo Maven tiene responsabilidad clara: `quickstack-tenant` (multi-tenancy), `quickstack-user` (autenticacion/autorizacion), `quickstack-pos` (transacciones), etc. Package-by-feature facilita auditoria de responsabilidades. |
-| 1.11.2 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso no compartan estado no sincronizado | L2 | ⏳ | **Implementacion:** Autenticacion: stateless (JWT generados por backend). Refresh tokens en BD con transacciones ACID. Tenant context: ThreadLocal limpiado despues de cada request. Ordenes: transacciones ACID en PostgreSQL. Inventario: actualizacion atomica de stock con `SELECT FOR UPDATE`. |
+| 1.11.2 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso no compartan estado no sincronizado | L2 | ✅ | **Implementacion:** Autenticacion: stateless (JWT generados por backend). Refresh tokens en BD con transacciones ACID. Tenant context: ThreadLocal limpiado despues de cada request. Ordenes: transacciones ACID en PostgreSQL. Inventario: actualizacion atomica de stock con `SELECT FOR UPDATE`. |
 | 1.11.3 | Verificar que todos los flujos de logica de negocio de alto valor, incluyendo autenticacion, gestion de sesiones y control de acceso sean thread safe y resistentes a condiciones de carrera time-of-check y time-of-use | L3 | N/A | Requisito L3 - fuera del alcance actual. **Nota para futuro:** Pagos y descuento de inventario usan `@Transactional` con isolation SERIALIZABLE para flujos criticos. `daily_sequence` generado con `SELECT MAX() + 1 FOR UPDATE` para evitar duplicados. |
 
 ---
@@ -144,11 +144,11 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 1.14.1 | Verificar la segregacion de componentes de diferentes niveles de confianza a traves de controles de seguridad bien definidos, reglas de firewall, gateways de API, reverse proxies, grupos de seguridad en la nube, o mecanismos similares | L2 | ⏳ | **Implementacion:** Neon BD: solo accesible desde IPs de Render (allow list). Frontend en Vercel: solo assets estaticos, sin acceso a BD. Backend en Render: unico punto de entrada a BD. WebSocket en mismo backend (misma autenticacion). |
+| 1.14.1 | Verificar la segregacion de componentes de diferentes niveles de confianza a traves de controles de seguridad bien definidos, reglas de firewall, gateways de API, reverse proxies, grupos de seguridad en la nube, o mecanismos similares | L2 | ✅ | **Implementacion:** Neon BD: solo accesible desde IPs de Render (allow list). Frontend en Vercel: solo assets estaticos, sin acceso a BD. Backend en Render: unico punto de entrada a BD. WebSocket en mismo backend (misma autenticacion). |
 | 1.14.2 | Verificar que firmas binarias, conexiones de confianza, y endpoints verificados se usen para desplegar binarios a dispositivos remotos | L2 | ⏳ | **Implementacion:** Docker images firmadas (Docker Content Trust). GitHub Actions build con hash verificable. Render pull desde GitHub container registry (conexion autenticada). Dependencias verificadas via checksums en Maven/npm lockfiles. |
 | 1.14.3 | Verificar que el pipeline de build advierte sobre componentes desactualizados o inseguros y toma acciones apropiadas | L2 | ✅ | **Implementacion:** GitHub Actions CI incluye: `npm audit --audit-level=high` para frontend, OWASP Dependency-Check (`-DfailBuildOnCVSS=7`) para backend, Semgrep con rulesets `p/java`, `p/security-audit`, `p/secrets`, `p/owasp-top-ten`. Reports como artifacts. |
 | 1.14.4 | Verificar que el pipeline de build contiene un paso para construir y verificar automaticamente el despliegue seguro de la aplicacion, especialmente si la infraestructura de la aplicacion esta definida como software (IaC) | L2 | ⏳ | **Implementacion:** GitHub Actions workflow: lint -> test -> security scan -> build -> deploy staging -> smoke tests -> deploy prod. Dockerfile multi-stage (build sin runtime tools). Health check endpoint verifica conectividad post-deploy. Rollback automatico si health check falla. |
-| 1.14.5 | Verificar que los despliegues de aplicacion esten adecuadamente sandboxed, containerizados y/o aislados a nivel de red para retrasar y disuadir atacantes de atacar otras aplicaciones, especialmente cuando realizan acciones sensibles o peligrosas como deserializacion | L2 | ⏳ | **Implementacion:** Contenedor Docker aislado en Render. Network isolation por servicio de Render. No hay shell access en produccion. Container ejecuta como non-root. Read-only filesystem excepto /tmp. Recursos limitados (CPU, memoria) para prevenir DoS. |
+| 1.14.5 | Verificar que los despliegues de aplicacion esten adecuadamente sandboxed, containerizados y/o aislados a nivel de red para retrasar y disuadir atacantes de atacar otras aplicaciones, especialmente cuando realizan acciones sensibles o peligrosas como deserializacion | L2 | ✅ | **Implementacion:** Contenedor Docker aislado en Render. Network isolation por servicio de Render. No hay shell access en produccion. Container ejecuta como non-root. Read-only filesystem excepto /tmp. Recursos limitados (CPU, memoria) para prevenir DoS. |
 | 1.14.6 | Verificar que la aplicacion no usa tecnologias del lado del cliente inseguras, no soportadas o deprecadas como NSAPI plugins, Flash, Shockwave, ActiveX, Silverlight, NACL, o applets Java del lado del cliente | L2 | ✅ | **Implementacion:** Frontend React puro. No hay plugins de navegador. No hay Java applets ni Flash. Solo JavaScript moderno (ES2020+). Dependencias actualizadas regularmente. No hay iframes de terceros. Login form nativo en React (no widget externo). |
 
 ---
@@ -158,17 +158,17 @@
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
 | V1.1 Secure SDLC | 7 | 5 | 2 | 0 |
-| V1.2 Authentication | 4 | 1 | 3 | 0 |
+| V1.2 Authentication | 4 | 3 | 1 | 0 |
 | V1.3 Session Management | 0 | 0 | 0 | 0 |
 | V1.4 Access Control | 3 | 0 | 3 | 0 |
 | V1.5 Input/Output | 4 | 0 | 4 | 0 |
 | V1.6 Cryptographic | 4 | 1 | 3 | 0 |
 | V1.7 Logging | 2 | 1 | 1 | 0 |
 | V1.8 Data Protection | 2 | 0 | 2 | 0 |
-| V1.9 Communications | 2 | 0 | 2 | 0 |
+| V1.9 Communications | 2 | 2 | 0 | 0 |
 | V1.10 Malicious Code | 1 | 1 | 0 | 0 |
-| V1.11 Business Logic | 2 | 1 | 1 | 0 |
+| V1.11 Business Logic | 2 | 2 | 0 | 0 |
 | V1.12 File Upload | 1 | 0 | 1 | 0 |
 | V1.13 API | 0 | 0 | 0 | 0 |
-| V1.14 Configuration | 6 | 2 | 4 | 0 |
-| **TOTAL** | **38** | **12** | **26** | **0** |
+| V1.14 Configuration | 6 | 4 | 2 | 0 |
+| **TOTAL** | **38** | **19** | **19** | **0** |

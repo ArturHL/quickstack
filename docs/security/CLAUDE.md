@@ -4,7 +4,7 @@ OWASP ASVS L2 | Spring Security 6
 
 ## Progreso ASVS
 
-**58/272 requisitos cumplidos (21%)**
+**65/272 requisitos cumplidos (24%)**
 
 Ver detalle completo: `asvs/README.md` | `ASVS_COMPLIANCE_REPORT.md`
 
