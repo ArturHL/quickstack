@@ -5,12 +5,15 @@ import com.quickstack.common.config.properties.JwtProperties;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.exception.AuthenticationException;
 import com.quickstack.common.security.IpAddressExtractor;
+import com.quickstack.user.dto.request.ForgotPasswordRequest;
 import com.quickstack.user.dto.request.LoginRequest;
+import com.quickstack.user.dto.request.ResetPasswordRequest;
 import com.quickstack.user.dto.response.AuthResponse;
 import com.quickstack.user.entity.LoginAttempt;
 import com.quickstack.user.entity.User;
 import com.quickstack.user.repository.UserRepository;
 import com.quickstack.user.service.LoginAttemptService;
+import com.quickstack.user.service.PasswordResetService;
 import com.quickstack.user.service.PasswordService;
 import com.quickstack.user.service.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
@@ -32,6 +35,8 @@ import java.util.UUID;
  * - POST /api/v1/auth/login - Authenticate and get tokens
  * - POST /api/v1/auth/refresh - Refresh access token
  * - POST /api/v1/auth/logout - Revoke tokens
+ * - POST /api/v1/auth/forgot-password - Initiate password reset
+ * - POST /api/v1/auth/reset-password - Complete password reset
  * <p>
  * Security features:
  * - Account lockout after failed attempts
@@ -40,6 +45,10 @@ import java.util.UUID;
  * <p>
  * ASVS Compliance:
  * - V2.2.1: Account lockout
+ * - V2.5.1: Secure password recovery mechanism
+ * - V2.5.2: Password reset token is single-use
+ * - V2.5.4: Password reset token is time-limited
+ * - V2.5.7: Password reset doesn't reveal account existence
  * - V3.4: Secure cookie attributes
  * - V3.5: Token rotation
  */
@@ -51,6 +60,7 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final PasswordService passwordService;
+    private final PasswordResetService passwordResetService;
     private final LoginAttemptService loginAttemptService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
@@ -68,6 +78,7 @@ public class AuthController {
     public AuthController(
             UserRepository userRepository,
             PasswordService passwordService,
+            PasswordResetService passwordResetService,
             LoginAttemptService loginAttemptService,
             RefreshTokenService refreshTokenService,
             JwtProperties jwtProperties,
@@ -76,6 +87,7 @@ public class AuthController {
     ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
+        this.passwordResetService = passwordResetService;
         this.loginAttemptService = loginAttemptService;
         this.refreshTokenService = refreshTokenService;
         this.jwtProperties = jwtProperties;
@@ -262,6 +274,93 @@ public class AuthController {
         log.debug("User logged out");
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Initiates a password reset.
+     * <p>
+     * This endpoint is timing-safe: it returns the same response whether
+     * the email exists or not. This prevents enumeration attacks.
+     * <p>
+     * The actual password reset token is NOT returned in the response.
+     * In production, it would be sent via email.
+     *
+     * @param request contains the email and tenant ID
+     * @param httpRequest for extracting client IP
+     * @return generic success message (doesn't reveal if user exists)
+     */
+    @PostMapping("/forgot-password")
+    @Transactional
+    public ResponseEntity<ApiResponse<ForgotPasswordResponse>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        String ipAddress = IpAddressExtractor.extract(httpRequest);
+        UUID tenantId = UUID.fromString(request.tenantId());
+
+        log.info("Password reset requested for {} from IP {}", request.maskedEmail(), ipAddress);
+
+        // Initiate reset (timing-safe - returns same result for existing/non-existing)
+        PasswordResetService.ResetInitiationResult result = passwordResetService.initiateReset(
+                request.normalizedEmail(),
+                tenantId,
+                ipAddress
+        );
+
+        // In production, send email if result.success() is true
+        // For security, we return the same response regardless of result
+        if (result.success()) {
+            log.info("Password reset token generated for user {} (token would be emailed)", result.userId());
+            // TODO: Send email with reset link containing result.token()
+        }
+
+        // Always return success message (timing-safe)
+        return ResponseEntity.ok(ApiResponse.success(new ForgotPasswordResponse(
+                "If the email exists, you will receive a password reset link."
+        )));
+    }
+
+    /**
+     * Completes a password reset using a valid token.
+     * <p>
+     * This endpoint:
+     * 1. Validates the reset token (single-use, time-limited)
+     * 2. Validates the new password against policy
+     * 3. Checks the new password against breach database (HIBP)
+     * 4. Updates the password
+     * 5. Revokes all refresh tokens (forces re-login)
+     *
+     * @param request contains the token and new password
+     * @return success message
+     */
+    @PostMapping("/reset-password")
+    @Transactional
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        log.debug("Password reset attempt with token");
+
+        passwordResetService.resetPassword(request.token(), request.newPassword());
+
+        log.info("Password reset completed successfully");
+
+        return ResponseEntity.ok(ApiResponse.success(new ResetPasswordResponse(
+                "Password has been reset successfully. Please login with your new password."
+        )));
+    }
+
+    // -------------------------------------------------------------------------
+    // Response Records
+    // -------------------------------------------------------------------------
+
+    /**
+     * Response for forgot-password endpoint.
+     */
+    public record ForgotPasswordResponse(String message) {}
+
+    /**
+     * Response for reset-password endpoint.
+     */
+    public record ResetPasswordResponse(String message) {}
 
     // -------------------------------------------------------------------------
     // Cookie Helpers

@@ -169,6 +169,15 @@ public class User {
     }
 
     /**
+     * Reset failed login attempts and unlock account.
+     * Used during password reset.
+     */
+    public void resetFailedLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+    }
+
+    /**
      * Soft delete the user.
      */
     public void softDelete(UUID deletedByUserId) {
@@ -256,6 +265,10 @@ public class User {
 
     public Instant getPasswordChangedAt() {
         return passwordChangedAt;
+    }
+
+    public void setPasswordChangedAt(Instant passwordChangedAt) {
+        this.passwordChangedAt = passwordChangedAt;
     }
 
     public boolean isMustChangePassword() {

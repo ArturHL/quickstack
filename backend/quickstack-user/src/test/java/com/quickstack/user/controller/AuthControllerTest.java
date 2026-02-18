@@ -6,10 +6,15 @@ import com.quickstack.common.config.properties.JwtProperties;
 import com.quickstack.common.exception.AccountLockedException;
 import com.quickstack.common.exception.AuthenticationException;
 import com.quickstack.common.exception.InvalidTokenException;
+import com.quickstack.common.exception.PasswordCompromisedException;
+import com.quickstack.common.exception.PasswordValidationException;
+import com.quickstack.user.dto.request.ForgotPasswordRequest;
 import com.quickstack.user.dto.request.LoginRequest;
+import com.quickstack.user.dto.request.ResetPasswordRequest;
 import com.quickstack.user.entity.User;
 import com.quickstack.user.repository.UserRepository;
 import com.quickstack.user.service.LoginAttemptService;
+import com.quickstack.user.service.PasswordResetService;
 import com.quickstack.user.service.PasswordService;
 import com.quickstack.user.service.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
@@ -51,6 +56,9 @@ class AuthControllerTest {
 
     @Mock
     private PasswordService passwordService;
+
+    @Mock
+    private PasswordResetService passwordResetService;
 
     @Mock
     private LoginAttemptService loginAttemptService;
@@ -98,6 +106,7 @@ class AuthControllerTest {
         authController = new AuthController(
                 userRepository,
                 passwordService,
+                passwordResetService,
                 loginAttemptService,
                 refreshTokenService,
                 jwtProperties,
@@ -378,6 +387,134 @@ class AuthControllerTest {
 
             // Should not throw, just complete without revoking
             verify(refreshTokenService, never()).revokeToken(anyString(), anyString());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Forgot Password Tests
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("Forgot Password")
+    class ForgotPasswordTests {
+
+        @Test
+        @DisplayName("should return success message for existing user")
+        void shouldReturnSuccessForExistingUser() {
+            ForgotPasswordRequest request = new ForgotPasswordRequest(TENANT_ID.toString(), EMAIL);
+            MockHttpServletRequest httpRequest = createMockRequest();
+
+            PasswordResetService.ResetInitiationResult result =
+                    PasswordResetService.ResetInitiationResult.success("reset-token", USER_ID, EMAIL);
+
+            when(passwordResetService.initiateReset(eq(EMAIL), eq(TENANT_ID), anyString()))
+                    .thenReturn(result);
+
+            var response = authController.forgotPassword(request, httpRequest);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().data().message())
+                    .contains("If the email exists");
+
+            verify(passwordResetService).initiateReset(eq(EMAIL), eq(TENANT_ID), anyString());
+        }
+
+        @Test
+        @DisplayName("should return same success message for non-existing user (timing-safe)")
+        void shouldReturnSuccessForNonExistingUser() {
+            ForgotPasswordRequest request = new ForgotPasswordRequest(TENANT_ID.toString(), "nonexistent@example.com");
+            MockHttpServletRequest httpRequest = createMockRequest();
+
+            PasswordResetService.ResetInitiationResult result =
+                    PasswordResetService.ResetInitiationResult.userNotFound();
+
+            when(passwordResetService.initiateReset(eq("nonexistent@example.com"), eq(TENANT_ID), anyString()))
+                    .thenReturn(result);
+
+            var response = authController.forgotPassword(request, httpRequest);
+
+            // Response should be the same (timing-safe)
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().data().message())
+                    .contains("If the email exists");
+        }
+
+        @Test
+        @DisplayName("should normalize email to lowercase")
+        void shouldNormalizeEmail() {
+            ForgotPasswordRequest request = new ForgotPasswordRequest(TENANT_ID.toString(), "USER@EXAMPLE.COM");
+            MockHttpServletRequest httpRequest = createMockRequest();
+
+            when(passwordResetService.initiateReset(eq("user@example.com"), eq(TENANT_ID), anyString()))
+                    .thenReturn(PasswordResetService.ResetInitiationResult.userNotFound());
+
+            authController.forgotPassword(request, httpRequest);
+
+            verify(passwordResetService).initiateReset(eq("user@example.com"), eq(TENANT_ID), anyString());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Reset Password Tests
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("Reset Password")
+    class ResetPasswordTests {
+
+        @Test
+        @DisplayName("should return success on valid reset")
+        void shouldReturnSuccessOnValidReset() {
+            ResetPasswordRequest request = new ResetPasswordRequest("valid-token", "newSecurePassword123!");
+
+            doNothing().when(passwordResetService).resetPassword("valid-token", "newSecurePassword123!");
+
+            var response = authController.resetPassword(request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().data().message())
+                    .contains("Password has been reset successfully");
+
+            verify(passwordResetService).resetPassword("valid-token", "newSecurePassword123!");
+        }
+
+        @Test
+        @DisplayName("should throw InvalidTokenException for invalid token")
+        void shouldThrowForInvalidToken() {
+            ResetPasswordRequest request = new ResetPasswordRequest("invalid-token", "newSecurePassword123!");
+
+            doThrow(InvalidTokenException.expired(InvalidTokenException.TokenType.PASSWORD_RESET_TOKEN))
+                    .when(passwordResetService).resetPassword("invalid-token", "newSecurePassword123!");
+
+            assertThatThrownBy(() -> authController.resetPassword(request))
+                    .isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
+        @DisplayName("should throw PasswordValidationException for weak password")
+        void shouldThrowForWeakPassword() {
+            ResetPasswordRequest request = new ResetPasswordRequest("valid-token", "weak");
+
+            doThrow(PasswordValidationException.tooShort(12))
+                    .when(passwordResetService).resetPassword("valid-token", "weak");
+
+            assertThatThrownBy(() -> authController.resetPassword(request))
+                    .isInstanceOf(PasswordValidationException.class);
+        }
+
+        @Test
+        @DisplayName("should throw PasswordCompromisedException for breached password")
+        void shouldThrowForBreachedPassword() {
+            ResetPasswordRequest request = new ResetPasswordRequest("valid-token", "password123");
+
+            doThrow(PasswordCompromisedException.withBreachCount(1000))
+                    .when(passwordResetService).resetPassword("valid-token", "password123");
+
+            assertThatThrownBy(() -> authController.resetPassword(request))
+                    .isInstanceOf(PasswordCompromisedException.class);
         }
     }
 }
