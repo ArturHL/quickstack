@@ -3,7 +3,7 @@
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-16
 > **Standard:** OWASP ASVS L2
-> **Status:** En progreso - Sprint 4/6 completado
+> **Status:** En progreso - Sprint 5/6 completado
 
 ---
 
@@ -531,95 +531,95 @@ Crear clases de configuracion en `quickstack-common`.
 
 ---
 
-## Sprint 5: Rate Limiting & Password Reset
+## Sprint 5: Rate Limiting & Password Reset ✅
 
-**Duracion:** 2 dias
+**Duracion:** 2 dias | **Status:** COMPLETADO
 
-### [BACKEND] Tarea 5.1: RateLimitConfig con Bucket4j
+### [BACKEND] Tarea 5.1: RateLimitConfig con Bucket4j ✅
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 **Criterios de Aceptacion:**
-- [ ] Bucket4j con Caffeine cache (in-memory para MVP)
-- [ ] Buckets: IP (10/min), Email (5/min)
-- [ ] TTL de 1 hora en cache entries
-- [ ] Max 10,000 buckets (evict LRU)
-- [ ] Tests de configuracion
+- [x] Bucket4j con Caffeine cache (in-memory para MVP)
+- [x] Buckets: IP (10/min), Email (5/min)
+- [x] TTL de 1 hora en cache entries
+- [x] Max 10,000 buckets (evict LRU)
+- [x] Tests de configuracion
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/config/RateLimitConfig.java`
 
 ---
 
-### [BACKEND] Tarea 5.2: RateLimitFilter
+### [BACKEND] Tarea 5.2: RateLimitFilter ✅
 **Prioridad:** Alta | **Dependencias:** 5.1, 1.3
 
 **Criterios de Aceptacion:**
-- [ ] Aplica a: /login, /register, /forgot-password, /reset-password
-- [ ] Extrae IP con `IpAddressExtractor`
-- [ ] Retorna 429 con header `Retry-After`
-- [ ] Tests: limite alcanzado, refill, multiples IPs
+- [x] Aplica a: /login, /register, /forgot-password, /reset-password
+- [x] Extrae IP con `IpAddressExtractor`
+- [x] Retorna 429 con header `Retry-After`
+- [x] Tests: limite alcanzado, refill, multiples IPs
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/security/RateLimitFilter.java`
 
 ---
 
-### [BACKEND] Tarea 5.3: PasswordResetService
+### [BACKEND] Tarea 5.3: PasswordResetService ✅
 **Prioridad:** Alta | **Dependencias:** 1.3, 2.1
 
 **Criterios de Aceptacion:**
-- [ ] `initiateReset()` genera token 32 bytes, almacena hash SHA-256, expira 1 hora
-- [ ] **Timing-safe: mismo tiempo si email no existe**
-- [ ] `validateResetToken()` con constant-time comparison
-- [ ] `resetPassword()` valida token, HIBP check, hashea, invalida refresh tokens
-- [ ] Invalida tokens previos del usuario al iniciar reset
-- [ ] Tests: flujo completo, expirado, reuso, timing
+- [x] `initiateReset()` genera token 32 bytes, almacena hash SHA-256, expira 1 hora
+- [x] **Timing-safe: mismo tiempo si email no existe**
+- [x] `validateResetToken()` con constant-time comparison
+- [x] `resetPassword()` valida token, HIBP check, hashea, invalida refresh tokens
+- [x] Invalida tokens previos del usuario al iniciar reset
+- [x] Tests: flujo completo, expirado, reuso, timing
 
 **Archivos:**
 - `quickstack-user/src/main/java/com/quickstack/user/service/PasswordResetService.java`
 
 ---
 
-### [BACKEND] Tarea 5.4: AuthController - Password Reset
+### [BACKEND] Tarea 5.4: AuthController - Password Reset ✅
 **Prioridad:** Alta | **Dependencias:** 5.3
 
 **Criterios de Aceptacion:**
-- [ ] `POST /forgot-password`: inicia reset, **siempre retorna 200**
-- [ ] `POST /reset-password`: valida token, cambia password
-- [ ] Validacion de input
-- [ ] Rate limiting aplicado (Tarea 5.2)
-- [ ] Tests de endpoints
+- [x] `POST /forgot-password`: inicia reset, **siempre retorna 200**
+- [x] `POST /reset-password`: valida token, cambia password
+- [x] Validacion de input
+- [x] Rate limiting aplicado (Tarea 5.2)
+- [x] Tests de endpoints
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/dto/request/ForgotPasswordRequest.java`
-- `quickstack-app/src/main/java/com/quickstack/app/dto/request/ResetPasswordRequest.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/request/ForgotPasswordRequest.java`
+- `quickstack-user/src/main/java/com/quickstack/user/dto/request/ResetPasswordRequest.java`
 
 ---
 
-### [QA] Tarea 5.5: Tests de Seguridad - Rate Limiting
+### [QA] Tarea 5.5: Tests de Seguridad - Rate Limiting ✅
 **Prioridad:** Alta | **Dependencias:** 5.2
 
 **Criterios de Aceptacion:**
-- [ ] Test: 11° request desde misma IP -> 429
-- [ ] Test: rate limit se resetea despues de 1 minuto
-- [ ] Test: IPs diferentes no comparten limite
-- [ ] Test: X-Forwarded-For spoofing rechazado
-- [ ] Performance: overhead < 5ms
+- [x] Test: 11° request desde misma IP -> 429
+- [x] Test: rate limit se resetea despues de 1 minuto
+- [x] Test: IPs diferentes no comparten limite
+- [x] Test: X-Forwarded-For spoofing rechazado
+- [x] Performance: overhead < 5ms
 
 **Archivos:**
 - `quickstack-app/src/test/java/.../RateLimitFilterSecurityTest.java`
 
 ---
 
-### [QA] Tarea 5.6: Tests de Seguridad - Password Reset
+### [QA] Tarea 5.6: Tests de Seguridad - Password Reset ✅
 **Prioridad:** Alta | **Dependencias:** 5.4
 
 **Criterios de Aceptacion:**
-- [ ] Test: token single-use (segundo uso rechazado)
-- [ ] Test: token expirado (>1 hora) rechazado
-- [ ] Test: timing attack mitigation (email inexistente mismo tiempo)
-- [ ] Test: reset invalida refresh tokens
-- [ ] Test: nueva password pasa HIBP check
+- [x] Test: token single-use (segundo uso rechazado)
+- [x] Test: token expirado (>1 hora) rechazado
+- [x] Test: timing attack mitigation (email inexistente mismo tiempo)
+- [x] Test: reset invalida refresh tokens
+- [x] Test: nueva password pasa HIBP check
 
 **Archivos:**
 - `quickstack-app/src/test/java/.../PasswordResetIntegrationTest.java`

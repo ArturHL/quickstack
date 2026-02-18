@@ -21,15 +21,17 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 - **Tests**: `*Test.java` (unit), `*IntegrationTest.java` (integration)
 - **Exceptions**: Custom en `common/exception/`, handler en GlobalExceptionHandler
 
-## Auth Actual (Phase 0.3)
+## Auth Actual (Phase 0.3 - Sprint 5/6)
 
 | Aspecto | Implementación |
 |---------|----------------|
 | Password | Argon2id + pepper versionado |
 | JWT | RS256 (2048 bits), 15min access / 7d refresh |
-| Rate limit | 10 req/min IP, 5 req/min email |
+| Rate limit | Bucket4j: 10 req/min IP, 5 req/min email |
 | Lockout | 5 intentos fallidos = 15 min lock |
 | Cookies | HttpOnly, Secure, SameSite=Strict |
+| Password Reset | Token 32 bytes, 1 hora expiry, HIBP check |
+| Session Management | Refresh token rotation + family tracking |
 
 ## Archivos Clave
 
@@ -41,9 +43,14 @@ quickstack-common/src/main/java/.../common/
 
 quickstack-user/src/main/java/.../user/
 ├── controller/          # AuthController
-├── service/             # UserService, PasswordService, RefreshTokenService
-├── entity/              # User, RefreshToken, LoginAttempt
-└── repository/          # UserRepository, RefreshTokenRepository
+├── service/             # UserService, PasswordService, RefreshTokenService, LoginAttemptService, PasswordResetService
+├── entity/              # User, RefreshToken, LoginAttempt, PasswordResetToken
+└── repository/          # UserRepository, RefreshTokenRepository, LoginAttemptRepository, PasswordResetTokenRepository
+
+quickstack-app/src/main/java/.../app/
+├── config/              # SecurityConfig, JwtConfig, RateLimitConfig
+├── security/            # JwtService, JwtAuthenticationFilter, RateLimitFilter, HibpClient
+└── controller/          # (UserController en Sprint 6)
 
 quickstack-app/src/main/resources/
 ├── application.yml      # Config con quickstack.* properties
