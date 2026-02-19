@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
+import { imperativeNavigate } from './imperativeNavigate'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL as string,
@@ -77,7 +78,7 @@ axiosInstance.interceptors.response.use(
     } catch (refreshError) {
       rejectPendingQueue(refreshError)
       useAuthStore.getState().clearAuth()
-      window.location.href = '/login'
+      imperativeNavigate('/login')
       return Promise.reject(refreshError)
     } finally {
       isRefreshing = false

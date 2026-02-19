@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import { authApi } from '../services/authApi'
 import { useAuthStore } from '../stores/authStore'
@@ -14,13 +14,15 @@ import type {
 
 export function useLogin() {
   const navigate = useNavigate()
+  const location = useLocation()
   const setAuth = useAuthStore((s) => s.setAuth)
 
   return useMutation<AuthResponse, AxiosError<ApiError>, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: (data) => {
       setAuth(data.accessToken, data.user)
-      navigate('/dashboard', { replace: true })
+      const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
+      navigate(from, { replace: true })
     },
   })
 }

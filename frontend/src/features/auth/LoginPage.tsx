@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useSearchParams, Link as RouterLink } from 'react-router-dom'
+import { Navigate, useSearchParams, useLocation, Link as RouterLink } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -50,13 +50,15 @@ function getLoginErrorMessage(error: AxiosError<ApiError> | null): string | null
 
 const LoginPage = () => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const { mutate: login, isPending, error } = useLogin()
 
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
+  if (isAuthenticated) return <Navigate to={from} replace />
 
   const registered = searchParams.get('registered') === 'true'
   const errorMessage = getLoginErrorMessage(error)

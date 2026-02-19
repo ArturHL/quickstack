@@ -7,6 +7,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import theme from './theme/theme'
 import { queryClient } from './lib/queryClient'
 import AppRouter from './router/AppRouter'
+import { router } from './router/router'
+import { registerNavigate } from './utils/imperativeNavigate'
+
+registerNavigate((path) => {
+  router.navigate(path)
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
