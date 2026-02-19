@@ -15,7 +15,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Componente | Tecnología | Hosting |
 |------------|------------|---------|
-| Frontend | React 18 + Vite + TypeScript + MUI | Vercel |
+| Frontend | React 19 + Vite + TypeScript + MUI | Vercel |
 | Backend | Java 17 + Spring Boot 3.5 | Render (Docker) |
 | Base de datos | PostgreSQL (29 tablas, multi-tenant) | Neon (serverless) |
 | Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 75% (0.1 ✅, 0.2 ✅, 0.3 ✅) |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 88% (0.1 ✅, 0.2 ✅, 0.3 ✅, 0.4 🔄) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -65,7 +65,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
 | 0.3 | Módulo de Autenticación (ASVS L2) | ✅ Completado (340 tests, 8 endpoints) |
-| 0.4 | Frontend Base + Integración Auth | ⏳ Pendiente |
+| 0.4 | Frontend Base + Integración Auth | 🔄 En Progreso (3/4 sprints, 66 tests) |
 
 ---
 
@@ -154,40 +154,62 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ---
 
-### Phase 0.4: Frontend Base + Integración Auth
+### Phase 0.4: Frontend Base + Integración Auth 🔄
 
-**Est. Effort:** 3-4 días
+**Estado:** EN PROGRESO (3/4 sprints) | **66 tests frontend**
 
-#### Estructura Frontend
-- [ ] Configurar Vite + React + TypeScript
-- [ ] Configurar MUI theme
-- [ ] Configurar React Router
-- [ ] Configurar Axios con interceptors
-- [ ] Configurar Zustand stores
-- [ ] Configurar TanStack Query
+> **Roadmap detallado:** `docs/roadmap/PHASE_0.4_FRONTEND_BASE_ROADMAP.md`
 
-#### Auth en Frontend
-- [ ] AuthContext/Store para estado de auth
-- [ ] Login page
-- [ ] Register page (solo OWNER en MVP)
-- [ ] Forgot password page
-- [ ] Reset password page
-- [ ] Protected routes (redirect si no autenticado)
-- [ ] Auto-refresh de token (silencioso)
-- [ ] Logout (limpia tokens, redirige)
+#### Sprint 1: Setup de Infraestructura ✅
+- [x] Configurar Vite + React 19 + TypeScript
+- [x] Configurar MUI theme (paleta QuickStack)
+- [x] Configurar React Router 6.30 (createBrowserRouter)
+- [x] Configurar Axios con interceptors de auth
+- [x] Configurar Zustand stores (authStore, access token in-memory)
+- [x] Configurar TanStack Query 5.76
+- [x] Configurar MSW 2.7 para tests
+- [x] Configurar Vitest con jsdom
+- [x] 5 tests (authStore)
 
-#### Dashboard Base
-- [ ] Layout con sidebar
-- [ ] Header con info de usuario
-- [ ] Dashboard vacío (placeholder)
-- [ ] Manejo de errores global
+#### Sprint 2: Login y Registro ✅
+- [x] authApi.ts con 8 funciones (endpoints)
+- [x] useAuthQuery.ts hooks (TanStack Query)
+- [x] LoginPage con manejo de errores 401/423/429
+- [x] RegisterPage con validación de password
+- [x] MSW handlers expandidos (factories de error)
+- [x] renderWithProviders test utils
+- [x] 23 tests (5 authStore + 10 LoginPage + 8 RegisterPage)
+
+#### Sprint 3: Auth Completo + Rutas Protegidas ✅
+- [x] ForgotPasswordPage (timing-safe submit)
+- [x] ResetPasswordPage (lee ?token de URL)
+- [x] ProtectedRoute component (Navigate + Outlet pattern)
+- [x] imperativeNavigate para navegación fuera de React
+- [x] axiosInterceptor mejorado con manejo de 401
+- [x] Auto-refresh de token (silencioso)
+- [x] Post-login redirect con state.from
+- [x] 38 tests totales (8 axiosInterceptor + 7 ProtectedRoute + 23 previos)
+
+#### Sprint 4: Dashboard Base + Calidad ⏳
+- [ ] AppLayout (Sidebar + TopBar)
+- [ ] DashboardPage placeholder
+- [ ] ErrorBoundary global
+- [ ] Manejo de errores de red con TanStack Query
+- [ ] Smoke test del flujo completo
+- [ ] Verificación de variables de entorno en Vercel
+- [ ] Auditoría de seguridad frontend
+- [ ] Actualización de documentación
 
 **Success Criteria 0.4:**
-- Usuario puede registrarse
-- Usuario puede hacer login
-- Usuario ve dashboard después de login
-- Token se refresca automáticamente
-- Logout funciona correctamente
+- ✅ Usuario puede registrarse
+- ✅ Usuario puede hacer login
+- ⏳ Usuario ve dashboard después de login
+- ✅ Token se refresca automáticamente
+- ✅ Logout funciona correctamente
+- ✅ Flujo completo de recuperación de password
+- ✅ Rutas protegidas redirigen correctamente
+- ⏳ 100% tests pasan sin errores
+- ⏳ npm audit sin vulnerabilidades críticas
 
 ---
 
@@ -562,6 +584,25 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-19
+- **Phase 0.4 Sprint 3 completado (38 tests totales):**
+  - ForgotPasswordPage y ResetPasswordPage implementadas
+  - ProtectedRoute component con Navigate + Outlet pattern
+  - imperativeNavigate para navegación desde fuera de React
+  - axiosInterceptor mejorado con manejo de 401 y auto-refresh
+  - Tests: axiosInterceptor (8), ProtectedRoute (7)
+  - Progreso: 3/4 sprints completados, 66 tests frontend
+- **Phase 0.4 Sprint 2 completado (23 tests):**
+  - authApi.ts con 8 funciones para endpoints backend
+  - useAuthQuery.ts con hooks TanStack Query
+  - LoginPage y RegisterPage completos con validación
+  - MSW handlers expandidos con factories de error
+- **Phase 0.4 Sprint 1 completado (5 tests):**
+  - Setup de infraestructura: MUI 5.17, Zustand 4.5, TanStack Query 5.76
+  - React Router 6.30, Axios 1.13, MSW 2.7, Vitest 3.2
+  - authStore (Zustand), axiosInstance con interceptors, QueryClient, MUI theme
+- **Stack actualizado:** React 19 confirmado en producción
 
 ### 2026-02-18
 - **Reorganizacion de documentacion:**

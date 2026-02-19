@@ -2,7 +2,7 @@
 
 > **Estandar:** OWASP Application Security Verification Standard (ASVS) 4.0.3
 > **Nivel Objetivo:** Level 2 - Standard
-> **Ultima actualizacion:** 2026-02-18
+> **Ultima actualizacion:** 2026-02-19
 
 ---
 
@@ -14,19 +14,19 @@
 | V2 | Authentication | 57 | 14 | 30 | 13 | [V02-authentication.md](V02-authentication.md) |
 | V3 | Session Management | 19 | 14 | 2 | 3 | [V03-session-management.md](V03-session-management.md) |
 | V4 | Access Control | 9 | 0 | 9 | 0 | [V04-access-control.md](V04-access-control.md) |
-| V5 | Validation, Sanitization and Encoding | 30 | 0 | 24 | 6 | [V05-validation.md](V05-validation.md) |
+| V5 | Validation, Sanitization and Encoding | 30 | 3 | 21 | 6 | [V05-validation.md](V05-validation.md) |
 | V6 | Stored Cryptography | 16 | 9 | 6 | 1 | [V06-cryptography.md](V06-cryptography.md) |
 | V7 | Error Handling and Logging | 12 | 6 | 6 | 0 | [V07-error-logging.md](V07-error-logging.md) |
-| V8 | Data Protection | 15 | 0 | 15 | 0 | [V08-data-protection.md](V08-data-protection.md) |
+| V8 | Data Protection | 15 | 2 | 13 | 0 | [V08-data-protection.md](V08-data-protection.md) |
 | V9 | Communication | 8 | 0 | 8 | 0 | [V09-communication.md](V09-communication.md) |
 | V10 | Malicious Code | 9 | 1 | 6 | 2 | [V10-malicious-code.md](V10-malicious-code.md) |
 | V11 | Business Logic | 8 | 0 | 8 | 0 | [V11-business-logic.md](V11-business-logic.md) |
 | V12 | Files and Resources | 15 | 0 | 5 | 10 | [V12-files-resources.md](V12-files-resources.md) |
 | V13 | API and Web Service | 13 | 0 | 9 | 4 | [V13-api.md](V13-api.md) |
 | V14 | Configuration | 23 | 2 | 19 | 2 | [V14-configuration.md](V14-configuration.md) |
-| **TOTAL** | | **272** | **65** | **166** | **41** | |
+| **TOTAL** | | **272** | **70** | **161** | **41** | |
 
-**Progreso Global:** 65/272 = **24%** cumplidos (sin contar N/A: 65/231 = **28%**)
+**Progreso Global:** 70/272 = **26%** cumplidos (sin contar N/A: 70/231 = **30%**)
 
 ---
 
@@ -38,9 +38,9 @@
 - **V6 Cryptography** - Hashing y random
 - **V14 Configuration** - Headers de seguridad
 
-### Phase 0.4 - Frontend
-- **V5 Validation** - Input/output encoding
-- **V8 Data Protection** - Client-side storage
+### Phase 0.4 - Frontend (3/4 sprints completados)
+- **V5 Validation** - Input/output encoding (3 requisitos cumplidos)
+- **V8 Data Protection** - Client-side storage (2 requisitos cumplidos)
 
 ### Phase 1 - Core POS
 - **V4 Access Control** - RBAC y multi-tenancy

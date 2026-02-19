@@ -2,8 +2,8 @@
 
 > **Capitulo:** V8
 > **Requisitos L2:** 14
-> **Cumplidos:** 0 (0%)
-> **Ultima actualizacion:** 2026-02-10
+> **Cumplidos:** 2 (14%)
+> **Ultima actualizacion:** 2026-02-19
 
 ---
 
@@ -25,8 +25,8 @@
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 8.2.1 | Verificar que la aplicacion establezca suficientes headers anti-caching de modo que los datos sensibles no se cacheen en navegadores modernos | L1 | ⏳ | **Pendiente Phase 0.3:** Headers `Cache-Control: no-store`, `Pragma: no-cache` en respuestas de auth y user data. |
-| 8.2.2 | Verificar que los datos almacenados en almacenamiento del navegador (como localStorage, sessionStorage, IndexedDB, o cookies) no contengan datos sensibles | L1 | ⏳ | **Pendiente Phase 0.4:** Access token en memoria (variable JS). Refresh token en httpOnly cookie (no accesible via JS). Sin PII en localStorage. |
-| 8.2.3 | Verificar que los datos autenticados se borren del almacenamiento del cliente, como el DOM del navegador, despues de que el cliente o sesion se termine | L1 | ⏳ | **Pendiente Phase 0.4:** Logout limpia token de memoria. Cookie de refresh eliminada en logout. Zustand store reseteado. |
+| 8.2.2 | Verificar que los datos almacenados en almacenamiento del navegador (como localStorage, sessionStorage, IndexedDB, o cookies) no contengan datos sensibles | L1 | ✅ | **Phase 0.4 Sprint 1:** Access token almacenado exclusivamente en memoria (Zustand store, no persiste). Refresh token en cookie `__Host-refreshToken` (HttpOnly, Secure, SameSite=Strict - no accesible via JavaScript). Sin PII en localStorage/sessionStorage. Auditoria verificada: `.env.local` en `.gitignore`, sin secrets hardcodeados. |
+| 8.2.3 | Verificar que los datos autenticados se borren del almacenamiento del cliente, como el DOM del navegador, despues de que el cliente o sesion se termine | L1 | ✅ | **Phase 0.4 Sprints 2-3:** Logout (`useLogout` hook) limpia access token de memoria via `authStore.clearAuth()`. Cookie de refresh eliminada por backend (`Set-Cookie: Max-Age=0`). Zustand store reseteado a estado inicial. Navegacion a `/login` post-logout. Tests verifican limpieza completa. |
 
 ---
 
@@ -50,6 +50,6 @@
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
 | V8.1 General Protection | 4 | 0 | 4 | 0 |
-| V8.2 Client-side | 3 | 0 | 3 | 0 |
+| V8.2 Client-side | 3 | 2 | 1 | 0 |
 | V8.3 Sensitive Data | 8 | 0 | 8 | 0 |
-| **TOTAL** | **15** | **0** | **15** | **0** |
+| **TOTAL** | **15** | **2** | **13** | **0** |

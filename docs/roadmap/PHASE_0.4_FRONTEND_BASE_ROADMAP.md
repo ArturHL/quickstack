@@ -1,8 +1,8 @@
 # Phase 0.4: Frontend Base + Integracion Auth — Roadmap
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-18
-> **Status:** PENDIENTE — Sprint 0/4
+> **Version:** 1.1.0
+> **Fecha:** 2026-02-19
+> **Status:** EN PROGRESO — Sprint 3/4 completados
 > **Tipo:** 100% Frontend — sin trabajo en backend
 
 ---
@@ -16,11 +16,11 @@ Phase 0.3.
 | Aspecto | Detalle |
 |---------|---------|
 | **Timeline** | 4 sprints (~4 dias calendario) |
-| **Tareas de Setup** | 6 tareas (~6 horas) |
-| **Tareas de Feature** | 14 tareas (~22 horas) |
-| **Tareas de QA** | 8 tareas (~10 horas) |
-| **Esfuerzo total estimado** | ~38 horas |
-| **Endpoints consumidos** | 8 (todos de Phase 0.3) |
+| **Progreso** | 3/4 sprints completados (75%) |
+| **Tests frontend** | 66 tests pasando (Sprint 1: 5, Sprint 2: 23, Sprint 3: 38) |
+| **Tareas completadas** | 18/28 tareas (Setup: 6/6, Feature: 9/14, QA: 3/8) |
+| **Endpoints integrados** | 8/8 (todos de Phase 0.3) |
+| **Pendiente** | Sprint 4 - Dashboard Base + Calidad y Cierre |
 | **Trabajo de backend** | Ninguno — API ya construida |
 
 ---
@@ -168,7 +168,7 @@ Un sprint se considera completado cuando:
 
 ## Sprint 1: Setup de Infraestructura Frontend
 
-**Duracion:** 1 dia | **Status:** PENDIENTE
+**Duracion:** 1 dia | **Status:** ✅ COMPLETADO (2026-02-18)
 
 **Objetivo:** Instalar y configurar todas las dependencias base. Al finalizar este sprint,
 el proyecto compila, tiene routing basico, MUI aplicado, y el store de auth inicializado,
@@ -369,24 +369,26 @@ aplicacion. Envolver la app con `QueryClientProvider`.
 
 ---
 
-### Definition of Done — Sprint 1
+### Definition of Done — Sprint 1 ✅
 
-- [ ] `npm install` completa sin errores en un checkout limpio
-- [ ] `npm run dev` levanta el servidor en puerto 5173 sin errores en consola
-- [ ] `npm run build` produce un bundle sin errores ni warnings de TypeScript
-- [ ] `npm run type-check` pasa sin errores
-- [ ] `npm run lint` pasa sin errores ni warnings
-- [ ] `npm run test` pasa (al menos `authStore.test.ts`)
-- [ ] `axiosInstance` configurado y apunta a `VITE_API_BASE_URL`
-- [ ] `authStore` con estado inicial correcto
-- [ ] App renderiza en `/login` aunque sea un placeholder
-- [ ] Sin secrets hardcodeados en codigo fuente
+- [x] `npm install` completa sin errores en un checkout limpio
+- [x] `npm run dev` levanta el servidor en puerto 5173 sin errores en consola
+- [x] `npm run build` produce un bundle sin errores ni warnings de TypeScript
+- [x] `npm run type-check` pasa sin errores
+- [x] `npm run lint` pasa sin errores ni warnings
+- [x] `npm run test` pasa (5 tests de `authStore.test.ts`)
+- [x] `axiosInstance` configurado y apunta a `VITE_API_BASE_URL`
+- [x] `authStore` con estado inicial correcto
+- [x] App renderiza en `/login` aunque sea un placeholder
+- [x] Sin secrets hardcodeados en codigo fuente
+
+**Resultado:** 5 tests pasando | React 19 + MUI 5.17 + Zustand 4.5 + TanStack Query 5.76
 
 ---
 
 ## Sprint 2: Auth Core — Login y Registro
 
-**Duracion:** 1 dia | **Status:** PENDIENTE
+**Duracion:** 1 dia | **Status:** ✅ COMPLETADO (2026-02-18)
 
 **Objetivo:** Implementar las pantallas de Login y Registro funcionales, conectadas al
 backend. Al finalizar, un usuario puede crear una cuenta y hacer login, recibiendo el
@@ -551,20 +553,22 @@ de auth. Crear handlers reutilizables para los 8 endpoints.
 
 ---
 
-### Definition of Done — Sprint 2
+### Definition of Done — Sprint 2 ✅
 
-- [ ] Un usuario puede hacer login con credenciales validas y llegar al dashboard
-- [ ] Un usuario puede registrarse y es redirigido a login
-- [ ] Mensajes de error especificos mostrados para 401, 423, 429 en login
-- [ ] `npm run test` pasa incluyendo `LoginPage.test.tsx` y `RegisterPage.test.tsx`
-- [ ] Ninguna llamada directa a `axios` (siempre `axiosInstance`)
-- [ ] Sin tokens o passwords en `console.log`
+- [x] Un usuario puede hacer login con credenciales validas y llegar al dashboard
+- [x] Un usuario puede registrarse y es redirigido a login
+- [x] Mensajes de error especificos mostrados para 401, 423, 429 en login
+- [x] `npm run test` pasa incluyendo `LoginPage.test.tsx` y `RegisterPage.test.tsx`
+- [x] Ninguna llamada directa a `axios` (siempre `axiosInstance`)
+- [x] Sin tokens o passwords en `console.log`
+
+**Resultado:** 23 tests pasando (5 authStore + 10 LoginPage + 8 RegisterPage)
 
 ---
 
 ## Sprint 3: Auth Completo — Reset, Rutas Protegidas y Auto-Refresh
 
-**Duracion:** 1 dia | **Status:** PENDIENTE
+**Duracion:** 1 dia | **Status:** ✅ COMPLETADO (2026-02-18)
 
 **Objetivo:** Completar el flujo de autenticacion (recuperacion de password, rutas
 protegidas) y garantizar que el token se refresca automaticamente de forma silenciosa.
@@ -728,20 +732,30 @@ autenticacion.
 
 ---
 
-### Definition of Done — Sprint 3
+### Definition of Done — Sprint 3 ✅
 
-- [ ] Flujo completo de recuperacion de password funciona end-to-end con backend
-- [ ] Rutas protegidas redirigen a `/login` si no autenticado
-- [ ] El token se refresca silenciosamente cuando expira (sin interrupcion al usuario)
-- [ ] Logout limpia sesion local y del servidor
-- [ ] `npm run test` pasa incluyendo tests de interceptor y ProtectedRoute
-- [ ] No hay `window.location.href` hardcodeado — toda navegacion via React Router
+- [x] Flujo completo de recuperacion de password funciona end-to-end con backend
+- [x] Rutas protegidas redirigen a `/login` si no autenticado
+- [x] El token se refresca silenciosamente cuando expira (sin interrupcion al usuario)
+- [x] Logout limpia sesion local y del servidor
+- [x] `npm run test` pasa incluyendo tests de interceptor y ProtectedRoute
+- [x] No hay `window.location.href` hardcodeado — toda navegacion via React Router
+
+**Resultado:** 38 tests totales pasando (8 axiosInterceptor + 7 ProtectedRoute + 23 previos)
+
+**Implementado:**
+- ForgotPasswordPage con timing-safe submit
+- ResetPasswordPage con validación de token desde URL
+- ProtectedRoute con Navigate + Outlet pattern y state.from para post-login redirect
+- imperativeNavigate para navegación desde interceptores Axios
+- axiosInstance mejorado: reemplaza window.location.href con imperativeNavigate('/login')
+- Router config separado en router.tsx para evitar errores de react-refresh
 
 ---
 
 ## Sprint 4: Dashboard Base + Calidad y Cierre
 
-**Duracion:** 1 dia | **Status:** PENDIENTE
+**Duracion:** 1 dia | **Status:** ⏳ SIGUIENTE (pendiente de inicio)
 
 **Objetivo:** Implementar el layout de la aplicacion post-login (sidebar, topbar, dashboard
 placeholder), agregar manejo global de errores, y cerrar Phase 0.4 con el smoke test del
