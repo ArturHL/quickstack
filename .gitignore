@@ -118,3 +118,8 @@ PERSONAL_NOTES.md
 .context/
 CLAUDE.md.backup
 .agents/skills/tech-mentor/
+
+# ============================
+# Code Reviews
+# ============================
+docs/reviews/

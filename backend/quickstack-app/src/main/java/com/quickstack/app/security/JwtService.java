@@ -56,6 +56,7 @@ public class JwtService {
     private final List<RSAPublicKey> previousPublicKeys;
     private final Clock clock;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public JwtService(
             JwtProperties properties,
             RSAPrivateKey privateKey,

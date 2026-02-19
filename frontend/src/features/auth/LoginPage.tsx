@@ -65,7 +65,9 @@ const LoginPage = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    login({ email, password })
+    // TODO: Implement Phase 1 - Get tenantId from user's organization or login flow
+    const tenantId = '' // Will be provided by Phase 1 tenant management
+    login({ email, password, tenantId })
   }
 
   return (

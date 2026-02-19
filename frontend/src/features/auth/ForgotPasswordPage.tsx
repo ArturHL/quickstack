@@ -20,8 +20,11 @@ const ForgotPasswordPage = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // TODO: Implement Phase 1 - Get tenantId from user's email domain or tenant lookup
+    const tenantId = '' // Will be provided by Phase 1 tenant management
+
     forgotPassword(
-      { email },
+      { email, tenantId },
       {
         onSuccess: () => setSubmitted(true),
         onError: () => {

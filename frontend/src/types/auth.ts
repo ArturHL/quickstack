@@ -14,16 +14,21 @@ export interface AuthResponse {
 export interface LoginRequest {
   email: string
   password: string
+  tenantId: string
 }
 
 export interface RegisterRequest {
   fullName: string
   email: string
   password: string
+  tenantId: string
+  roleId: string
+  phone?: string
 }
 
 export interface ForgotPasswordRequest {
   email: string
+  tenantId: string
 }
 
 export interface ResetPasswordRequest {

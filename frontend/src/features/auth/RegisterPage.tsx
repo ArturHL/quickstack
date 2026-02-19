@@ -65,12 +65,31 @@ const RegisterPage = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    // Debug logging for password mismatch
+    console.log('Validating passwords:', {
+      password: password.length,
+      confirm: confirmPassword.length,
+      match: password === confirmPassword
+    })
+
     if (password !== confirmPassword) {
       setPasswordMismatch(true)
       return
     }
     setPasswordMismatch(false)
-    register({ fullName, email, password })
+
+    // TODO: Implement Phase 1 - Get tenantId from invitation link or tenant selection flow
+    // TODO: Get roleId from backend based on user type
+    const tenantId = '' // Will be provided by Phase 1 tenant management
+    const roleId = ''   // Will be provided by Phase 1 role assignment
+
+    register({
+      fullName,
+      email,
+      password,
+      tenantId,
+      roleId
+    })
   }
 
   return (

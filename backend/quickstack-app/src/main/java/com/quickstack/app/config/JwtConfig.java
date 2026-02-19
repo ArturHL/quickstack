@@ -254,6 +254,12 @@ public class JwtConfig {
      * Validates that the key meets minimum size requirements.
      * ASVS V6.2.1: RSA keys must be at least 2048 bits.
      */
+    @Bean
+    public com.quickstack.user.controller.AuthController.JwtServiceAdapter jwtServiceAdapter(
+            com.quickstack.app.security.JwtService jwtService) {
+        return jwtService::generateAccessToken;
+    }
+
     private void validateKeySize(int keySizeBits, String keyType) {
         if (keySizeBits < MIN_RSA_KEY_SIZE_BITS) {
             throw new IllegalStateException(
