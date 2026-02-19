@@ -9,6 +9,8 @@ import { queryClient } from './lib/queryClient'
 import AppRouter from './router/AppRouter'
 import { router } from './router/router'
 import { registerNavigate } from './utils/imperativeNavigate'
+import ErrorBoundary from './components/common/ErrorBoundary'
+import GlobalErrorSnackbar from './components/common/GlobalErrorSnackbar'
 
 registerNavigate((path) => {
   router.navigate(path)
@@ -16,12 +18,15 @@ registerNavigate((path) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <QueryClientProvider client={queryClient}>
-        <AppRouter />
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <QueryClientProvider client={queryClient}>
+          <AppRouter />
+          <GlobalErrorSnackbar />
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </StrictMode>
 )
