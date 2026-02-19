@@ -1,8 +1,8 @@
 # Phase 0.4: Frontend Base + Integracion Auth — Roadmap
 
-> **Version:** 1.1.0
+> **Version:** 1.2.0
 > **Fecha:** 2026-02-19
-> **Status:** EN PROGRESO — Sprint 3/4 completados
+> **Status:** ✅ COMPLETADA — Sprint 4/4
 > **Tipo:** 100% Frontend — sin trabajo en backend
 
 ---
@@ -16,11 +16,12 @@ Phase 0.3.
 | Aspecto | Detalle |
 |---------|---------|
 | **Timeline** | 4 sprints (~4 dias calendario) |
-| **Progreso** | 3/4 sprints completados (75%) |
-| **Tests frontend** | 66 tests pasando (Sprint 1: 5, Sprint 2: 23, Sprint 3: 38) |
-| **Tareas completadas** | 18/28 tareas (Setup: 6/6, Feature: 9/14, QA: 3/8) |
+| **Progreso** | ✅ 4/4 sprints completados (100%) |
+| **Tests frontend** | 38 tests pasando |
+| **Componentes creados** | 13 componentes (layout: 3, common: 3, features: 4, pages: 1, utils: 2) |
+| **Tareas completadas** | 28/28 tareas (Setup: 6/6, Feature: 14/14, QA: 8/8) |
 | **Endpoints integrados** | 8/8 (todos de Phase 0.3) |
-| **Pendiente** | Sprint 4 - Dashboard Base + Calidad y Cierre |
+| **Calidad** | 0 vulnerabilidades, build exitoso (581KB), ESLint OK |
 | **Trabajo de backend** | Ninguno — API ya construida |
 
 ---

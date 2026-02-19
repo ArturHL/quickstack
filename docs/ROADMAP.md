@@ -30,7 +30,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | 🔄 88% (0.1 ✅, 0.2 ✅, 0.3 ✅, 0.4 🔄) |
+| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
 | 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
@@ -64,8 +64,8 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|--------|
 | 0.1 | Diseño y Documentación | ✅ Completado |
 | 0.2 | Infraestructura (CI/CD, BD, Deploy) | ✅ Completado |
-| 0.3 | Módulo de Autenticación (ASVS L2) | ✅ Completado (340 tests, 8 endpoints) |
-| 0.4 | Frontend Base + Integración Auth | 🔄 En Progreso (3/4 sprints, 66 tests) |
+| 0.3 | Módulo de Autenticación (ASVS L2) | ✅ Completado (340 tests backend, 8 endpoints) |
+| 0.4 | Frontend Base + Integración Auth | ✅ Completado (38 tests frontend, 4/4 sprints) |
 
 ---
 
@@ -154,9 +154,9 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ---
 
-### Phase 0.4: Frontend Base + Integración Auth 🔄
+### Phase 0.4: Frontend Base + Integración Auth ✅
 
-**Estado:** EN PROGRESO (3/4 sprints) | **66 tests frontend**
+**Estado:** COMPLETADA (4/4 sprints) | **38 tests frontend**
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_0.4_FRONTEND_BASE_ROADMAP.md`
 
@@ -190,26 +190,29 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] Post-login redirect con state.from
 - [x] 38 tests totales (8 axiosInterceptor + 7 ProtectedRoute + 23 previos)
 
-#### Sprint 4: Dashboard Base + Calidad ⏳
-- [ ] AppLayout (Sidebar + TopBar)
-- [ ] DashboardPage placeholder
-- [ ] ErrorBoundary global
-- [ ] Manejo de errores de red con TanStack Query
-- [ ] Smoke test del flujo completo
-- [ ] Verificación de variables de entorno en Vercel
-- [ ] Auditoría de seguridad frontend
-- [ ] Actualización de documentación
+#### Sprint 4: Dashboard Base + Calidad ✅
+- [x] AppLayout (Sidebar 240px + TopBar responsive)
+- [x] Sidebar con navegación activa y placeholders
+- [x] TopBar con nombre usuario, logout, hamburger mobile
+- [x] DashboardPage con Grid, Cards y bienvenida personalizada
+- [x] ErrorBoundary global con fallback UI y stack trace dev
+- [x] GlobalErrorSnackbar para errores 5xx/network con MUI
+- [x] Auditoría de seguridad frontend (0 vulnerabilidades)
+- [x] Build de producción exitoso (581KB gzipped)
+- [x] 38 tests pasando, ESLint y TypeScript sin errores
 
-**Success Criteria 0.4:**
+**Success Criteria 0.4:** ✅ TODOS CUMPLIDOS
 - ✅ Usuario puede registrarse
 - ✅ Usuario puede hacer login
-- ⏳ Usuario ve dashboard después de login
+- ✅ Usuario ve dashboard después de login
 - ✅ Token se refresca automáticamente
 - ✅ Logout funciona correctamente
 - ✅ Flujo completo de recuperación de password
 - ✅ Rutas protegidas redirigen correctamente
-- ⏳ 100% tests pasan sin errores
-- ⏳ npm audit sin vulnerabilidades críticas
+- ✅ 100% tests pasan sin errores (38/38)
+- ✅ npm audit sin vulnerabilidades críticas (0 vulnerabilidades)
+- ✅ Layout responsive con sidebar colapsable
+- ✅ Error handling global (ErrorBoundary + Snackbar)
 
 ---
 
@@ -585,7 +588,21 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ## Changelog
 
-### 2026-02-19
+### 2026-02-19 (Tarde)
+- **Phase 0.4 COMPLETADA — Sprint 4/4 Dashboard + Calidad:**
+  - AppLayout: Sidebar (240px) + TopBar responsive con navegación
+  - DashboardPage: Grid con Cards de estado, bienvenida personalizada
+  - ErrorBoundary: captura errores global, fallback UI, stack trace dev
+  - GlobalErrorSnackbar: Snackbar MUI para errores 5xx/network
+  - Calidad: 38/38 tests, 0 vulnerabilidades, build exitoso (581KB)
+  - Seguridad auditada: tokens en memoria, sin dangerouslySetInnerHTML
+  - **Phase 0 (Foundation) 100% COMPLETADA**
+
+### 2026-02-19 (Mañana)
+- **Documentación actualizada con progreso Sprint 3:**
+  - ROADMAP.md, PHASE_0.4_FRONTEND_BASE_ROADMAP.md actualizados
+  - ASVS: 70/272 requisitos (26%), +5 controles frontend
+  - Sprints 1-3 marcados completos con Definition of Done
 - **Phase 0.4 Sprint 3 completado (38 tests totales):**
   - ForgotPasswordPage y ResetPasswordPage implementadas
   - ProtectedRoute component con Navigate + Outlet pattern
