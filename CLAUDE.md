@@ -25,14 +25,14 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 - **0.3**: Auth Backend — 340 tests | 8 endpoints | ASVS L2: V2 26%, V3 74%, V6 56%
 - **0.4**: Auth Frontend — 38 tests | Auth flow completo | Dashboard + Layout
 
-**Phase 1 (Core POS)** | **📋 PLANEADA** — 4 sub-fases (11 semanas)
+**Phase 1 (Core POS)** | **⏳ EN PROGRESO** — 4 sub-fases (11 semanas)
 
-- **1.1**: Catálogo Base (3 sem) — Categorías + Productos + Variantes | 22 endpoints | ~250 tests
+- **1.1**: Catálogo Base (3 sem) — Categorías + Productos + Variantes | 22 endpoints | ~250 tests (Sprint 1/6 completado)
 - **1.2**: Modifiers + Combos (2 sem) — Personalización avanzada | 12 endpoints | ~80 tests
 - **1.3**: Pedidos + Pagos (3 sem) — Sistema completo de órdenes | 28 endpoints | ~150 tests
 - **1.4**: Frontend POS (3 sem) — UI completa del punto de venta | 15 pantallas | ~120 tests
 
-**Próximo sprint**: Phase 1.1 Sprint 1 — Entidades y Repositorios
+**Próximo sprint**: Phase 1.1 Sprint 2 — Category Management
 
 Ver: `docs/ROADMAP.md` | `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md` | `.context/completed-sprints.md`
 

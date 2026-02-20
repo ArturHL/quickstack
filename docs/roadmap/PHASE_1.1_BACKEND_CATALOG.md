@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-19
-> **Status:** PENDIENTE - Sprint 0/6
+> **Status:** EN PROGRESO - Sprint 1/6 Completado
 > **Modulo Maven:** `quickstack-product` (ya existe, esqueleto vacio)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -176,10 +176,10 @@ quickstack-common/
 Agregar excepciones de negocio reutilizables para el modulo de catalogo. Estas se usaran en todos los modulos futuros.
 
 **Criterios de Aceptacion:**
-- [ ] `ResourceNotFoundException(String resourceType, UUID id)` extiende `ApiException` con HTTP 404, codigo `{RESOURCE_TYPE}_NOT_FOUND`
-- [ ] `DuplicateResourceException(String resourceType, String field, String value)` extiende `ApiException` con HTTP 409, codigo `DUPLICATE_{FIELD}`
-- [ ] `GlobalExceptionHandler` maneja ambas excepciones sin exponer stack trace
-- [ ] Tests unitarios: 8 tests (constructor, message format, HTTP status, handler mapping)
+- [x] `ResourceNotFoundException(String resourceType, UUID id)` extiende `ApiException` con HTTP 404, codigo `{RESOURCE_TYPE}_NOT_FOUND`
+- [x] `DuplicateResourceException(String resourceType, String field, String value)` extiende `ApiException` con HTTP 409, codigo `DUPLICATE_{FIELD}`
+- [x] `GlobalExceptionHandler` maneja ambas excepciones sin exponer stack trace
+- [x] Tests unitarios: 8 tests (constructor, message format, HTTP status, handler mapping)
 
 **Archivos:**
 - `quickstack-common/src/main/java/com/quickstack/common/exception/ResourceNotFoundException.java`
@@ -196,11 +196,11 @@ Agregar excepciones de negocio reutilizables para el modulo de catalogo. Estas s
 Entidad JPA mapeada a la tabla `categories` ya existente en V3.
 
 **Criterios de Aceptacion:**
-- [ ] `Category.java` con todos los campos de la tabla: `id`, `tenantId`, `parentId`, `name`, `description`, `imageUrl`, `sortOrder`, `isActive`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `deletedAt`, `deletedBy`
-- [ ] Anotaciones JPA: `@Entity`, `@Table(name = "categories")`, `@Column` con nombres exactos de BD
-- [ ] `@CreationTimestamp` / `@UpdateTimestamp` en campos de audit
-- [ ] `isDeleted()` metodo conveniente que retorna `deletedAt != null`
-- [ ] Tests unitarios: 5 tests (constructor, isDeleted, equals por id)
+- [x] `Category.java` con todos los campos de la tabla: `id`, `tenantId`, `parentId`, `name`, `description`, `imageUrl`, `sortOrder`, `isActive`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `deletedAt`, `deletedBy`
+- [x] Anotaciones JPA: `@Entity`, `@Table(name = "categories")`, `@Column` con nombres exactos de BD
+- [x] `@CreationTimestamp` / `@UpdateTimestamp` en campos de audit
+- [x] `isDeleted()` metodo conveniente que retorna `deletedAt != null`
+- [x] Tests unitarios: 5 tests (constructor, isDeleted, equals por id)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/entity/Category.java`
@@ -214,12 +214,12 @@ Entidad JPA mapeada a la tabla `categories` ya existente en V3.
 Entidades JPA para productos y sus variantes.
 
 **Criterios de Aceptacion:**
-- [ ] `Product.java` con todos los campos: `id`, `tenantId`, `categoryId`, `name`, `description`, `sku`, `imageUrl`, `basePrice`, `costPrice`, `productType` (enum: SIMPLE, VARIANT, COMBO), `isActive`, `isAvailable`, `sortOrder`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `deletedAt`, `deletedBy`
-- [ ] `ProductType.java` enum con valores `SIMPLE`, `VARIANT`, `COMBO`
-- [ ] `ProductVariant.java` con campos: `id`, `tenantId`, `productId`, `name`, `sku`, `priceAdjustment`, `isDefault`, `isActive`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
-- [ ] `Product` tiene `@OneToMany` a `ProductVariant` (fetch LAZY)
-- [ ] `Product.getEffectivePrice()`: retorna `basePrice` para SIMPLE, null para VARIANT (precio se calcula por variante)
-- [ ] Tests unitarios: 10 tests (constructor, enum parsing, getEffectivePrice, variant relationship)
+- [x] `Product.java` con todos los campos: `id`, `tenantId`, `categoryId`, `name`, `description`, `sku`, `imageUrl`, `basePrice`, `costPrice`, `productType` (enum: SIMPLE, VARIANT, COMBO), `isActive`, `isAvailable`, `sortOrder`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `deletedAt`, `deletedBy`
+- [x] `ProductType.java` enum con valores `SIMPLE`, `VARIANT`, `COMBO`
+- [x] `ProductVariant.java` con campos: `id`, `tenantId`, `productId`, `name`, `sku`, `priceAdjustment`, `isDefault`, `isActive`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
+- [x] `Product` tiene `@OneToMany` a `ProductVariant` (fetch LAZY)
+- [x] `Product.getEffectivePrice()`: retorna `basePrice` para SIMPLE, null para VARIANT (precio se calcula por variante)
+- [x] Tests unitarios: 10 tests (constructor, enum parsing, getEffectivePrice, variant relationship)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/entity/Product.java`
@@ -235,13 +235,13 @@ Entidades JPA para productos y sus variantes.
 Repositorio JPA con queries tenant-safe.
 
 **Criterios de Aceptacion:**
-- [ ] `findAllByTenantId(UUID tenantId, Pageable pageable)` retorna solo no-borrados (`WHERE deleted_at IS NULL`)
-- [ ] `findAllByTenantIdIncludingInactive(UUID tenantId, Pageable pageable)` retorna activos e inactivos pero no borrados
-- [ ] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Category>` — incluye inactivos pero excluye borrados
-- [ ] `existsByNameAndTenantIdAndParentId(String name, UUID tenantId, UUID parentId)` para validacion de unicidad
-- [ ] `existsByNameAndTenantIdAndParentIdAndIdNot(String name, UUID tenantId, UUID parentId, UUID excludeId)` para validacion en update
-- [ ] `countActiveProductsByCategory(UUID categoryId, UUID tenantId)`: cuenta productos activos no borrados en esa categoria (para bloquear delete)
-- [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 12 tests
+- [x] `findAllByTenantId(UUID tenantId, Pageable pageable)` retorna solo no-borrados (`WHERE deleted_at IS NULL`)
+- [x] `findAllByTenantIdIncludingInactive(UUID tenantId, Pageable pageable)` retorna activos e inactivos pero no borrados
+- [x] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Category>` — incluye inactivos pero excluye borrados
+- [x] `existsByNameAndTenantIdAndParentId(String name, UUID tenantId, UUID parentId)` para validacion de unicidad
+- [x] `existsByNameAndTenantIdAndParentIdAndIdNot(String name, UUID tenantId, UUID parentId, UUID excludeId)` para validacion en update
+- [x] `countActiveProductsByCategory(UUID categoryId, UUID tenantId)`: cuenta productos activos no borrados en esa categoria (para bloquear delete)
+- [x] Tests de repositorio con `@DataJpaTest` + Testcontainers: 12 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/repository/CategoryRepository.java`
@@ -255,13 +255,13 @@ Repositorio JPA con queries tenant-safe.
 Repositorio JPA para productos con soporte de busqueda y filtrado.
 
 **Criterios de Aceptacion:**
-- [ ] `findAllByTenantId(UUID tenantId, Pageable pageable)` retorna activos y disponibles, no borrados
-- [ ] `findAllByTenantIdWithFilters(UUID tenantId, UUID categoryId, Boolean isAvailable, String nameSearch, Pageable pageable)` — todos los filtros son opcionales (null = sin filtrar). Usa `@Query` JPQL o `Specification`
-- [ ] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Product>` incluyendo inactivos, excluye borrados
-- [ ] `existsBySkuAndTenantId(String sku, UUID tenantId)` para validacion de SKU unico
-- [ ] `existsBySkuAndTenantIdAndIdNot(String sku, UUID tenantId, UUID excludeId)` para update
-- [ ] `existsByNameAndTenantIdAndCategoryId(String name, UUID tenantId, UUID categoryId)` para unicidad de nombre
-- [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 15 tests (incluyendo tests de filtros combinados)
+- [x] `findAllByTenantId(UUID tenantId, Pageable pageable)` retorna activos y disponibles, no borrados
+- [x] `findAllByTenantIdWithFilters(UUID tenantId, UUID categoryId, Boolean isAvailable, String nameSearch, Pageable pageable)` — todos los filtros son opcionales (null = sin filtrar). Usa `@Query` JPQL o `Specification`
+- [x] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Product>` incluyendo inactivos, excluye borrados
+- [x] `existsBySkuAndTenantId(String sku, UUID tenantId)` para validacion de SKU unico
+- [x] `existsBySkuAndTenantIdAndIdNot(String sku, UUID tenantId, UUID excludeId)` para update
+- [x] `existsByNameAndTenantIdAndCategoryId(String name, UUID tenantId, UUID categoryId)` para unicidad de nombre
+- [x] Tests de repositorio con `@DataJpaTest` + Testcontainers: 15 tests (incluyendo tests de filtros combinados)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/repository/ProductRepository.java`
@@ -275,13 +275,13 @@ Repositorio JPA para productos con soporte de busqueda y filtrado.
 Validar que el esquema V3 existente carga correctamente y las constraints funcionan.
 
 **Criterios de Aceptacion:**
-- [ ] Test de integracion que arranca contexto Spring completo con Testcontainers
-- [ ] Verificar que `INSERT` con `tenant_id` invalido falla con FK violation
-- [ ] Verificar que `INSERT` de categoria con nombre duplicado en mismo tenant falla con unique constraint
-- [ ] Verificar que `INSERT` de producto con SKU duplicado en mismo tenant falla
-- [ ] Verificar que categoria con `parent_id` de otro tenant falla con FK violation (constraint cross-tenant)
-- [ ] Verificar que soft delete (solo `deleted_at`) no viola constraints
-- [ ] 6 tests de integracion pasando
+- [x] Test de integracion que arranca contexto Spring completo con Testcontainers
+- [x] Verificar que `INSERT` con `tenant_id` invalido falla con FK violation
+- [x] Verificar que `INSERT` de categoria con nombre duplicado en mismo tenant falla con unique constraint
+- [x] Verificar que `INSERT` de producto con SKU duplicado en mismo tenant falla
+- [x] Verificar que categoria con `parent_id` de otro tenant falla con FK violation (constraint cross-tenant)
+- [x] Verificar que soft delete (solo `deleted_at`) no viola constraints
+- [x] 6 tests de integracion pasando
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSchemaIntegrationTest.java`

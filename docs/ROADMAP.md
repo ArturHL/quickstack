@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.1 planeada
+**Status**: En progreso — Phase 1.1 (Sprint 1/6 completado)
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -312,7 +312,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.1: Catálogo Base (Productos + Variantes)
 
-**Duración:** 3 semanas (6 sprints) | **Status:** 📋 Planeada
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 1/6 completado)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md`
 
@@ -701,6 +701,10 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ## Changelog
 
 ### 2026-02-19 (Noche)
+- **Phase 1.1 Sprint 1 completado:**
+  - Entidades y repositorios para Category, Product y ProductVariant implementados con soft delete.
+  - Soporte multi-tenant integrado a nivel base de datos y repositorios.
+  - Configurado Testcontainers + Flyway para tests de integración.
 - **Phase 1 reestructurada en 4 sub-fases:**
   - Phase 1.1: Catálogo Base (3 semanas, 6 sprints, ~250 tests, 22 endpoints)
   - Phase 1.2: Modificadores + Combos (2 semanas, 4 sprints, ~80 tests, 12 endpoints)
