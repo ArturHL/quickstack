@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.1 (Sprint 1/6 completado)
+**Status**: En progreso — Phase 1.1 (Sprint 2/6 completado)
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -245,7 +245,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 | Sub-fase | Nombre | Duración | Estado |
 |----------|--------|----------|--------|
-| 1.1 | Catálogo Base (Productos + Variantes) | 3 semanas | 📋 Planeada |
+| 1.1 | Catálogo Base (Productos + Variantes) | 3 semanas | ⏳ En Progreso (Sprint 2/6) |
 | 1.2 | Modificadores + Combos | 2 semanas | ⏳ Pendiente |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
@@ -699,6 +699,18 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-20
+- **Phase 1.1 Sprint 2 completado — Category Management:**
+  - `CategoryCreateRequest`, `CategoryUpdateRequest`, `CategoryResponse`, `CategorySummaryResponse` DTOs
+  - `BusinessRuleException` (HTTP 409, código configurable) en quickstack-common
+  - `CategoryService`: create, update, delete (soft), get, restore, list — todo @Transactional, multi-tenant seguro
+  - `CatalogPermissionEvaluator`: canManageCatalog, canDeleteCategory, canRestoreCategory, canViewInactive
+  - `CategoryController`: 6 endpoints REST (GET list, POST create, GET by id, PUT update, DELETE, POST restore)
+  - `CategoryIntegrationTest`: 12 tests end-to-end (requieren Docker)
+  - SecurityConfig actualizado con rutas de catálogo
+  - 58 tests nuevos pasando (32 quickstack-app + 26 quickstack-product)
+  - Acumulado: ~436 tests backend (378 Phase 0 + 58 Sprint 2)
 
 ### 2026-02-19 (Noche)
 - **Phase 1.1 Sprint 1 completado:**

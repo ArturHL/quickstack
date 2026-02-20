@@ -1,8 +1,8 @@
 # Phase 1.1: Catálogo Base — Product & Menu Management Roadmap
 
 > **Version:** 1.1.0
-> **Fecha:** 2026-02-19
-> **Status:** EN PROGRESO - Sprint 1/6 Completado
+> **Fecha:** 2026-02-20
+> **Status:** EN PROGRESO - Sprint 2/6 Completado
 > **Modulo Maven:** `quickstack-product` (ya existe, esqueleto vacio)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -288,21 +288,21 @@ Validar que el esquema V3 existente carga correctamente y las constraints funcio
 
 ---
 
-## Sprint 2: Category Management
+## Sprint 2: Category Management ✅ COMPLETADO
 
 **Duracion:** 2 dias | **Objetivo:** CRUD completo de categorias con permisos
 
-### [BACKEND] Tarea 2.1: DTOs de Categoria
+### [BACKEND] Tarea 2.1: DTOs de Categoria ✅
 **Prioridad:** Alta | **Dependencias:** 1.2
 
 Objetos de transferencia para requests y responses de categorias.
 
 **Criterios de Aceptacion:**
-- [ ] `CategoryCreateRequest`: `name` (NotBlank, max 255), `description` (nullable, max 1000), `imageUrl` (nullable, URL format, max 500), `parentId` (nullable UUID), `sortOrder` (nullable int, default 0)
-- [ ] `CategoryUpdateRequest`: mismos campos que Create, todos opcionales excepto que al menos uno debe estar presente (validacion custom o `@Validated`)
-- [ ] `CategoryResponse`: todos los campos de la entidad + campo `productCount` (int, numero de productos activos no borrados)
-- [ ] `CategorySummaryResponse`: solo `id`, `name`, `sortOrder`, `isActive`, `parentId` — para embeds en respuestas de producto
-- [ ] Tests unitarios: 8 tests (Bean Validation, edge cases de campos)
+- [x] `CategoryCreateRequest`: `name` (NotBlank, max 255), `description` (nullable, max 1000), `imageUrl` (nullable, URL format, max 500), `parentId` (nullable UUID), `sortOrder` (nullable int, default 0)
+- [x] `CategoryUpdateRequest`: mismos campos que Create, todos opcionales excepto que al menos uno debe estar presente (validacion custom o `@Validated`)
+- [x] `CategoryResponse`: todos los campos de la entidad + campo `productCount` (int, numero de productos activos no borrados)
+- [x] `CategorySummaryResponse`: solo `id`, `name`, `sortOrder`, `isActive`, `parentId` — para embeds en respuestas de producto
+- [x] Tests unitarios: 8 tests (Bean Validation, edge cases de campos)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/dto/request/CategoryCreateRequest.java`
@@ -313,19 +313,19 @@ Objetos de transferencia para requests y responses de categorias.
 
 ---
 
-### [BACKEND] Tarea 2.2: CategoryService
+### [BACKEND] Tarea 2.2: CategoryService ✅
 **Prioridad:** Alta | **Dependencias:** 1.1, 1.4, 2.1
 
 Logica de negocio para categorias.
 
 **Criterios de Aceptacion:**
-- [ ] `createCategory(UUID tenantId, UUID userId, CategoryCreateRequest)`: valida nombre unico por tenant+parentId, persiste, retorna `CategoryResponse`
-- [ ] `updateCategory(UUID tenantId, UUID userId, UUID categoryId, CategoryUpdateRequest)`: valida que existe y es del tenant, valida nombre unico (excluyendo el propio), actualiza `updatedBy` y `updatedAt`, retorna `CategoryResponse`
-- [ ] `deleteCategory(UUID tenantId, UUID userId, UUID categoryId)`: valida que no tiene productos activos (lanza `BusinessRuleException` con 409 si los tiene), hace soft delete (setea `deletedAt`, `deletedBy`), retorna void
-- [ ] `getCategory(UUID tenantId, UUID categoryId)`: retorna `CategoryResponse` o lanza `ResourceNotFoundException`
-- [ ] `listCategories(UUID tenantId, boolean includeInactive, Pageable)`: retorna `Page<CategoryResponse>`
-- [ ] Toda operacion de escritura es `@Transactional`
-- [ ] Tests unitarios con mocks: 20 tests (happy path + cada caso de error)
+- [x] `createCategory(UUID tenantId, UUID userId, CategoryCreateRequest)`: valida nombre unico por tenant+parentId, persiste, retorna `CategoryResponse`
+- [x] `updateCategory(UUID tenantId, UUID userId, UUID categoryId, CategoryUpdateRequest)`: valida que existe y es del tenant, valida nombre unico (excluyendo el propio), actualiza `updatedBy` y `updatedAt`, retorna `CategoryResponse`
+- [x] `deleteCategory(UUID tenantId, UUID userId, UUID categoryId)`: valida que no tiene productos activos (lanza `BusinessRuleException` con 409 si los tiene), hace soft delete (setea `deletedAt`, `deletedBy`), retorna void
+- [x] `getCategory(UUID tenantId, UUID categoryId)`: retorna `CategoryResponse` o lanza `ResourceNotFoundException`
+- [x] `listCategories(UUID tenantId, boolean includeInactive, Pageable)`: retorna `Page<CategoryResponse>`
+- [x] Toda operacion de escritura es `@Transactional`
+- [x] Tests unitarios con mocks: 18 tests (happy path + cada caso de error)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/CategoryService.java`
@@ -334,19 +334,19 @@ Logica de negocio para categorias.
 
 ---
 
-### [BACKEND] Tarea 2.3: CatalogPermissionEvaluator
+### [BACKEND] Tarea 2.3: CatalogPermissionEvaluator ✅
 **Prioridad:** Alta | **Dependencias:** Ninguna (solo usa JwtAuthenticationPrincipal)
 
 Componente de autorizacion para operaciones de catalogo.
 
 **Criterios de Aceptacion:**
-- [ ] `CatalogPermissionEvaluator` es un `@Component` que expone metodos para usar con `@PreAuthorize`
-- [ ] `canManageCatalog(Authentication auth)`: retorna true si rol es OWNER o MANAGER
-- [ ] `canDeleteCategory(Authentication auth)`: retorna true si rol es OWNER o MANAGER
-- [ ] `canRestoreCategory(Authentication auth)`: retorna true solo si rol es OWNER
-- [ ] `canViewInactive(Authentication auth)`: retorna true si rol es OWNER o MANAGER
-- [ ] Metodos son evaluados comparando el `roleCode` del JWT claim (`rol` claim: "OWNER", "MANAGER", "CASHIER")
-- [ ] Tests unitarios: 12 tests (cada metodo con cada rol + token invalido)
+- [x] `CatalogPermissionEvaluator` es un `@Component` que expone metodos para usar con `@PreAuthorize`
+- [x] `canManageCatalog(Authentication auth)`: retorna true si rol es OWNER o MANAGER
+- [x] `canDeleteCategory(Authentication auth)`: retorna true si rol es OWNER o MANAGER
+- [x] `canRestoreCategory(Authentication auth)`: retorna true solo si rol es OWNER
+- [x] `canViewInactive(Authentication auth)`: retorna true si rol es OWNER o MANAGER
+- [x] Metodos son evaluados comparando el `roleCode` del JWT claim (`rol` claim: "OWNER", "MANAGER", "CASHIER")
+- [x] Tests unitarios: 12 tests (cada metodo con cada rol + token invalido)
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/security/CatalogPermissionEvaluator.java`
@@ -354,20 +354,20 @@ Componente de autorizacion para operaciones de catalogo.
 
 ---
 
-### [BACKEND] Tarea 2.4: CategoryController
+### [BACKEND] Tarea 2.4: CategoryController ✅
 **Prioridad:** Alta | **Dependencias:** 2.2, 2.3
 
 Controller REST para categorias.
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/categories` — requiere JWT. CASHIER: solo activas. OWNER/MANAGER: acepta `?includeInactive=true`. Retorna `Page<CategoryResponse>` con HTTP 200
-- [ ] `POST /api/v1/categories` — requiere OWNER o MANAGER. `@Valid` en body. Retorna `CategoryResponse` con HTTP 201 + header `Location: /api/v1/categories/{id}`
-- [ ] `GET /api/v1/categories/{id}` — requiere JWT. CASHIER solo ve activas (404 si inactiva). Retorna `CategoryResponse` con HTTP 200
-- [ ] `PUT /api/v1/categories/{id}` — requiere OWNER o MANAGER. Retorna `CategoryResponse` con HTTP 200
-- [ ] `DELETE /api/v1/categories/{id}` — requiere OWNER o MANAGER. Retorna HTTP 204 (no body)
-- [ ] `POST /api/v1/categories/{id}/restore` — requiere solo OWNER. Retorna `CategoryResponse` con HTTP 200. (Restaura soft-deleted)
-- [ ] Todos los endpoints extraen `tenantId` del `JwtAuthenticationPrincipal`, nunca de params
-- [ ] Tests unitarios con `@WebMvcTest`: 18 tests (happy path + 401 + 403 por rol + 404 + 409)
+- [x] `GET /api/v1/categories` — requiere JWT. CASHIER: solo activas. OWNER/MANAGER: acepta `?includeInactive=true`. Retorna `Page<CategoryResponse>` con HTTP 200
+- [x] `POST /api/v1/categories` — requiere OWNER o MANAGER. `@Valid` en body. Retorna `CategoryResponse` con HTTP 201 + header `Location: /api/v1/categories/{id}`
+- [x] `GET /api/v1/categories/{id}` — requiere JWT. CASHIER solo ve activas (404 si inactiva). Retorna `CategoryResponse` con HTTP 200
+- [x] `PUT /api/v1/categories/{id}` — requiere OWNER o MANAGER. Retorna `CategoryResponse` con HTTP 200
+- [x] `DELETE /api/v1/categories/{id}` — requiere OWNER o MANAGER. Retorna HTTP 204 (no body)
+- [x] `POST /api/v1/categories/{id}/restore` — requiere solo OWNER. Retorna `CategoryResponse` con HTTP 200. (Restaura soft-deleted)
+- [x] Todos los endpoints extraen `tenantId` del `JwtAuthenticationPrincipal`, nunca de params
+- [x] Tests unitarios con `@WebMvcTest`: 20 tests (happy path + 401 + 403 por rol + 404 + 409)
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/controller/CategoryController.java`
@@ -375,23 +375,23 @@ Controller REST para categorias.
 
 ---
 
-### [QA] Tarea 2.5: Tests de Integracion de Categorias
+### [QA] Tarea 2.5: Tests de Integracion de Categorias ✅
 **Prioridad:** Alta | **Dependencias:** 2.4
 
 Tests end-to-end que ejercen el stack completo con base de datos real.
 
 **Criterios de Aceptacion:**
-- [ ] Extienden `BaseIntegrationTest`
-- [ ] Setup crea tenant real en BD y genera JWTs con roles OWNER, MANAGER, CASHIER
-- [ ] `POST /api/v1/categories` con OWNER: retorna 201 con `id` generado
-- [ ] `POST /api/v1/categories` con CASHIER: retorna 403
-- [ ] `POST /api/v1/categories` nombre duplicado en mismo tenant: retorna 409
-- [ ] `GET /api/v1/categories` con CASHIER: no incluye categorias inactivas aunque existan
-- [ ] `GET /api/v1/categories` con MANAGER + `includeInactive=true`: incluye inactivas
-- [ ] `DELETE /api/v1/categories/{id}` con productos activos: retorna 409
-- [ ] `DELETE /api/v1/categories/{id}` sin productos: retorna 204, registro sigue en BD con `deleted_at` seteado
-- [ ] Cross-tenant: categoria de tenant A no visible para JWT de tenant B (404)
-- [ ] 12 tests de integracion pasando
+- [x] Extienden `BaseIntegrationTest`
+- [x] Setup crea tenant real en BD y genera JWTs con roles OWNER, MANAGER, CASHIER
+- [x] `POST /api/v1/categories` con OWNER: retorna 201 con `id` generado
+- [x] `POST /api/v1/categories` con CASHIER: retorna 403
+- [x] `POST /api/v1/categories` nombre duplicado en mismo tenant: retorna 409
+- [x] `GET /api/v1/categories` con CASHIER: no incluye categorias inactivas aunque existan
+- [x] `GET /api/v1/categories` con MANAGER + `includeInactive=true`: incluye inactivas
+- [x] `DELETE /api/v1/categories/{id}` con productos activos: retorna 409
+- [x] `DELETE /api/v1/categories/{id}` sin productos: retorna 204, registro sigue en BD con `deleted_at` seteado
+- [x] Cross-tenant: categoria de tenant A no visible para JWT de tenant B (404)
+- [x] 12 tests de integracion implementados (requieren Docker/Testcontainers para ejecutar)
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/CategoryIntegrationTest.java`

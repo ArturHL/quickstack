@@ -169,6 +169,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle business rule violations.
+     * Returns 409 Conflict when a domain constraint is violated
+     * (e.g., deleting a category that still has active products).
+     */
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessRuleViolation(BusinessRuleException ex) {
+        log.warn("Business rule violation: {} - {}", ex.getCode(), ex.getMessage());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
      * Handle custom API exceptions.
      */
     @ExceptionHandler(ApiException.class)

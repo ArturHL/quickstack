@@ -31,7 +31,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
      * @param pageable pagination parameters
      * @return page of active categories
      */
-    @Query("SELECT c FROM Category c WHERE c.tenantId = :tenantId AND c.deletedAt IS NULL")
+    @Query("SELECT c FROM Category c WHERE c.tenantId = :tenantId AND c.isActive = true AND c.deletedAt IS NULL")
     Page<Category> findAllByTenantId(@Param("tenantId") UUID tenantId, Pageable pageable);
 
     /**
@@ -109,6 +109,22 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
         @Param("tenantId") UUID tenantId,
         @Param("parentId") UUID parentId,
         @Param("excludeId") UUID excludeId
+    );
+
+    /**
+     * Finds a category by ID and tenant ID, including soft-deleted records.
+     * <p>
+     * Used exclusively for restore operations where we need to find records
+     * that have been soft-deleted.
+     *
+     * @param id the category ID
+     * @param tenantId the tenant ID
+     * @return Optional containing the category if found (deleted or not)
+     */
+    @Query("SELECT c FROM Category c WHERE c.id = :id AND c.tenantId = :tenantId")
+    Optional<Category> findByIdAndTenantIdIncludingDeleted(
+        @Param("id") UUID id,
+        @Param("tenantId") UUID tenantId
     );
 
     /**
