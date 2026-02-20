@@ -1,6 +1,6 @@
-package com.quickstack.app.security;
+package com.quickstack.product.security;
 
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,9 +44,6 @@ public class CatalogPermissionEvaluator {
     /**
      * Returns true if the authenticated user can create, update, and manage catalog categories.
      * Allowed roles: OWNER, MANAGER.
-     *
-     * @param auth the current Spring Security authentication
-     * @return true if the user has catalog management permission
      */
     public boolean canManageCatalog(Authentication auth) {
         String roleCode = resolveRoleCode(auth);
@@ -56,9 +53,6 @@ public class CatalogPermissionEvaluator {
     /**
      * Returns true if the authenticated user can delete categories.
      * Allowed roles: OWNER, MANAGER.
-     *
-     * @param auth the current Spring Security authentication
-     * @return true if the user can delete categories
      */
     public boolean canDeleteCategory(Authentication auth) {
         String roleCode = resolveRoleCode(auth);
@@ -68,9 +62,6 @@ public class CatalogPermissionEvaluator {
     /**
      * Returns true if the authenticated user can restore soft-deleted categories.
      * Only OWNER is allowed to restore deleted resources.
-     *
-     * @param auth the current Spring Security authentication
-     * @return true if the user can restore categories
      */
     public boolean canRestoreCategory(Authentication auth) {
         String roleCode = resolveRoleCode(auth);
@@ -81,9 +72,6 @@ public class CatalogPermissionEvaluator {
      * Returns true if the authenticated user can view inactive categories.
      * Allowed roles: OWNER, MANAGER.
      * CASHIER users always see only active categories.
-     *
-     * @param auth the current Spring Security authentication
-     * @return true if the user can view inactive categories
      */
     public boolean canViewInactive(Authentication auth) {
         String roleCode = resolveRoleCode(auth);
@@ -94,17 +82,6 @@ public class CatalogPermissionEvaluator {
     // Private helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Resolves the role code for the authenticated user by querying the roles table.
-     * <p>
-     * The JWT only carries the role ID (UUID). We resolve the human-readable code
-     * (e.g., "OWNER") at permission check time. This is acceptable because:
-     * - The roles table is a small, rarely-changing catalog
-     * - No Role entity exists yet; a JdbcTemplate query avoids premature abstraction
-     *
-     * @param auth the current authentication
-     * @return the role code string, or null if not resolvable
-     */
     private String resolveRoleCode(Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return null;
@@ -116,12 +93,6 @@ public class CatalogPermissionEvaluator {
         return fetchRoleCode(principal.roleId());
     }
 
-    /**
-     * Queries the roles table for the code associated with the given role ID.
-     *
-     * @param roleId the role UUID from the JWT
-     * @return the role code or null if not found
-     */
     private String fetchRoleCode(UUID roleId) {
         if (roleId == null) {
             return null;

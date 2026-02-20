@@ -41,18 +41,25 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 quickstack-common/src/main/java/.../common/
 ├── config/properties/   # JwtProperties, PasswordProperties, RateLimitProperties
 ├── exception/           # AuthenticationException, InvalidTokenException, etc.
-└── security/            # SecureTokenGenerator, IpAddressExtractor
+└── security/            # JwtAuthenticationPrincipal, SecureTokenGenerator, IpAddressExtractor
 
 quickstack-user/src/main/java/.../user/
-├── controller/          # AuthController
+├── controller/          # AuthController, UserController (GET/DELETE /users/me/sessions)
 ├── service/             # UserService, PasswordService, RefreshTokenService, LoginAttemptService, PasswordResetService
 ├── entity/              # User, RefreshToken, LoginAttempt, PasswordResetToken
 └── repository/          # UserRepository, RefreshTokenRepository, LoginAttemptRepository, PasswordResetTokenRepository
 
+quickstack-product/src/main/java/.../product/
+├── controller/          # CategoryController
+├── security/            # CatalogPermissionEvaluator
+├── service/             # CategoryService
+├── entity/              # Category
+├── repository/          # CategoryRepository
+└── dto/                 # CategoryCreateRequest, CategoryUpdateRequest, CategoryResponse, CategorySummaryResponse
+
 quickstack-app/src/main/java/.../app/
 ├── config/              # SecurityConfig, JwtConfig, RateLimitConfig
-├── security/            # JwtService, JwtAuthenticationFilter, RateLimitFilter, HibpClient
-└── controller/          # UserController (GET/DELETE /users/me/sessions)
+└── security/            # JwtService, JwtAuthenticationFilter, RateLimitFilter, HibpClient
 
 quickstack-app/src/main/resources/
 ├── application.yml      # Config con quickstack.* properties

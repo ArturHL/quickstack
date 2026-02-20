@@ -1,6 +1,6 @@
-package com.quickstack.app.controller;
+package com.quickstack.user.controller;
 
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.user.dto.response.SessionResponse;
 import com.quickstack.user.service.SessionService;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,7 @@
 package com.quickstack.app.security;
 
 import com.quickstack.common.exception.InvalidTokenException;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -131,23 +132,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    /**
-     * Principal object containing authenticated user context from JWT claims.
-     */
-    public record JwtAuthenticationPrincipal(
-            UUID userId,
-            UUID tenantId,
-            UUID roleId,
-            UUID branchId,
-            String email
-    ) {
-        /**
-         * Returns the user ID as the principal name.
-         */
-        public String getName() {
-            return userId.toString();
-        }
     }
 }

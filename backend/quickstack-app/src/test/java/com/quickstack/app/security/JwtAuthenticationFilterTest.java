@@ -2,6 +2,7 @@ package com.quickstack.app.security;
 
 import com.quickstack.common.config.properties.JwtProperties;
 import com.quickstack.common.exception.InvalidTokenException;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.common.exception.InvalidTokenException.InvalidationReason;
 import com.quickstack.common.exception.InvalidTokenException.TokenType;
 import com.quickstack.user.entity.User;
@@ -111,8 +112,8 @@ class JwtAuthenticationFilterTest {
             assertThat(auth).isNotNull();
             assertThat(auth.isAuthenticated()).isTrue();
 
-            JwtAuthenticationFilter.JwtAuthenticationPrincipal principal =
-                    (JwtAuthenticationFilter.JwtAuthenticationPrincipal) auth.getPrincipal();
+            JwtAuthenticationPrincipal principal =
+                    (JwtAuthenticationPrincipal) auth.getPrincipal();
             assertThat(principal.userId()).isEqualTo(USER_ID);
             assertThat(principal.tenantId()).isEqualTo(TENANT_ID);
             assertThat(principal.roleId()).isEqualTo(ROLE_ID);
@@ -144,8 +145,8 @@ class JwtAuthenticationFilterTest {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertThat(auth).isNotNull();
 
-            JwtAuthenticationFilter.JwtAuthenticationPrincipal principal =
-                    (JwtAuthenticationFilter.JwtAuthenticationPrincipal) auth.getPrincipal();
+            JwtAuthenticationPrincipal principal =
+                    (JwtAuthenticationPrincipal) auth.getPrincipal();
             assertThat(principal.branchId()).isNull();
         }
 
@@ -339,8 +340,8 @@ class JwtAuthenticationFilterTest {
         @DisplayName("getName returns user ID string")
         void getNameReturnsUserIdString() {
             // Arrange
-            JwtAuthenticationFilter.JwtAuthenticationPrincipal principal =
-                    new JwtAuthenticationFilter.JwtAuthenticationPrincipal(
+            JwtAuthenticationPrincipal principal =
+                    new JwtAuthenticationPrincipal(
                             USER_ID, TENANT_ID, ROLE_ID, BRANCH_ID, EMAIL);
 
             // Act & Assert
@@ -351,8 +352,8 @@ class JwtAuthenticationFilterTest {
         @DisplayName("record components are accessible")
         void recordComponentsAreAccessible() {
             // Arrange
-            JwtAuthenticationFilter.JwtAuthenticationPrincipal principal =
-                    new JwtAuthenticationFilter.JwtAuthenticationPrincipal(
+            JwtAuthenticationPrincipal principal =
+                    new JwtAuthenticationPrincipal(
                             USER_ID, TENANT_ID, ROLE_ID, BRANCH_ID, EMAIL);
 
             // Assert
@@ -413,8 +414,8 @@ class JwtAuthenticationFilterTest {
             assertThat(auth).isNotNull();
             assertThat(auth.isAuthenticated()).isTrue();
 
-            JwtAuthenticationFilter.JwtAuthenticationPrincipal principal =
-                    (JwtAuthenticationFilter.JwtAuthenticationPrincipal) auth.getPrincipal();
+            JwtAuthenticationPrincipal principal =
+                    (JwtAuthenticationPrincipal) auth.getPrincipal();
             assertThat(principal.userId()).isEqualTo(USER_ID);
             assertThat(principal.tenantId()).isEqualTo(TENANT_ID);
             assertThat(principal.email()).isEqualTo(EMAIL);

@@ -1,13 +1,13 @@
-package com.quickstack.app.controller;
+package com.quickstack.product.controller;
 
-import com.quickstack.app.security.CatalogPermissionEvaluator;
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
 import com.quickstack.common.exception.BusinessRuleException;
 import com.quickstack.common.exception.DuplicateResourceException;
 import com.quickstack.common.exception.ResourceNotFoundException;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import com.quickstack.product.dto.response.CategoryResponse;
+import com.quickstack.product.security.CatalogPermissionEvaluator;
 import com.quickstack.product.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,7 +43,8 @@ import static org.mockito.Mockito.*;
  * service delegation, and response mapping. Security enforcement (@PreAuthorize)
  * is tested indirectly via the permissionEvaluator mock.
  * <p>
- * Integration tests (CategoryIntegrationTest) verify the full security filter chain.
+ * Integration tests (CategoryIntegrationTest in quickstack-app) verify the full
+ * security filter chain.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CategoryController")
@@ -88,7 +88,6 @@ class CategoryControllerTest {
         void shouldReturn200WithCategories() {
             CategoryResponse response = buildCategoryResponse("Bebidas", true);
             Page<CategoryResponse> page = new PageImpl<>(List.of(response), PageRequest.of(0, 20), 1);
-            // Use lenient to allow stubs that may not be consumed in all execution paths
             lenient().when(permissionEvaluator.canViewInactive(any())).thenReturn(false);
             lenient().when(categoryService.listCategories(any(), anyBoolean(), any())).thenReturn(page);
 
@@ -161,7 +160,7 @@ class CategoryControllerTest {
         }
 
         @Test
-        @DisplayName("should return 201 with Location header after service call")
+        @DisplayName("should return 201 after service call")
         void shouldReturn201WithCreatedCategory() {
             CategoryCreateRequest request = new CategoryCreateRequest("Bebidas", null, null, null, null);
             CategoryResponse response = buildCategoryResponse("Bebidas", true);
@@ -186,8 +185,6 @@ class CategoryControllerTest {
         }
 
         private void mockServletRequestContext() {
-            // ServletUriComponentsBuilder.fromCurrentRequest() requires an active HTTP request.
-            // We set a minimal mock request so the builder can construct a URI.
             org.springframework.mock.web.MockHttpServletRequest mockRequest =
                 new org.springframework.mock.web.MockHttpServletRequest();
             mockRequest.setScheme("http");

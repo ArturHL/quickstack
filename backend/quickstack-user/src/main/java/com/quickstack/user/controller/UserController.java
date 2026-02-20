@@ -1,7 +1,7 @@
-package com.quickstack.app.controller;
+package com.quickstack.user.controller;
 
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
 import com.quickstack.common.dto.ApiResponse;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.user.dto.response.SessionResponse;
 import com.quickstack.user.service.SessionService;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import java.util.UUID;
  * REST controller for user management operations.
  * <p>
  * Endpoints:
- * - GET  /api/v1/users/me/sessions  - List active sessions
+ * - GET    /api/v1/users/me/sessions      - List active sessions
  * - DELETE /api/v1/users/me/sessions/{id} - Revoke a specific session
  * <p>
  * ASVS Compliance:
@@ -38,9 +38,6 @@ public class UserController {
 
     /**
      * Lists all active sessions for the authenticated user.
-     *
-     * @param principal the authenticated user's principal from JWT
-     * @return list of active session metadata
      */
     @GetMapping("/me/sessions")
     public ResponseEntity<ApiResponse<List<SessionResponse>>> getSessions(
@@ -58,12 +55,7 @@ public class UserController {
 
     /**
      * Revokes a specific session for the authenticated user.
-     * <p>
-     * Verifies that the session belongs to the authenticated user.
-     *
-     * @param principal the authenticated user's principal from JWT
-     * @param id        the session ID to revoke
-     * @return 204 No Content on success
+     * Verifies that the session belongs to the authenticated user before revoking.
      */
     @DeleteMapping("/me/sessions/{id}")
     public ResponseEntity<Void> revokeSession(

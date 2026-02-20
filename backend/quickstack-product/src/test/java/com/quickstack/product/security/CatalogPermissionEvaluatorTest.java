@@ -1,6 +1,6 @@
-package com.quickstack.app.security;
+package com.quickstack.product.security;
 
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,10 +37,6 @@ class CatalogPermissionEvaluatorTest {
         evaluator = new CatalogPermissionEvaluator(jdbcTemplate);
     }
 
-    // -------------------------------------------------------------------------
-    // canManageCatalog
-    // -------------------------------------------------------------------------
-
     @Nested
     @DisplayName("canManageCatalog")
     class CanManageCatalogTests {
@@ -75,10 +71,6 @@ class CatalogPermissionEvaluatorTest {
             assertThat(evaluator.canManageCatalog(auth)).isFalse();
         }
     }
-
-    // -------------------------------------------------------------------------
-    // canDeleteCategory
-    // -------------------------------------------------------------------------
 
     @Nested
     @DisplayName("canDeleteCategory")
@@ -115,10 +107,6 @@ class CatalogPermissionEvaluatorTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // canRestoreCategory
-    // -------------------------------------------------------------------------
-
     @Nested
     @DisplayName("canRestoreCategory")
     class CanRestoreCategoryTests {
@@ -154,10 +142,6 @@ class CatalogPermissionEvaluatorTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // canViewInactive
-    // -------------------------------------------------------------------------
-
     @Nested
     @DisplayName("canViewInactive")
     class CanViewInactiveTests {
@@ -192,10 +176,6 @@ class CatalogPermissionEvaluatorTest {
             assertThat(evaluator.canViewInactive(auth)).isFalse();
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Edge cases
-    // -------------------------------------------------------------------------
 
     @Nested
     @DisplayName("edge cases")

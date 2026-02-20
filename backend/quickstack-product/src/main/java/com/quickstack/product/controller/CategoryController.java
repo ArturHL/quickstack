@@ -1,11 +1,11 @@
-package com.quickstack.app.controller;
+package com.quickstack.product.controller;
 
-import com.quickstack.app.security.CatalogPermissionEvaluator;
-import com.quickstack.app.security.JwtAuthenticationFilter.JwtAuthenticationPrincipal;
 import com.quickstack.common.dto.ApiResponse;
+import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import com.quickstack.product.dto.response.CategoryResponse;
+import com.quickstack.product.security.CatalogPermissionEvaluator;
 import com.quickstack.product.service.CategoryService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -27,21 +27,15 @@ import java.util.UUID;
  * REST controller for category management.
  * <p>
  * Endpoints:
- * - GET    /api/v1/categories             - List categories (paginated)
- * - POST   /api/v1/categories             - Create category (OWNER/MANAGER)
- * - GET    /api/v1/categories/{id}        - Get single category
- * - PUT    /api/v1/categories/{id}        - Update category (OWNER/MANAGER)
- * - DELETE /api/v1/categories/{id}        - Soft delete category (OWNER/MANAGER)
+ * - GET    /api/v1/categories              - List categories (paginated)
+ * - POST   /api/v1/categories              - Create category (OWNER/MANAGER)
+ * - GET    /api/v1/categories/{id}         - Get single category
+ * - PUT    /api/v1/categories/{id}         - Update category (OWNER/MANAGER)
+ * - DELETE /api/v1/categories/{id}         - Soft delete category (OWNER/MANAGER)
  * - POST   /api/v1/categories/{id}/restore - Restore deleted category (OWNER only)
  * <p>
- * Security:
- * - All endpoints require JWT authentication
- * - Write operations require OWNER or MANAGER role
- * - CASHIER role: read-only, active categories only (includeInactive silently ignored)
- * - Tenant context is always extracted from the JWT principal, never from request params
- * <p>
  * ASVS Compliance:
- * - V4.1: Multi-tenant isolation enforced via tenantId from JWT
+ * - V4.1: Multi-tenant isolation — tenantId always extracted from JWT, never from request params
  * - V4.1: IDOR protection — cross-tenant access returns 404
  * - V4.2: @PreAuthorize for operation-level access control
  */
@@ -62,16 +56,8 @@ public class CategoryController {
 
     /**
      * Lists categories for the authenticated user's tenant.
-     * <p>
-     * CASHIER users always receive only active categories, even if {@code includeInactive=true}
-     * is passed — the parameter is silently forced to false for security.
-     * OWNER and MANAGER users can request inactive categories via {@code ?includeInactive=true}.
-     *
-     * @param principal       the authenticated user's JWT principal
-     * @param authentication  used to check role-based visibility permissions
-     * @param includeInactive when true (and allowed by role), includes inactive categories
-     * @param pageable        pagination and sorting parameters
-     * @return paginated list of categories
+     * CASHIER: includeInactive is silently forced to false.
+     * OWNER/MANAGER: can pass {@code ?includeInactive=true}.
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Page<CategoryResponse>>> listCategories(
@@ -80,7 +66,6 @@ public class CategoryController {
             @RequestParam(defaultValue = "false") boolean includeInactive,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        // CASHIER: force includeInactive to false regardless of the param value
         boolean effectiveIncludeInactive = includeInactive
             && permissionEvaluator.canViewInactive(authentication);
 
@@ -94,12 +79,7 @@ public class CategoryController {
     }
 
     /**
-     * Creates a new category.
-     * Requires OWNER or MANAGER role.
-     *
-     * @param principal the authenticated user's JWT principal
-     * @param request   the category creation request
-     * @return 201 Created with Location header pointing to the new resource
+     * Creates a new category. Requires OWNER or MANAGER role.
      */
     @PostMapping
     @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
@@ -123,11 +103,6 @@ public class CategoryController {
 
     /**
      * Retrieves a single category by ID.
-     * All authenticated users can access this endpoint.
-     *
-     * @param principal  the authenticated user's JWT principal
-     * @param categoryId the category UUID
-     * @return the category details
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategory(
@@ -142,13 +117,7 @@ public class CategoryController {
     }
 
     /**
-     * Updates an existing category.
-     * Requires OWNER or MANAGER role.
-     *
-     * @param principal  the authenticated user's JWT principal
-     * @param categoryId the category UUID to update
-     * @param request    the update request with fields to change
-     * @return the updated category
+     * Updates an existing category. Requires OWNER or MANAGER role.
      */
     @PutMapping("/{id}")
     @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
@@ -166,13 +135,8 @@ public class CategoryController {
     }
 
     /**
-     * Soft-deletes a category.
-     * Requires OWNER or MANAGER role.
+     * Soft-deletes a category. Requires OWNER or MANAGER role.
      * Returns 409 if the category has active products.
-     *
-     * @param principal  the authenticated user's JWT principal
-     * @param categoryId the category UUID to delete
-     * @return 204 No Content on success
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("@catalogPermissionEvaluator.canDeleteCategory(authentication)")
@@ -188,12 +152,7 @@ public class CategoryController {
     }
 
     /**
-     * Restores a soft-deleted category.
-     * Requires OWNER role only.
-     *
-     * @param principal  the authenticated user's JWT principal
-     * @param categoryId the category UUID to restore
-     * @return the restored category
+     * Restores a soft-deleted category. Requires OWNER role only.
      */
     @PostMapping("/{id}/restore")
     @PreAuthorize("@catalogPermissionEvaluator.canRestoreCategory(authentication)")
