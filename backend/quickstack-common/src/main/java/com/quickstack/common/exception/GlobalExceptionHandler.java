@@ -140,6 +140,35 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle resource not found exceptions.
+     * Returns 404 with specific error code based on resource type.
+     * ASVS V4.1: Access control - 404 for missing resources (not 403 to avoid enumeration).
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        log.warn("Resource not found: {} - {}", ex.getCode(), ex.getMessage());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
+     * Handle duplicate resource exceptions.
+     * Returns 409 Conflict when attempting to create a resource with duplicate unique field.
+     */
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateResource(DuplicateResourceException ex) {
+        log.warn("Duplicate resource: {} - {}", ex.getCode(), ex.getMessage());
+
+        ApiError error = ApiError.of(ex.getCode(), ex.getMessage());
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ApiResponse.error(error));
+    }
+
+    /**
      * Handle custom API exceptions.
      */
     @ExceptionHandler(ApiException.class)
