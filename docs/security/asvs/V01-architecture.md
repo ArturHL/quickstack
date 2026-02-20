@@ -12,8 +12,8 @@
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
 | 1.1.1 | Verificar el uso de un ciclo de desarrollo seguro que aborde la seguridad en todas las etapas de desarrollo | L2 | ✅ | **Implementacion:** GitHub Flow con PRs obligatorios, code review con checklist de seguridad, CI/CD con SAST (Semgrep) y dependency scanning (OWASP Dependency-Check). Documentacion en CLAUDE.md define requisitos de seguridad por fase. GitHub Actions workflow implementado en `.github/workflows/ci.yml`. |
-| 1.1.2 | Verificar el uso de threat modeling para cada cambio de diseno o planificacion de sprint para identificar amenazas, planificar contramedidas, facilitar respuestas de riesgo apropiadas y guiar pruebas de seguridad | L2 | ⏳ | **Implementacion:** Threat model documentado en SECURITY.md (ver seccion Threat Model). STRIDE aplicado a cada nuevo modulo. Issues de seguridad etiquetados `security` en GitHub. User stories incluyen criterios de seguridad. |
-| 1.1.3 | Verificar que todas las user stories y features contengan restricciones funcionales de seguridad, como "Como usuario, deberia poder ver y editar mi perfil. No deberia poder ver o editar el perfil de nadie mas" | L2 | ⏳ | **Implementacion:** Template de user story en GitHub Issues incluye seccion "Security Constraints". Ejemplo: "Como CAJERO, puedo crear ordenes solo en MI sucursal asignada. No puedo ver datos de otros tenants ni otras sucursales." |
+| 1.1.2 | Verificar el uso de threat modeling para cada cambio de diseno o planificacion de sprint para identificar amenazas, planificar contramedidas, facilitar respuestas de riesgo apropiadas y guiar pruebas de seguridad | L2 | ✅ | **Implementacion:** Threat model documentado en SECURITY.md (ver seccion Threat Model). STRIDE Ágil aplicado en Sprint Planning. Issues de seguridad etiquetados `security` en GitHub. Restricciones guían pruebas de seguridad como Definition of Done. |
+| 1.1.3 | Verificar que todas las user stories y features contengan restricciones funcionales de seguridad, como "Como usuario, deberia poder ver y editar mi perfil. No deberia poder ver o editar el perfil de nadie mas" | L2 | ✅ | **Implementacion:** Template de user story en `.github/ISSUE_TEMPLATE/user_story.md` incluye seccion obligatoria "Restricciones de Seguridad". CLAUDE.md define esto como *Definition of Ready*. |
 | 1.1.4 | Verificar documentacion y justificacion de todos los limites de confianza, componentes y flujos de datos significativos de la aplicacion | L2 | ✅ | **Implementacion:** Documentado en ARCHITECTURE.md con diagramas de arquitectura. Trust boundaries: Frontend (untrusted) -> API Gateway -> Backend (trusted) -> Database. Composite FKs con tenant_id previenen referencias cross-tenant a nivel de BD. |
 | 1.1.5 | Verificar definicion y analisis de seguridad de la arquitectura de alto nivel de la aplicacion y todos los servicios remotos conectados | L2 | ✅ | **Implementacion:** Arquitectura documentada en ARCHITECTURE.md. Servicios externos: Neon (BD), Twilio/SendGrid (notificaciones). Autenticacion nativa con Spring Security + JWT (sin IdP externo). Cada servicio evaluado por seguridad y compliance. |
 | 1.1.6 | Verificar implementacion de controles de seguridad centralizados, simples, verificados, seguros y reutilizables para evitar controles duplicados, faltantes, ineficaces o inseguros | L2 | ✅ | **Implementacion:** Modulo `quickstack-common` contiene: `SecurityConfig` (Argon2id password encoder, CORS config), `GlobalExceptionHandler` (manejo de errores sin leak de info interna), `ApiResponse`/`ApiError` (respuestas estandarizadas). Pendiente: `TenantFilter`, `AuditingConfig`. |
@@ -157,7 +157,7 @@
 
 | Seccion | Total Requisitos | Cumplidos | Pendientes | No Aplica |
 |---------|------------------|-----------|------------|-----------|
-| V1.1 Secure SDLC | 7 | 5 | 2 | 0 |
+| V1.1 Secure SDLC | 7 | 7 | 0 | 0 |
 | V1.2 Authentication | 4 | 3 | 1 | 0 |
 | V1.3 Session Management | 0 | 0 | 0 | 0 |
 | V1.4 Access Control | 3 | 0 | 3 | 0 |
@@ -171,4 +171,4 @@
 | V1.12 File Upload | 1 | 0 | 1 | 0 |
 | V1.13 API | 0 | 0 | 0 | 0 |
 | V1.14 Configuration | 6 | 4 | 2 | 0 |
-| **TOTAL** | **38** | **19** | **19** | **0** |
+| **TOTAL** | **38** | **21** | **17** | **0** |

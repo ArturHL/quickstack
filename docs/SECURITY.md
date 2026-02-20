@@ -118,6 +118,17 @@ Los requisitos detallados de OWASP ASVS L2 estan documentados por capitulo en:
                         [Data Breach, Repudiation]
 ```
 
+### Lightweight Threat Modeling (STRIDE Ágil)
+
+Para cumplir con ASVS 1.1.2, todo cambio de diseño, Épico o funcionalidad Core debe pasar por un modelado de amenazas ligero usando el marco de las 4 preguntas de Adam Shostack. Esto se evalúa durante el Sprint Planning/Refinement:
+
+1. **¿Qué estamos construyendo?** (Tener claro el flujo o componente)
+2. **¿Qué puede salir mal?** (Pensar en *Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege*) -> *Ej: "¿Cómo un atacante podría abusar de esto?"*.
+3. **¿Qué vamos a hacer al respecto?** -> Las respuestas se documentan como **Restricciones de Seguridad** en el ticket de GitHub.
+4. **¿Hicimos un buen trabajo?** -> La restricción se cubre con un test (unitario/integración) que se valida en el Code Review (Definition of Done).
+
+Los cambios arquitectónicos mayores deben documentar sus Trust Boundaries en `docs/ARCHITECTURE.md`.
+
 ---
 
 ## Protocolos de Desarrollo Seguro
