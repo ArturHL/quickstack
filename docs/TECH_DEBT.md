@@ -2,11 +2,11 @@
 
 Registro de deuda técnica conocida, priorizada por fase de implementación.
 
-**Última actualización:** 2026-02-19
+**Última actualización:** 2026-02-19 (Noche)
 
 ---
 
-## 🔴 Alta Prioridad (Phase 1 - En Progreso)
+## 🔴 Alta Prioridad (Phase 1 Planeada)
 
 ### 1. Implementar CRUD de Tenants y Branches
 
@@ -31,9 +31,9 @@ Los módulos `quickstack-tenant` y `quickstack-branch` están vacíos. Las tabla
 - PATCH /api/v1/branches/{id} (actualizar dirección, teléfono)
 - DELETE /api/v1/branches/{id} (soft delete)
 
-**Status:** 🚧 EN IMPLEMENTACIÓN (2026-02-19)
+**Status:** 📋 PLANEADO
 
-**Planeado para:** Phase 1, Semanas 1-3
+**Planeado para:** Phase 1.3 (Sistema de Pedidos + Pagos), Sprint 1-2
 
 **Referencias:**
 - `docs/reviews/2026-02-19-initial-review.md` sección 3.1

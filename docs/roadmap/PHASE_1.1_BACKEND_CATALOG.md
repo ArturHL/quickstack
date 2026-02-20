@@ -1,15 +1,18 @@
-# Phase 0.4: Product & Menu Management Roadmap
+# Phase 1.1: Catálogo Base — Product & Menu Management Roadmap
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-18
+> **Version:** 1.1.0
+> **Fecha:** 2026-02-19
 > **Status:** PENDIENTE - Sprint 0/6
 > **Modulo Maven:** `quickstack-product` (ya existe, esqueleto vacio)
+> **Parte de:** Phase 1: Core POS - Ventas Completas
 
 ---
 
 ## Resumen Ejecutivo
 
-Este documento define el plan de implementacion del modulo de catalogo de productos y menus para QuickStack POS.
+Este documento define el plan de implementacion de la **primera sub-fase de Phase 1**: el modulo de catalogo base de productos y menus para QuickStack POS.
+
+**Importante:** Esta es solo la **parte 1 de 4** de Phase 1. Cubre únicamente el catálogo básico (categorías, productos, variantes). Los modificadores, combos, pedidos, pagos y frontend se implementarán en las sub-fases posteriores (1.2, 1.3, 1.4).
 
 | Aspecto | Detalle |
 |---------|---------|
@@ -99,13 +102,15 @@ La verificacion de permisos usa el `roleId` del JWT. Los roles son UUIDs de la t
 
 | Item | Justificacion | Phase sugerida |
 |------|---------------|----------------|
-| Modifier groups y modifiers (personalizaciones) | Complejidad no necesaria para MVP POS | Phase 0.5 |
-| Combos y combo items | Requiere logica de precios especial | Phase 0.5 |
-| Menu object con precios por sucursal | La sucursal aun no tiene API implementada | Phase 0.6 (post branch module) |
-| Imagenes de producto (upload) | Requiere storage externo (S3/GCS) | Phase 0.7 |
-| `available_from` / `available_until` (disponibilidad horaria) | Logica de timezone compleja | Phase 0.5 |
+| Modifier groups y modifiers (personalizaciones) | Requiere UI compleja, se implementa después del catálogo base | **Phase 1.2** |
+| Combos y combo items | Requiere logica de precios especial y validaciones complejas | **Phase 1.2** |
+| Áreas y mesas | Parte del sistema de pedidos, no del catálogo | **Phase 1.3** |
+| Clientes (delivery) | Parte del sistema de pedidos, no del catálogo | **Phase 1.3** |
+| Sucursales (branches) | Se implementa junto con el módulo de pedidos | **Phase 1.3** |
+| Imagenes de producto (upload) | Requiere storage externo (S3/GCS) y procesamiento | **Phase 1.3** o posterior |
+| `available_from` / `available_until` (disponibilidad horaria) | Logica de timezone compleja, no crítico para MVP | **Phase 1.3** o posterior |
 | Categorias jerarquicas mas de 2 niveles | No requerido por MVP | No planificado |
-| Busqueda full-text con ponderacion | PostgreSQL FTS vs Elasticsearch decision pendiente | Phase 1.0 |
+| Busqueda full-text con ponderacion | PostgreSQL FTS vs Elasticsearch decision pendiente | Phase 2+ |
 
 ---
 

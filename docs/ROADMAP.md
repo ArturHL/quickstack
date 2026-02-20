@@ -235,7 +235,20 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Dependencies**: Phase 0 completado
 
-**Est. Effort:** 5-6 semanas
+**Est. Effort:** 8-10 semanas
+
+**Status**: En progreso — Phase 1.1 planeada
+
+> **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
+
+### Sub-fases de Phase 1
+
+| Sub-fase | Nombre | Duración | Estado |
+|----------|--------|----------|--------|
+| 1.1 | Catálogo Base (Productos + Variantes) | 3 semanas | 📋 Planeada |
+| 1.2 | Modificadores + Combos | 2 semanas | ⏳ Pendiente |
+| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
+| 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
 ### Scope de Phase 1
 
@@ -294,6 +307,105 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 - **Demo con piloto**: Mostrar flujo completo (mesa, mostrador, delivery)
 - **Pregunta clave**: ¿El flujo es más rápido que su método actual?
+
+---
+
+### Phase 1.1: Catálogo Base (Productos + Variantes)
+
+**Duración:** 3 semanas (6 sprints) | **Status:** 📋 Planeada
+
+> **Roadmap detallado:** `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md`
+
+**Scope:**
+- [ ] Entidades: Category, Product, ProductVariant
+- [ ] CRUD completo de categorías jerárquicas (2 niveles)
+- [ ] CRUD completo de productos (SIMPLE y VARIANT)
+- [ ] CRUD de variantes como sub-recurso
+- [ ] Endpoint `/api/v1/menu` optimizado para POS
+- [ ] Permisos por rol (OWNER/MANAGER/CASHIER)
+- [ ] Soft delete con audit trail
+- [ ] Reordenamiento de categorías y productos
+- [ ] 22 endpoints REST
+- [ ] ~250 tests nuevos (acumulado: ~590 tests backend)
+
+**Deuda técnica aceptada:**
+- Modifier groups y modifiers → Phase 1.2
+- Combos → Phase 1.2
+- Imágenes de productos (upload) → Phase 1.3
+- Disponibilidad horaria → Phase 1.3
+
+---
+
+### Phase 1.2: Modificadores y Combos
+
+**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ Pendiente
+
+> **Roadmap detallado:** `docs/roadmap/PHASE_1.2_MODIFIERS_COMBOS.md`
+
+**Dependencies:** Phase 1.1 completada
+
+**Scope:**
+- [ ] CRUD de modifier groups (Extras, Sin ingredientes, etc.)
+- [ ] CRUD de modifiers con price_adjustment
+- [ ] Validaciones min/max selections por grupo
+- [ ] CRUD de combos con combo_items
+- [ ] Pricing especial de combos
+- [ ] Actualizar endpoint `/api/v1/menu` con modifiers
+- [ ] 12 endpoints REST nuevos
+- [ ] ~80 tests nuevos (acumulado: ~830 tests backend)
+
+---
+
+### Phase 1.3: Sistema de Pedidos y Pagos
+
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ Pendiente
+
+> **Roadmap detallado:** `docs/roadmap/PHASE_1.3_ORDERS_PAYMENTS.md`
+
+**Dependencies:** Phase 1.2 completada
+
+**Scope Backend:**
+- [ ] Nuevo módulo: `quickstack-order`
+- [ ] CRUD de sucursales (branches) con selector activo
+- [ ] CRUD de áreas y mesas por sucursal
+- [ ] CRUD de clientes (para delivery)
+- [ ] Entidades: Order, OrderItem, OrderItemModifier, Payment
+- [ ] API: crear pedido (4 tipos de servicio: DINE_IN/COUNTER/DELIVERY/TAKEOUT)
+- [ ] API: agregar/modificar items al pedido
+- [ ] API: calcular totales (base + variants + modifiers + tax)
+- [ ] API: cerrar pedido con cambio de estado
+- [ ] API: registrar pago en efectivo
+- [ ] API: listar pedidos del día (filtros por estado, tipo servicio, sucursal)
+- [ ] Order number format: `ORD-YYYYMMDD-XXX` (daily sequence)
+- [ ] Validaciones de negocio (producto disponible, mesa ocupada, etc.)
+- [ ] 28 endpoints REST nuevos
+- [ ] ~150 tests nuevos (acumulado: ~1157 tests backend)
+
+---
+
+### Phase 1.4: Frontend POS
+
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ Pendiente
+
+> **Roadmap detallado:** `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
+
+**Dependencies:** Phase 1.3 completada
+
+**Scope Frontend:**
+- [ ] Pantalla de catálogo (grid responsive con búsqueda)
+- [ ] Modal de producto con variantes + modificadores
+- [ ] Carrito de compras con cálculo de totales en tiempo real
+- [ ] Selector de tipo de servicio (DINE_IN/COUNTER/DELIVERY/TAKEOUT)
+- [ ] Selector de mesa (si DINE_IN) con visualización de disponibilidad
+- [ ] Formulario de cliente (si DELIVERY) con validación
+- [ ] Pantalla de pago (solo efectivo, calcular cambio)
+- [ ] Vista de pedidos del día con filtros
+- [ ] CRUD de productos (admin) con upload de imágenes
+- [ ] CRUD de sucursales (admin)
+- [ ] Selector de sucursal activa (persistido en localStorage)
+- [ ] State management: posStore, cartStore, branchStore (Zustand)
+- [ ] 15 pantallas/componentes principales
+- [ ] ~120 tests frontend nuevos (acumulado: ~158 tests frontend)
 
 ---
 
@@ -587,6 +699,26 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-19 (Noche)
+- **Phase 1 reestructurada en 4 sub-fases:**
+  - Phase 1.1: Catálogo Base (3 semanas, 6 sprints, ~250 tests, 22 endpoints)
+  - Phase 1.2: Modificadores + Combos (2 semanas, 4 sprints, ~80 tests, 12 endpoints)
+  - Phase 1.3: Sistema de Pedidos + Pagos (3 semanas, 6 sprints, ~150 tests, 28 endpoints)
+  - Phase 1.4: Frontend POS (3 semanas, 6 sprints, ~120 tests, 15 pantallas)
+  - Estimación total actualizada: 11 semanas (antes 5-6)
+  - Total estimado: ~600 tests nuevos, 62 endpoints REST
+- **4 roadmaps detallados creados:**
+  - `PHASE_1.1_BACKEND_CATALOG.md` (47KB, renombrado desde DRAFT)
+  - `PHASE_1.2_MODIFIERS_COMBOS.md` (33KB, nuevo)
+  - `PHASE_1.3_ORDERS_PAYMENTS.md` (45KB, nuevo)
+  - `PHASE_1.4_FRONTEND_POS.md` (43KB, nuevo)
+  - Total: 168KB de documentación detallada con sprints, tareas y criterios de aceptación
+- **Documentación actualizada:**
+  - `CLAUDE.md`: Phase 0 marcada 100% completada, Phase 1 con 4 sub-fases
+  - `.context/completed-sprints.md`: Resumen Phase 0 + estructura Phase 1 planeada
+  - `ROADMAP.md`: Sub-fases con referencias a roadmaps detallados
+- **Archivado:** `docs/archive/PHASE_0.4_FRONTEND_BASE_ROADMAP.md`
 
 ### 2026-02-19 (Tarde)
 - **Phase 0.4 COMPLETADA — Sprint 4/4 Dashboard + Calidad:**
