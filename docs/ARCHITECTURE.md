@@ -557,6 +557,9 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 
 ## Flujo de Request Autenticado
 
+> [!TIP]
+> **Diagramas Detallados:** Puedes consultar diagramas de secuencia interactivos a nivel de archivo para todos los casos de uso principales en [Diagramas de Flujos de Casos de Uso](./flows/README.md).
+
 ```
 1. Usuario hace click en "Ver productos"
    │
