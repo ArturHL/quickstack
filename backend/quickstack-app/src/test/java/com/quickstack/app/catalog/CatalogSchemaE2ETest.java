@@ -27,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>
  * ASVS V4.1: Access control - database-level multi-tenancy enforcement.
  */
-@DisplayName("Catalog Schema Integration Tests")
-class CatalogSchemaIntegrationTest extends BaseIntegrationTest {
+@DisplayName("Catalog Schema E2E Tests")
+class CatalogSchemaE2ETest extends BaseE2ETest {
 
     @Autowired
     private EntityManager entityManager;

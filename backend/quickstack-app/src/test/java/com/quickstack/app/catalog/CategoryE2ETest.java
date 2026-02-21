@@ -28,8 +28,8 @@ import static org.hamcrest.Matchers.*;
  * <p>
  * ASVS V4.1: Tests verify multi-tenant IDOR protection.
  */
-@DisplayName("Category Integration Tests")
-class CategoryIntegrationTest extends BaseIntegrationTest {
+@DisplayName("Category E2E Tests")
+class CategoryE2ETest extends BaseE2ETest {
 
     // Seeded role UUIDs from V7__seed_data.sql
     private static final UUID OWNER_ROLE_ID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
