@@ -17,7 +17,7 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 
 - **Package by feature**: controller/service/repository por módulo
 - **DTOs**: `dto/request/` y `dto/response/`
-- **Tests**: `*Test.java` (unit), `*IntegrationTest.java` (integration)
+- **Tests**: `*Test.java` (unit), `*RepositoryTest.java` (slice), `*E2ETest.java` (full system)
 - **Exceptions**: Custom en `common/exception/`, handler en GlobalExceptionHandler
 
 ## Auth Actual (Phase 0.3 - COMPLETADO)
