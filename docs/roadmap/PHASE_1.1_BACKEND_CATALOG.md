@@ -146,20 +146,27 @@ quickstack-product/
 │       ├── CategoryService.java
 │       └── ProductService.java
 │
+quickstack-auth/
+├── src/main/java/com/quickstack/auth/
+│   └── config/
+│       └── SecurityConfig.java              <- MODIFICAR: agregar rutas catalog
+
 quickstack-app/
 ├── src/main/java/com/quickstack/app/
-│   ├── controller/
-│   │   ├── CategoryController.java          <- NUEVO
-│   │   └── ProductController.java           <- NUEVO
-│   ├── config/
-│   │   └── SecurityConfig.java              <- MODIFICAR: agregar rutas catalog
-│   └── security/
-│       └── CatalogPermissionEvaluator.java  <- NUEVO
+│   └── controller/
+│       ├── CategoryController.java          <- NUEVO
+│       └── ProductController.java           <- NUEVO
+
+quickstack-product/
+├── src/main/java/com/quickstack/product/
+│   ├── security/
+│   │   └── CatalogPermissionEvaluator.java  <- NUEVO
+│   └── ... (servicios, entidades)
 
 quickstack-common/
 ├── src/main/java/com/quickstack/common/
 │   └── exception/
-│       ├── ResourceNotFoundException.java   <- NUEVO (reemplaza manejo ad-hoc)
+│       ├── ResourceNotFoundException.java   <- NUEVO
 │       ├── DuplicateResourceException.java  <- NUEVO
 │       └── GlobalExceptionHandler.java      <- MODIFICAR: handlers para nuevas excepciones
 ```
@@ -284,7 +291,7 @@ Validar que el esquema V3 existente carga correctamente y las constraints funcio
 - [x] 6 tests de integracion pasando
 
 **Archivos:**
-- `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSchemaIntegrationTest.java`
+- `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSchemaE2ETest.java`
 
 ---
 
@@ -394,7 +401,7 @@ Tests end-to-end que ejercen el stack completo con base de datos real.
 - [x] 12 tests de integracion implementados (requieren Docker/Testcontainers para ejecutar)
 
 **Archivos:**
-- `quickstack-app/src/test/java/com/quickstack/app/catalog/CategoryIntegrationTest.java`
+- `quickstack-app/src/test/java/com/quickstack/app/catalog/CategoryE2ETest.java`
 
 ---
 
@@ -523,7 +530,7 @@ Logica de negocio: crear y leer productos.
 - [ ] 14 tests de integracion pasando
 
 **Archivos:**
-- `quickstack-app/src/test/java/com/quickstack/app/catalog/ProductIntegrationTest.java`
+- `quickstack-app/src/test/java/com/quickstack/app/catalog/ProductE2ETest.java`
 
 ---
 
@@ -651,7 +658,7 @@ Bateria de tests de seguridad especificos del modulo catalog.
 - [ ] 14 tests de seguridad pasando
 
 **Archivos:**
-- `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSecurityTest.java`
+- `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSecurityE2ETest.java`
 
 ---
 
@@ -762,7 +769,7 @@ El POS necesita cargar todo el catalogo de una sola llamada, organizado por cate
 - [ ] 8 tests de integracion pasando
 
 **Archivos:**
-- `quickstack-app/src/test/java/com/quickstack/app/catalog/MenuIntegrationTest.java`
+- `quickstack-app/src/test/java/com/quickstack/app/catalog/MenuE2ETest.java`
 
 ---
 
@@ -851,5 +858,5 @@ if (!category.getTenantId().equals(tenantId)) throw new ForbiddenException();
 ### Convencion de nombres de clases de test
 
 - `*Test.java` — tests unitarios con mocks (no necesitan Spring context)
-- `*IntegrationTest.java` — tests con Testcontainers (extienden `BaseIntegrationTest`)
+- `*E2ETest.java` — tests en modulo app con Testcontainers (extienden `BaseE2ETest`)
 - `*RepositoryTest.java` — tests con `@DataJpaTest` + Testcontainers (contexto JPA reducido)
