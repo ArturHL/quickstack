@@ -1,8 +1,8 @@
 package com.quickstack.app;
 
-import com.quickstack.app.security.JwtService;
+import com.quickstack.auth.security.JwtService;
 import com.quickstack.user.entity.User;
-import com.quickstack.user.service.PasswordBreachChecker;
+import com.quickstack.common.security.PasswordBreachChecker;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -40,6 +40,10 @@
             <groupId>com.quickstack</groupId>
             <artifactId>quickstack-pos</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-auth</artifactId>
+        </dependency>
 
         <!-- Spring Boot Starters -->
         <dependency>
@@ -60,17 +64,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
-
-        <!-- Rate Limiting with Bucket4j + Caffeine -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-            <version>8.10.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
         </dependency>
 
         <!-- DevTools (optional, dev only) -->

@@ -58,10 +58,11 @@ The project is managed as a monorepo. Key commands should be run within their re
 
 ## Key Directory Structure
 - `/backend`: Multi-module Maven project.
-  - `quickstack-app`: Main entry point and configuration.
-  - `quickstack-user`: Authentication and user management.
+  - `quickstack-app`: Main entry point and orchestration.
+  - `quickstack-auth`: Security infrastructure, JWT, and session management.
+  - `quickstack-user`: Identity management and user CRUD.
   - `quickstack-product`: Catalog and product management.
-  - `quickstack-common`: Shared utilities and base exceptions.
+  - `quickstack-common`: Shared utilities, security base, and exceptions.
 - `/frontend`: React application using Vite.
   - `src/features`: Business logic modules (auth, dashboard, pos).
   - `src/components`: Reusable UI components.

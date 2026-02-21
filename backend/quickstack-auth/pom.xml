@@ -10,11 +10,21 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>quickstack-common</artifactId>
-    <name>QuickStack Common</name>
-    <description>Shared utilities, security config, exceptions, and base entities</description>
+    <artifactId>quickstack-auth</artifactId>
+    <name>QuickStack Auth</name>
+    <description>Authentication and security infrastructure module</description>
 
     <dependencies>
+        <!-- Internal modules -->
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-user</artifactId>
+        </dependency>
+
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -22,11 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,25 +62,28 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Password hashing (Argon2) -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78.1</version>
-        </dependency>
-
-        <!-- Rate limiting -->
+        <!-- Rate Limiting with Bucket4j + Caffeine -->
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>8.10.1</version>
         </dependency>
-
-        <!-- Password strength validation -->
         <dependency>
-            <groupId>me.gosimple</groupId>
-            <artifactId>nbvcxz</artifactId>
-            <version>1.5.1</version>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>3.9.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

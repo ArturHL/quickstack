@@ -1,6 +1,8 @@
 package com.quickstack.user.service;
 
 import com.quickstack.common.exception.ApiException;
+import com.quickstack.common.security.PasswordBreachChecker;
+import com.quickstack.common.security.PasswordService;
 import com.quickstack.user.entity.User;
 import com.quickstack.user.repository.UserRepository;
 import org.slf4j.Logger;

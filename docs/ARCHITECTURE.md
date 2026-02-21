@@ -67,22 +67,25 @@ quickstack-pos/
 src/main/java/com/quickstack/
 ├── QuickstackApplication.java
 ├── common/                    # Shared utilities
-│   ├── config/               # Spring configs
+│   ├── config/               # Base Spring configs
 │   ├── exception/            # Global exception handling
-│   ├── security/             # Spring Security + JWT config
+│   ├── security/             # Base security (PasswordService, BreachChecker)
 │   └── audit/                # Auditing (created_at, etc.)
+├── auth/                      # Security & Session module
+│   ├── security/             # JWT filters, Rate limit filters
+│   ├── service/              # Login, Refresh, Password reset logic
+│   └── controller/           # Auth and Session endpoints
 ├── tenant/                    # Tenant module
 │   ├── Tenant.java           # Entity
 │   ├── TenantRepository.java
 │   ├── TenantService.java
 │   └── TenantController.java
 ├── branch/                    # Branch module
-│   ├── Branch.java
-│   ├── BranchRepository.java
-│   ├── BranchService.java
-│   └── BranchController.java
-├── user/                      # User module
 │   └── ...
+├── user/                      # Identity CRUD module
+│   ├── User.java             # Entity
+│   ├── UserRepository.java
+│   └── UserService.java
 ├── product/                   # Product module
 │   └── ...
 └── pos/                       # POS/Orders module (Phase 1+)
@@ -324,7 +327,8 @@ updated_by UUID REFERENCES users(id)
 | Modulo | Tablas | Descripcion |
 |--------|--------|-------------|
 | Global Catalogs | 5 | subscription_plans, roles, order_status_types, stock_movement_types, unit_types |
-| Core | 6 | tenants, branches, users, password_reset_tokens, refresh_tokens, login_attempts |
+| Core | 3 | tenants, branches, users |
+| Auth | 3 | password_reset_tokens, refresh_tokens, login_attempts |
 | Catalog | 7 | categories, products, product_variants, modifier_groups, modifiers, combos, combo_items |
 | Inventory | 6 | ingredients, suppliers, recipes, stock_movements, purchase_orders, purchase_order_items |
 | POS | 8 | areas, tables, customers, orders, order_items, order_item_modifiers, payments, order_status_history |
@@ -726,6 +730,11 @@ VITE_WS_URL=wss://api.quickstack.app/ws
 ---
 
 ## Changelog
+
+### 2026-02-20
+- Extraccion del modulo `quickstack-auth` para centralizar la logica de seguridad e infraestructura de sesion.
+- Reorganizacion de `PasswordService` y `PasswordBreachChecker` en `quickstack-common`.
+- Desacoplamiento de `quickstack-user`, dejandolo enfocado en CRUD de identidad (Identity).
 
 ### 2026-02-18
 - Agregadas decisiones de seguridad detalladas (parametros Argon2id, rate limiting, cookie config)
