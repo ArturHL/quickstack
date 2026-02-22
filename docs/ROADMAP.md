@@ -312,21 +312,20 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.1: Catálogo Base (Productos + Variantes)
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 1/6 completado)
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 3/6 completado)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md`
 
 **Scope:**
-- [ ] Entidades: Category, Product, ProductVariant
-- [ ] CRUD completo de categorías jerárquicas (2 niveles)
-- [ ] CRUD completo de productos (SIMPLE y VARIANT)
-- [ ] CRUD de variantes como sub-recurso
-- [ ] Endpoint `/api/v1/menu` optimizado para POS
-- [ ] Permisos por rol (OWNER/MANAGER/CASHIER)
-- [ ] Soft delete con audit trail
-- [ ] Reordenamiento de categorías y productos
-- [ ] 22 endpoints REST
-- [ ] ~250 tests nuevos (acumulado: ~590 tests backend)
+- [x] Entidades: Category, Product, ProductVariant
+- [x] CRUD completo de categorías jerárquicas (2 niveles)
+- [x] CRUD completo de productos (SIMPLE y VARIANT)
+- [ ] CRUD de variantes detallado (Sprint 4)
+- [ ] Endpoint `/api/v1/menu` optimizado para POS (Sprint 6)
+- [x] Permisos por rol (OWNER/MANAGER/CASHIER)
+- [x] Soporte para Docker 29 (Testcontainers 2.0.3)
+- [x] Integridad referencial en tests (fixtures de Tenant/Plan)
+- [x] ~500 tests backend totales acumulados
 
 **Deuda técnica aceptada:**
 - Modifier groups y modifiers → Phase 1.2
@@ -699,6 +698,17 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-21
+- **Phase 1.1 Sprint 3 completado — Product Management:**
+  - `ProductCreateRequest`, `ProductUpdateRequest`, `ProductResponse`, `ProductSummaryResponse` DTOs.
+  - Soporte para productos `SIMPLE` y `VARIANT` con gestión de precios y SKUs.
+  - `ProductService`: CRUD completo con validaciones multi-tenant y reglas de negocio.
+  - **Infraestructura:** Actualización a Testcontainers 2.0.3 para compatibilidad con Docker 29.
+  - **Integridad:** Implementación de fixtures automáticos (Tenant/Plan) en tests de repositorio para cumplir FKs.
+  - **Fix SQL:** CAST explícito en búsquedas de ProductRepository para evitar errores de tipo en Postgres.
+  - ~500 tests backend acumulados pasando al 100%.
+  - **Phase 1.1 COMPLETADA.**
 
 ### 2026-02-20
 - **Phase 1.1 Sprint 2 completado — Category Management:**

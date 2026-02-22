@@ -1,9 +1,9 @@
 # Phase 1.1: Catálogo Base — Product & Menu Management Roadmap
 
 > **Version:** 1.1.0
-> **Fecha:** 2026-02-20
-> **Status:** EN PROGRESO - Sprint 2/6 Completado
-> **Modulo Maven:** `quickstack-product` (ya existe, esqueleto vacio)
+> **Fecha:** 2026-02-21
+> **Status:** EN PROGRESO - Sprint 3/6 Completado
+> **Modulo Maven:** `quickstack-product`
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
 ---
@@ -34,7 +34,7 @@ Este documento define el plan de implementacion de la **primera sub-fase de Phas
 |----------|-------|---------------|
 | Modulo | `quickstack-product` (existente) | Ya creado con estructura correcta, dependencias ya en `quickstack-app` |
 | Dependencias del modulo | `quickstack-common`, `quickstack-tenant` | Acceso a `ApiResponse`, excepciones, propiedades; Tenant para foreign key |
-| Controladores | En `quickstack-app` | Patron establecido: los controllers de API viven en el modulo app, no en los modulos de dominio |
+| Controladores | En `quickstack-product` | Decision arquitectonica actualizada: Modular Monolith. Los controladores viven junto al dominio. |
 
 ### Base de Datos
 
@@ -119,7 +119,9 @@ La verificacion de permisos usa el `roleId` del JWT. Los roles son UUIDs de la t
 ```
 quickstack-product/
 ├── src/main/java/com/quickstack/product/
-│   ├── controller/                          <- VACIO en esta phase (controllers en quickstack-app)
+│   ├── controller/
+│   │   ├── CategoryController.java
+│   │   └── ProductController.java
 │   ├── dto/
 │   │   ├── request/
 │   │   │   ├── CategoryCreateRequest.java
@@ -150,12 +152,6 @@ quickstack-auth/
 ├── src/main/java/com/quickstack/auth/
 │   └── config/
 │       └── SecurityConfig.java              <- MODIFICAR: agregar rutas catalog
-
-quickstack-app/
-├── src/main/java/com/quickstack/app/
-│   └── controller/
-│       ├── CategoryController.java          <- NUEVO
-│       └── ProductController.java           <- NUEVO
 
 quickstack-product/
 ├── src/main/java/com/quickstack/product/
@@ -377,7 +373,7 @@ Controller REST para categorias.
 - [x] Tests unitarios con `@WebMvcTest`: 20 tests (happy path + 401 + 403 por rol + 404 + 409)
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/CategoryController.java`
+- `quickstack-product/src/main/java/com/quickstack/product/controller/CategoryController.java`
 - `quickstack-app/src/test/java/com/quickstack/app/controller/CategoryControllerTest.java`
 
 ---
@@ -418,22 +414,22 @@ Tests end-to-end que ejercen el stack completo con base de datos real.
 
 ---
 
-## Sprint 3: Product Management (SIMPLE y VARIANT)
+## Sprint 3: Product Management (SIMPLE y VARIANT) ✅ COMPLETADO
 
 **Duracion:** 3 dias | **Objetivo:** CRUD completo de productos incluyendo variantes
 
-### [BACKEND] Tarea 3.1: DTOs de Producto
+### [BACKEND] Tarea 3.1: DTOs de Producto ✅
 **Prioridad:** Alta | **Dependencias:** 1.3, 2.1
 
 **Criterios de Aceptacion:**
-- [ ] `ProductCreateRequest`: `name` (NotBlank, max 255), `description` (nullable, max 2000), `categoryId` (NotNull UUID), `sku` (nullable, max 50, pattern `^[A-Z0-9_-]{1,50}$`), `basePrice` (NotNull, min 0.01, max 99999.99 — 2 decimales), `costPrice` (nullable, min 0), `imageUrl` (nullable, URL, max 500), `productType` (NotNull, enum), `sortOrder` (nullable, default 0), `variants` (lista nullable de `VariantCreateRequest`, solo valida si `productType == VARIANT`)
-- [ ] `VariantCreateRequest`: `name` (NotBlank, max 100), `sku` (nullable, mismo patron), `priceAdjustment` (NotNull, puede ser negativo pero `basePrice + priceAdjustment >= 0`), `isDefault` (boolean, default false), `sortOrder` (nullable)
-- [ ] `ProductUpdateRequest`: mismos campos que Create, todos opcionales
-- [ ] `ProductAvailabilityRequest`: `isAvailable` (NotNull boolean) — para el endpoint de marcar agotado
-- [ ] `ProductResponse`: todos los campos de la entidad + `category` (CategorySummaryResponse) + `variants` (lista de VariantResponse, solo si productType == VARIANT)
-- [ ] `ProductSummaryResponse`: `id`, `name`, `basePrice`, `productType`, `isAvailable`, `isActive`, `categoryId`, `imageUrl` — para listados paginados
-- [ ] `VariantResponse`: todos los campos de ProductVariant + `effectivePrice` (basePrice + priceAdjustment)
-- [ ] Tests unitarios: 15 tests (validaciones Bean Validation, precio minimo, crossField validation en variantes)
+- [x] `ProductCreateRequest`: `name` (NotBlank, max 255), `description` (nullable, max 2000), `categoryId` (NotNull UUID), `sku` (nullable, max 50, pattern `^[A-Z0-9_-]{1,50}$`), `basePrice` (NotNull, min 0.01, max 99999.99 — 2 decimales), `costPrice` (nullable, min 0), `imageUrl` (nullable, URL, max 500), `productType` (NotNull, enum), `sortOrder` (nullable, default 0), `variants` (lista nullable de `VariantCreateRequest`, solo valida si `productType == VARIANT`)
+- [x] `VariantCreateRequest`: `name` (NotBlank, max 100), `sku` (nullable, mismo patron), `priceAdjustment` (NotNull, puede ser negativo pero `basePrice + priceAdjustment >= 0`), `isDefault` (boolean, default false), `sortOrder` (nullable)
+- [x] `ProductUpdateRequest`: mismos campos que Create, todos opcionales
+- [x] `ProductAvailabilityRequest`: `isAvailable` (NotNull boolean) — para el endpoint de marcar agotado
+- [x] `ProductResponse`: todos los campos de la entidad + `category` (CategorySummaryResponse) + `variants` (lista de VariantResponse, solo si productType == VARIANT)
+- [x] `ProductSummaryResponse`: `id`, `name`, `basePrice`, `productType`, `isAvailable`, `isActive`, `categoryId`, `imageUrl` — para listados paginados
+- [x] `VariantResponse`: todos los campos de ProductVariant + `effectivePrice` (basePrice + priceAdjustment)
+- [x] Tests unitarios: 15 tests (validaciones Bean Validation, precio minimo, crossField validation en variantes)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/dto/request/ProductCreateRequest.java`
@@ -448,22 +444,22 @@ Tests end-to-end que ejercen el stack completo con base de datos real.
 
 ---
 
-### [BACKEND] Tarea 3.2: ProductService — CRUD basico
+### [BACKEND] Tarea 3.2: ProductService — CRUD basico ✅
 **Prioridad:** Alta | **Dependencias:** 1.1, 1.5, 3.1
 
 Logica de negocio: crear y leer productos.
 
 **Criterios de Aceptacion:**
-- [ ] `createProduct(UUID tenantId, UUID userId, ProductCreateRequest)`:
+- [x] `createProduct(UUID tenantId, UUID userId, ProductCreateRequest)`:
   - Valida que `categoryId` pertenece al tenant (lanza `ResourceNotFoundException` si no)
   - Valida SKU unico por tenant (lanza `DuplicateResourceException` si duplicado)
   - Si `productType == VARIANT`, requiere al menos una variante en el request (lanza `BusinessRuleException` si vacia)
   - Si `productType == VARIANT`, exactamente una variante debe tener `isDefault == true` (valida, si ninguna la primera se marca como default)
   - Persiste producto y variantes en transaccion unica
   - Retorna `ProductResponse`
-- [ ] `getProduct(UUID tenantId, UUID productId)`: retorna `ProductResponse` con variantes incluidas, lanza `ResourceNotFoundException` si no existe o es de otro tenant
-- [ ] `listProducts(UUID tenantId, UUID categoryId, Boolean isAvailable, String nameSearch, boolean includeInactive, Pageable)`: retorna `Page<ProductSummaryResponse>`. `nameSearch` usa `ILIKE '%term%'`
-- [ ] Tests unitarios con mocks: 18 tests
+- [x] `getProduct(UUID tenantId, UUID productId)`: retorna `ProductResponse` con variantes incluidas, lanza `ResourceNotFoundException` si no existe o es de otro tenant
+- [x] `listProducts(UUID tenantId, UUID categoryId, Boolean isAvailable, String nameSearch, boolean includeInactive, Pageable)`: retorna `Page<ProductSummaryResponse>`. `nameSearch` usa `ILIKE '%term%'`
+- [x] Tests unitarios con mocks: 18 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/ProductService.java`
@@ -471,21 +467,21 @@ Logica de negocio: crear y leer productos.
 
 ---
 
-### [BACKEND] Tarea 3.3: ProductService — Update, Delete, Availability
+### [BACKEND] Tarea 3.3: ProductService — Update, Delete, Availability ✅
 **Prioridad:** Alta | **Dependencias:** 3.2
 
 **Criterios de Aceptacion:**
-- [ ] `updateProduct(UUID tenantId, UUID userId, UUID productId, ProductUpdateRequest)`:
+- [x] `updateProduct(UUID tenantId, UUID userId, UUID productId, ProductUpdateRequest)`:
   - Solo actualiza campos presentes en el request (partial update semantics)
   - Re-valida unicidad de SKU excluyendo el propio
   - Si se cambia `categoryId`, valida que la nueva categoria existe y pertenece al tenant
   - Si `productType` cambia de SIMPLE a VARIANT, requiere variantes en el request
   - Actualiza `updatedBy` y `updatedAt`
   - Retorna `ProductResponse`
-- [ ] `deleteProduct(UUID tenantId, UUID userId, UUID productId)`: soft delete (setea `deletedAt`, `deletedBy`). No verifica si hay ordenes — las ordenes guardan snapshot del producto al momento de la orden (ver deuda tecnica)
-- [ ] `setAvailability(UUID tenantId, UUID userId, UUID productId, boolean isAvailable)`: actualiza solo `is_available`. Retorna `ProductResponse`. Disponible para OWNER y MANAGER
-- [ ] `restoreProduct(UUID tenantId, UUID userId, UUID productId)`: limpia `deletedAt` y `deletedBy`. Solo OWNER. Lanza `ResourceNotFoundException` si no existe (borrado o nunca existio)
-- [ ] Tests unitarios con mocks: 18 tests (incluyendo intentar restaurar producto que nunca existio)
+- [x] `deleteProduct(UUID tenantId, UUID userId, UUID productId)`: soft delete (setea `deletedAt`, `deletedBy`). No verifica si hay ordenes — las ordenes guardan snapshot del producto al momento de la orden (ver deuda tecnica)
+- [x] `setAvailability(UUID tenantId, UUID userId, UUID productId, boolean isAvailable)`: actualiza solo `is_available`. Retorna `ProductResponse`. Disponible para OWNER y MANAGER
+- [x] `restoreProduct(UUID tenantId, UUID userId, UUID productId)`: limpia `deletedAt` y `deletedBy`. Solo OWNER. Lanza `ResourceNotFoundException` si no existe (borrado o nunca existio)
+- [x] Tests unitarios con mocks: 18 tests (incluyendo intentar restaurar producto que nunca existio)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/ProductService.java` (modificar)
@@ -493,41 +489,41 @@ Logica de negocio: crear y leer productos.
 
 ---
 
-### [BACKEND] Tarea 3.4: ProductController
+### [BACKEND] Tarea 3.4: ProductController ✅
 **Prioridad:** Alta | **Dependencias:** 3.3, 2.3
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/products` — requiere JWT. Params: `categoryId` (UUID), `available` (boolean), `search` (string, max 100), `includeInactive` (boolean, solo OWNER/MANAGER). Retorna `Page<ProductSummaryResponse>` HTTP 200
-- [ ] `POST /api/v1/products` — OWNER/MANAGER. Retorna `ProductResponse` HTTP 201 + `Location` header
-- [ ] `GET /api/v1/products/{id}` — JWT. CASHIER no ve inactivos (404). Retorna `ProductResponse` HTTP 200
-- [ ] `PUT /api/v1/products/{id}` — OWNER/MANAGER. Retorna `ProductResponse` HTTP 200
-- [ ] `DELETE /api/v1/products/{id}` — OWNER/MANAGER. HTTP 204
-- [ ] `PATCH /api/v1/products/{id}/availability` — OWNER/MANAGER. Body: `ProductAvailabilityRequest`. Retorna `ProductResponse` HTTP 200
-- [ ] `POST /api/v1/products/{id}/restore` — solo OWNER. Retorna `ProductResponse` HTTP 200
-- [ ] Tests unitarios con `@WebMvcTest`: 21 tests
+- [x] `GET /api/v1/products` — requiere JWT. Params: `categoryId` (UUID), `available` (boolean), `search` (string, max 100), `includeInactive` (boolean, solo OWNER/MANAGER). Retorna `Page<ProductSummaryResponse>` HTTP 200
+- [x] `POST /api/v1/products` — OWNER/MANAGER. Retorna `ProductResponse` HTTP 201 + `Location` header
+- [x] `GET /api/v1/products/{id}` — JWT. CASHIER no ve inactivos (404). Retorna `ProductResponse` HTTP 200
+- [x] `PUT /api/v1/products/{id}` — OWNER/MANAGER. Retorna `ProductResponse` HTTP 200
+- [x] `DELETE /api/v1/products/{id}` — OWNER/MANAGER. HTTP 204
+- [x] `PATCH /api/v1/products/{id}/availability` — OWNER/MANAGER. Body: `ProductAvailabilityRequest`. Retorna `ProductResponse` HTTP 200
+- [x] `POST /api/v1/products/{id}/restore` — solo OWNER. Retorna `ProductResponse` HTTP 200
+- [x] Tests unitarios con `@WebMvcTest`: 21 tests
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/ProductController.java`
+- `quickstack-product/src/main/java/com/quickstack/product/controller/ProductController.java`
 - `quickstack-app/src/test/java/com/quickstack/app/controller/ProductControllerTest.java`
 
 ---
 
-### [QA] Tarea 3.5: Tests de Integracion de Productos
+### [QA] Tarea 3.5: Tests de Integracion de Productos ✅
 **Prioridad:** Alta | **Dependencias:** 3.4
 
 **Criterios de Aceptacion:**
-- [ ] Extienden `BaseIntegrationTest`
-- [ ] Setup crea tenant, categorias de prueba y JWTs con los 3 roles
-- [ ] `POST /api/v1/products` tipo SIMPLE: retorna 201 con precio correcto
-- [ ] `POST /api/v1/products` tipo VARIANT sin variantes: retorna 400
-- [ ] `POST /api/v1/products` con SKU duplicado: retorna 409
-- [ ] `POST /api/v1/products` con `categoryId` de otro tenant: retorna 404
-- [ ] `GET /api/v1/products?categoryId={id}`: retorna solo productos de esa categoria
-- [ ] `GET /api/v1/products?search=taco`: retorna solo productos que contienen "taco" (case-insensitive)
-- [ ] `PATCH /api/v1/products/{id}/availability` con CASHIER: retorna 403
-- [ ] `PATCH /api/v1/products/{id}/availability` con MANAGER: retorna 200, campo `isAvailable` cambiado en BD
-- [ ] Cross-tenant: producto de tenant A con JWT de tenant B retorna 404
-- [ ] 14 tests de integracion pasando
+- [x] Extienden `BaseIntegrationTest`
+- [x] Setup crea tenant, categorias de prueba y JWTs con los 3 roles
+- [x] `POST /api/v1/products` tipo SIMPLE: retorna 201 con precio correcto
+- [x] `POST /api/v1/products` tipo VARIANT sin variantes: retorna 400
+- [x] `POST /api/v1/products` con SKU duplicado: retorna 409
+- [x] `POST /api/v1/products` con `categoryId` de otro tenant: retorna 404
+- [x] `GET /api/v1/products?categoryId={id}`: retorna solo productos de esa categoria
+- [x] `GET /api/v1/products?search=taco`: retorna solo productos que contienen "taco" (case-insensitive)
+- [x] `PATCH /api/v1/products/{id}/availability` con CASHIER: retorna 403
+- [x] `PATCH /api/v1/products/{id}/availability` con MANAGER: retorna 200, campo `isAvailable` cambiado en BD
+- [x] Cross-tenant: producto de tenant A con JWT de tenant B retorna 404
+- [x] 14 tests de integracion pasando
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/ProductE2ETest.java`
@@ -594,7 +590,7 @@ Logica de negocio: crear y leer productos.
 - [ ] Tests unitarios con `@WebMvcTest`: 12 tests
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/VariantController.java`
+- `quickstack-product/src/main/java/com/quickstack/product/controller/VariantController.java`
 - `quickstack-app/src/test/java/com/quickstack/app/controller/VariantControllerTest.java`
 
 ---
@@ -620,8 +616,8 @@ Los restaurantes necesitan controlar el orden de aparicion en el menu del POS.
 - `quickstack-product/src/main/java/com/quickstack/product/dto/request/ReorderRequest.java`
 - `quickstack-product/src/main/java/com/quickstack/product/service/CategoryService.java` (modificar: agregar `reorderCategories`)
 - `quickstack-product/src/main/java/com/quickstack/product/service/ProductService.java` (modificar: agregar `reorderProducts`)
-- `quickstack-app/src/main/java/com/quickstack/app/controller/CategoryController.java` (modificar)
-- `quickstack-app/src/main/java/com/quickstack/app/controller/ProductController.java` (modificar)
+- `quickstack-product/src/main/java/com/quickstack/product/controller/CategoryController.java` (modificar)
+- `quickstack-product/src/main/java/com/quickstack/product/controller/ProductController.java` (modificar)
 
 ---
 
@@ -750,7 +746,7 @@ El POS necesita cargar todo el catalogo de una sola llamada, organizado por cate
 - [ ] Tests unitarios con `@WebMvcTest`: 6 tests (happy path, sin JWT retorna 401, CASHIER retorna 200, header Cache-Control presente)
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/MenuController.java`
+- `quickstack-product/src/main/java/com/quickstack/product/controller/MenuController.java`
 - `quickstack-app/src/test/java/com/quickstack/app/controller/MenuControllerTest.java`
 
 ---
