@@ -4,6 +4,7 @@ import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
+import com.quickstack.product.dto.request.ReorderRequest;
 import com.quickstack.product.dto.response.CategoryResponse;
 import com.quickstack.product.security.CatalogPermissionEvaluator;
 import com.quickstack.product.service.CategoryService;
@@ -132,6 +133,23 @@ public class CategoryController {
             principal.tenantId(), principal.userId(), categoryId, request);
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Reorders categories. Requires OWNER or MANAGER role.
+     * Validates that all category IDs provided belong to the current tenant.
+     */
+    @PatchMapping("/reorder")
+    @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
+    public ResponseEntity<Void> reorderCategories(
+            @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
+            @Valid @RequestBody ReorderRequest request
+    ) {
+        log.info("Reordering categories for tenant={}, by={}", principal.tenantId(), principal.userId());
+
+        categoryService.reorderCategories(principal.tenantId(), principal.userId(), request.items());
+
+        return ResponseEntity.noContent().build();
     }
 
     /**

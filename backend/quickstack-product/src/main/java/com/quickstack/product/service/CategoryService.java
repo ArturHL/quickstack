@@ -15,7 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.quickstack.product.dto.request.ReorderItem;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for category management operations.
@@ -58,9 +63,9 @@ public class CategoryService {
         category.setParentId(request.parentId());
         category.setSortOrder(request.effectiveSortOrder());
         category.setCreatedBy(userId);
-
         Category saved = categoryRepository.save(category);
-        log.info("Category created: id={}, tenant={}, name={}", saved.getId(), tenantId, saved.getName());
+        log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}", 
+            CatalogAction.CATEGORY_CREATED, tenantId, userId, saved.getId(), "CATEGORY");
 
         return toResponse(saved);
     }
@@ -103,9 +108,9 @@ public class CategoryService {
             category.setActive(request.isActive());
         }
         category.setUpdatedBy(userId);
-
         Category saved = categoryRepository.save(category);
-        log.info("Category updated: id={}, tenant={}", categoryId, tenantId);
+        log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}", 
+            CatalogAction.CATEGORY_UPDATED, tenantId, userId, saved.getId(), "CATEGORY");
 
         return toResponse(saved);
     }
@@ -128,15 +133,19 @@ public class CategoryService {
 
         long activeProductCount = categoryRepository.countActiveProductsByCategory(categoryId, tenantId);
         if (activeProductCount > 0) {
+            String reason = String.format("Cannot delete category: it has %d active product(s)", activeProductCount);
+            log.warn("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={} reason=\"{}\"", 
+                CatalogAction.CATEGORY_DELETED, tenantId, userId, categoryId, "CATEGORY", reason);
             throw new BusinessRuleException(
                 "CATEGORY_HAS_PRODUCTS",
-                String.format("Cannot delete category: it has %d active product(s)", activeProductCount)
+                reason
             );
         }
 
         category.softDelete(userId);
         categoryRepository.save(category);
-        log.info("Category soft-deleted: id={}, tenant={}, by={}", categoryId, tenantId, userId);
+        log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}", 
+            CatalogAction.CATEGORY_DELETED, tenantId, userId, categoryId, "CATEGORY");
     }
 
     /**
@@ -170,9 +179,9 @@ public class CategoryService {
             .orElseThrow(() -> new ResourceNotFoundException("Category", categoryId));
 
         category.restore();
-        category.setUpdatedBy(userId);
         Category saved = categoryRepository.save(category);
-        log.info("Category restored: id={}, tenant={}, by={}", categoryId, tenantId, userId);
+        log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}", 
+            CatalogAction.CATEGORY_RESTORED, tenantId, userId, saved.getId(), "CATEGORY");
 
         return toResponse(saved);
     }
@@ -192,6 +201,44 @@ public class CategoryService {
             : categoryRepository.findAllByTenantId(tenantId, pageable);
 
         return categories.map(this::toResponse);
+    }
+
+    /**
+     * Reorders a list of categories for the given tenant.
+     *
+     * @param tenantId the tenant that owns the categories
+     * @param userId   the user performing the operation
+     * @param items    the list of items to reorder
+     */
+    @Transactional
+    public void reorderCategories(UUID tenantId, UUID userId, List<ReorderItem> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+
+        Set<UUID> itemIds = items.stream().map(ReorderItem::id).collect(Collectors.toSet());
+        List<Category> categories = categoryRepository.findByIdInAndTenantId(itemIds, tenantId);
+
+        if (categories.size() != itemIds.size()) {
+            String reason = "One or more categories not found or belong to another tenant";
+            log.warn("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={} reason=\"{}\"", 
+                CatalogAction.CATEGORY_REORDERED, tenantId, userId, "BATCH", "CATEGORY", reason);
+            throw new BusinessRuleException("INVALID_CATEGORIES", reason);
+        }
+
+        Map<UUID, Integer> orderMap = items.stream()
+            .collect(Collectors.toMap(ReorderItem::id, ReorderItem::sortOrder));
+
+        for (Category category : categories) {
+            Integer newSortOrder = orderMap.get(category.getId());
+            if (newSortOrder != null && !newSortOrder.equals(category.getSortOrder())) {
+                category.setSortOrder(newSortOrder);
+                category.setUpdatedBy(userId);
+                log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}",
+                        CatalogAction.CATEGORY_REORDERED, tenantId, userId, category.getId(), "CATEGORY");
+            }
+        }
+        categoryRepository.saveAll(categories);
     }
 
     // -------------------------------------------------------------------------
@@ -222,6 +269,11 @@ public class CategoryService {
             : categoryRepository.existsByNameAndTenantIdAndParentId(name, tenantId, parentId);
 
         if (exists) {
+            String reason = String.format("Category with name %s already exists", name);
+            UUID resourceId = excludeId != null ? excludeId : UUID.fromString("00000000-0000-0000-0000-000000000000");
+            log.warn("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={} reason=\"{}\"", 
+                excludeId != null ? CatalogAction.CATEGORY_UPDATED : CatalogAction.CATEGORY_CREATED, 
+                tenantId, "SYSTEM", resourceId, "CATEGORY", reason);
             throw new DuplicateResourceException("Category", "name", name);
         }
     }

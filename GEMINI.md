@@ -75,4 +75,4 @@ The project is managed as a monorepo. Key commands should be run within their re
 ## Project Status
 Currently in **Phase 1 (Core POS)**.
 - **Phase 0 (Foundation):** 100% Completed (Auth, Infrastructure, CI/CD).
-- **Phase 1.1 (Catalog Base):** In Progress (Sprint 4/6: Variant Management completed).
+- **Phase 1.1 (Catalog Base):** In Progress (Sprint 5/6: Security Hardening & Ordering completed).

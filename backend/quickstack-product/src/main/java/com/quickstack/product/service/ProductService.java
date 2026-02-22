@@ -26,7 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for product management including creation, updates, and availability.
@@ -61,12 +64,16 @@ public class ProductService {
         // 2. Validate SKU Uniqueness
         if (request.sku() != null && !request.sku().isBlank()) {
             if (productRepository.existsBySkuAndTenantId(request.sku(), tenantId)) {
+                String reason = String.format("Product with sku %s already exists", request.sku());
+                logWarn(CatalogAction.PRODUCT_CREATED, tenantId, userId, null, "PRODUCT", reason);
                 throw new DuplicateResourceException("Product", "sku", request.sku());
             }
         }
 
         // 3. Validate Name Uniqueness within Category
         if (productRepository.existsByNameAndTenantIdAndCategoryId(request.name(), tenantId, request.categoryId())) {
+            String reason = String.format("Product with name %s already exists in category", request.name());
+            logWarn(CatalogAction.PRODUCT_CREATED, tenantId, userId, null, "PRODUCT", reason);
             throw new DuplicateResourceException("Product", "name", request.name());
         }
 
@@ -112,6 +119,8 @@ public class ProductService {
         // 2. Validate SKU Uniqueness if changed
         if (request.sku() != null && !request.sku().equals(product.getSku())) {
             if (productRepository.existsBySkuAndTenantIdAndIdNot(request.sku(), tenantId, productId)) {
+                String reason = String.format("Product with sku %s already exists", request.sku());
+                logWarn(CatalogAction.PRODUCT_UPDATED, tenantId, userId, productId, "PRODUCT", reason);
                 throw new DuplicateResourceException("Product", "sku", request.sku());
             }
             product.setSku(request.sku());
@@ -121,6 +130,8 @@ public class ProductService {
         UUID effectiveCategoryId = request.categoryId() != null ? request.categoryId() : product.getCategoryId();
         String effectiveName = request.name() != null ? request.name() : product.getName();
         if (productRepository.existsByNameAndTenantIdAndCategoryIdAndIdNot(effectiveName, tenantId, effectiveCategoryId, productId)) {
+            String reason = String.format("Product with name %s already exists in category", effectiveName);
+            logWarn(CatalogAction.PRODUCT_UPDATED, tenantId, userId, productId, "PRODUCT", reason);
             throw new DuplicateResourceException("Product", "name", effectiveName);
         }
 
@@ -155,6 +166,42 @@ public class ProductService {
 
         logInfo(CatalogAction.PRODUCT_UPDATED, tenantId, userId, product.getId(), "PRODUCT");
         return ProductResponse.from(product, categorySummary);
+    }
+
+    /**
+     * Reorders a list of products for the given tenant.
+     *
+     * @param tenantId the tenant that owns the products
+     * @param userId   the user performing the operation
+     * @param items    the list of items to reorder
+     */
+    @Transactional
+    public void reorderProducts(UUID tenantId, UUID userId, List<com.quickstack.product.dto.request.ReorderItem> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+
+        Set<UUID> itemIds = items.stream().map(com.quickstack.product.dto.request.ReorderItem::id).collect(Collectors.toSet());
+        List<Product> products = productRepository.findByIdInAndTenantId(itemIds, tenantId);
+
+        if (products.size() != itemIds.size()) {
+            String reason = "One or more products not found or belong to another tenant";
+            logWarn(CatalogAction.PRODUCT_REORDERED, tenantId, userId, null, "PRODUCT", reason);
+            throw new BusinessRuleException("INVALID_PRODUCTS", reason);
+        }
+
+        Map<UUID, Integer> orderMap = items.stream()
+            .collect(Collectors.toMap(com.quickstack.product.dto.request.ReorderItem::id, com.quickstack.product.dto.request.ReorderItem::sortOrder));
+
+        for (Product product : products) {
+            Integer newSortOrder = orderMap.get(product.getId());
+            if (newSortOrder != null && !newSortOrder.equals(product.getSortOrder())) {
+                product.setSortOrder(newSortOrder);
+                product.setUpdatedBy(userId);
+                logInfo(CatalogAction.PRODUCT_REORDERED, tenantId, userId, product.getId(), "PRODUCT");
+            }
+        }
+        productRepository.saveAll(products);
     }
 
     /**
@@ -291,8 +338,9 @@ public class ProductService {
 
     private void handleNewVariants(Product product, List<VariantCreateRequest> variantRequests, UUID tenantId) {
         if (variantRequests == null || variantRequests.isEmpty()) {
-            throw new BusinessRuleException("VARIANT_PRODUCT_REQUIRES_VARIANTS", 
-                "Product of type VARIANT must have at least one variant");
+            String reason = "Product of type VARIANT must have at least one variant";
+            logWarn(CatalogAction.PRODUCT_CREATED, tenantId, null, null, "PRODUCT", reason);
+            throw new BusinessRuleException("VARIANT_PRODUCT_REQUIRES_VARIANTS", reason);
         }
 
         boolean hasDefault = false;
@@ -326,6 +374,11 @@ public class ProductService {
 
     private void logInfo(CatalogAction action, UUID tenantId, UUID userId, UUID resourceId, String resourceType) {
         log.info("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}",
-                action, tenantId, userId, resourceId, resourceType);
+                action, tenantId, userId, resourceId != null ? resourceId : "BATCH", resourceType);
+    }
+
+    private void logWarn(CatalogAction action, UUID tenantId, UUID userId, UUID resourceId, String resourceType, String reason) {
+        log.warn("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={} reason=\"{}\"",
+                action, tenantId, userId != null ? userId : "SYSTEM", resourceId != null ? resourceId : "BATCH", resourceType, reason);
     }
 }

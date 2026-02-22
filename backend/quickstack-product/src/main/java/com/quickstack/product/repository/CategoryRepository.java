@@ -60,6 +60,19 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     Optional<Category> findByIdAndTenantId(@Param("id") UUID id, @Param("tenantId") UUID tenantId);
 
     /**
+     * Finds multiple categories by their IDs and tenant ID.
+     * <p>
+     * Includes inactive categories but excludes soft-deleted.
+     * Used for batch operations like reordering.
+     *
+     * @param ids the collection of category IDs
+     * @param tenantId the tenant ID
+     * @return List containing the categories found
+     */
+    @Query("SELECT c FROM Category c WHERE c.id IN :ids AND c.tenantId = :tenantId AND c.deletedAt IS NULL")
+    java.util.List<Category> findByIdInAndTenantId(@Param("ids") java.util.Collection<UUID> ids, @Param("tenantId") UUID tenantId);
+
+    /**
      * Checks if a category with the given name exists in the same parent level and tenant.
      * <p>
      * Used for validation before creating a new category.

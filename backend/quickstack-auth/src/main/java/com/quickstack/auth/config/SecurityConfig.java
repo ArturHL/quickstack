@@ -82,6 +82,9 @@ public class SecurityConfig {
                 // Session management requires JWT
                 .requestMatchers("/api/v1/users/**").authenticated()
 
+                // Catalog requires JWT (not public yet)
+                .requestMatchers("/api/v1/categories/**", "/api/v1/products/**").authenticated()
+
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )

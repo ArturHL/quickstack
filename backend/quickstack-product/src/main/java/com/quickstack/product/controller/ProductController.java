@@ -5,6 +5,7 @@ import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.ProductAvailabilityRequest;
 import com.quickstack.product.dto.request.ProductCreateRequest;
 import com.quickstack.product.dto.request.ProductUpdateRequest;
+import com.quickstack.product.dto.request.ReorderRequest;
 import com.quickstack.product.dto.response.ProductResponse;
 import com.quickstack.product.dto.response.ProductSummaryResponse;
 import com.quickstack.product.security.CatalogPermissionEvaluator;
@@ -135,6 +136,23 @@ public class ProductController {
             principal.tenantId(), principal.userId(), productId, request);
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Reorders products. Requires OWNER or MANAGER role.
+     * Validates that all product IDs provided belong to the current tenant.
+     */
+    @PatchMapping("/reorder")
+    @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
+    public ResponseEntity<Void> reorderProducts(
+            @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
+            @Valid @RequestBody ReorderRequest request
+    ) {
+        log.info("Reordering products for tenant={}, by={}", principal.tenantId(), principal.userId());
+
+        productService.reorderProducts(principal.tenantId(), principal.userId(), request.items());
+
+        return ResponseEntity.noContent().build();
     }
 
     /**

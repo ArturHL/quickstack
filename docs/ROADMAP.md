@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-18
-> **Estado:** Phase 0.3 COMPLETADO (340 tests, 6/6 sprints) | Próximo: Phase 0.4
+> **Estado:** Phase 1.1 EN PROGRESO (Sprint 5/6 completado) | Próximo: Sprint 6
 
 ## Vision Summary
 

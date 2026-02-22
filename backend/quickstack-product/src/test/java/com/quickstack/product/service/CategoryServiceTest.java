@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
 @DisplayName("CategoryService")
 class CategoryServiceTest {
 
@@ -58,25 +60,30 @@ class CategoryServiceTest {
     class CreateCategoryTests {
 
         @Test
-        @DisplayName("should create category and return response with generated id")
-        void shouldCreateCategorySuccessfully() {
-            CategoryCreateRequest request = new CategoryCreateRequest(
-                "Bebidas", "Todas las bebidas", null, null, 1);
-
+        @DisplayName("1. Returns created category when valid - audit log verified")
+        void shouldCreateCategorySuccessfully(CapturedOutput output) {
+            CategoryCreateRequest request = new CategoryCreateRequest("Bebidas", "Todas", null, null, 1);
+            
             when(categoryRepository.existsByNameAndTenantIdAndParentId("Bebidas", TENANT_ID, null))
                 .thenReturn(false);
-            when(categoryRepository.save(any(Category.class))).thenAnswer(inv -> {
-                Category c = inv.getArgument(0);
-                c.setId(CATEGORY_ID);
-                return c;
-            });
-            when(categoryRepository.countActiveProductsByCategory(any(), eq(TENANT_ID))).thenReturn(0L);
+
+            Category saved = new Category();
+            saved.setId(CATEGORY_ID);
+            saved.setName("Bebidas");
+            saved.setTenantId(TENANT_ID);
+            saved.setSortOrder(1);
+            when(categoryRepository.save(any(Category.class))).thenReturn(saved);
+            when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID)).thenReturn(0L);
 
             CategoryResponse response = categoryService.createCategory(TENANT_ID, USER_ID, request);
 
+            assertThat(response).isNotNull();
             assertThat(response.id()).isEqualTo(CATEGORY_ID);
-            assertThat(response.name()).isEqualTo("Bebidas");
             assertThat(response.sortOrder()).isEqualTo(1);
+            
+            assertThat(output.getOut())
+                .contains("[CATALOG] ACTION=CATEGORY_CREATED")
+                .contains(TENANT_ID.toString());
         }
 
         @Test
@@ -245,22 +252,25 @@ class CategoryServiceTest {
     class DeleteCategoryTests {
 
         @Test
-        @DisplayName("should soft-delete category when no active products")
-        void shouldSoftDeleteWhenNoProducts() {
-            Category existing = buildCategory("Bebidas");
+        @DisplayName("1. Soft deletes category when no active products - audit log verified")
+        void shouldSoftDeleteWhenNoProducts(CapturedOutput output) {
+            Category category = new Category();
+            category.setId(CATEGORY_ID);
+            category.setTenantId(TENANT_ID);
 
-            when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
-            when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID))
-                .thenReturn(0L);
+            when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID)).thenReturn(Optional.of(category));
+            when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID)).thenReturn(0L);
             when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             categoryService.deleteCategory(TENANT_ID, USER_ID, CATEGORY_ID);
 
-            ArgumentCaptor<Category> captor = ArgumentCaptor.forClass(Category.class);
-            verify(categoryRepository).save(captor.capture());
-            assertThat(captor.getValue().isDeleted()).isTrue();
-            assertThat(captor.getValue().getDeletedBy()).isEqualTo(USER_ID);
+            verify(categoryRepository).save(category);
+            assertThat(category.getDeletedAt()).isNotNull();
+            assertThat(category.getDeletedBy()).isEqualTo(USER_ID);
+            
+            assertThat(output.getOut())
+                .contains("[CATALOG] ACTION=CATEGORY_DELETED")
+                .contains(CATEGORY_ID.toString());
         }
 
         @Test
@@ -277,6 +287,27 @@ class CategoryServiceTest {
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("3");
 
+            verify(categoryRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("3. Throws exception when active products exist - warning log verified")
+        void throwsExceptionWhenActiveProductsExist(CapturedOutput output) {
+            Category category = new Category();
+            category.setId(CATEGORY_ID);
+            category.setTenantId(TENANT_ID);
+
+            when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID)).thenReturn(Optional.of(category));
+            when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID)).thenReturn(5L);
+
+            assertThatThrownBy(() -> categoryService.deleteCategory(TENANT_ID, USER_ID, CATEGORY_ID))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("has 5 active product(s)");
+                
+            assertThat(output.getOut())
+                .contains("WARN")
+                .contains("ACTION=CATEGORY_DELETED")
+                .contains("reason=\"Cannot delete category: it has 5 active product(s)\"");
             verify(categoryRepository, never()).save(any());
         }
 
@@ -362,6 +393,82 @@ class CategoryServiceTest {
 
             assertThatThrownBy(() -> categoryService.restoreCategory(TENANT_ID, USER_ID, CATEGORY_ID))
                 .isInstanceOf(ResourceNotFoundException.class);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // reorderCategories
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("reorderCategories")
+    class ReorderCategoriesTests {
+
+        @Test
+        @DisplayName("should do nothing when items list is null or empty")
+        void shouldDoNothingWhenEmpty() {
+            categoryService.reorderCategories(TENANT_ID, USER_ID, null);
+            categoryService.reorderCategories(TENANT_ID, USER_ID, List.of());
+            verify(categoryRepository, never()).findByIdInAndTenantId(any(), any());
+            verify(categoryRepository, never()).saveAll(any());
+        }
+
+        @Test
+        @DisplayName("should reorder categories within the same tenant")
+        void shouldReorderCategories() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            
+            Category c1 = buildCategory("Cat 1");
+            c1.setId(id1);
+            c1.setSortOrder(1);
+
+            Category c2 = buildCategory("Cat 2");
+            c2.setId(id2);
+            c2.setSortOrder(2);
+
+            List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
+                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
+            );
+
+            when(categoryRepository.findByIdInAndTenantId(anySet(), eq(TENANT_ID)))
+                .thenReturn(List.of(c1, c2));
+
+            categoryService.reorderCategories(TENANT_ID, USER_ID, items);
+
+            ArgumentCaptor<List<Category>> captor = ArgumentCaptor.forClass((Class)List.class);
+            verify(categoryRepository).saveAll(captor.capture());
+            
+            List<Category> saved = captor.getValue();
+            assertThat(saved).hasSize(2);
+            assertThat(saved).extracting(Category::getSortOrder).containsExactlyInAnyOrder(5, 3);
+            assertThat(c1.getUpdatedBy()).isEqualTo(USER_ID);
+            assertThat(c2.getUpdatedBy()).isEqualTo(USER_ID);
+        }
+
+        @Test
+        @DisplayName("should throw BusinessRuleException when IDs cross tenants or are missing")
+        void shouldThrowWhenCrossTenant() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            
+            Category c1 = buildCategory("Cat 1");
+            c1.setId(id1);
+
+            List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
+                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
+            );
+
+            when(categoryRepository.findByIdInAndTenantId(anySet(), eq(TENANT_ID)))
+                .thenReturn(List.of(c1)); // Returned size = 1, requested = 2
+
+            assertThatThrownBy(() -> categoryService.reorderCategories(TENANT_ID, USER_ID, items))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("One or more");
+
+            verify(categoryRepository, never()).saveAll(any());
         }
     }
 

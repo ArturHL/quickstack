@@ -91,6 +91,19 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Optional<Product> findByIdAndTenantId(@Param("id") UUID id, @Param("tenantId") UUID tenantId);
 
     /**
+     * Finds multiple products by their IDs and tenant ID.
+     * <p>
+     * Includes inactive products but excludes soft-deleted.
+     * Used for batch operations like reordering.
+     *
+     * @param ids the collection of product IDs
+     * @param tenantId the tenant ID
+     * @return List containing the products found
+     */
+    @Query("SELECT p FROM Product p WHERE p.id IN :ids AND p.tenantId = :tenantId AND p.deletedAt IS NULL")
+    java.util.List<Product> findByIdInAndTenantId(@Param("ids") java.util.Collection<UUID> ids, @Param("tenantId") UUID tenantId);
+
+    /**
      * Checks if a product with the given SKU exists in the tenant.
      * <p>
      * Used for validation before creating a new product.

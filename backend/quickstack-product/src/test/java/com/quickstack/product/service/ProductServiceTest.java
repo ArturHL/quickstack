@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -229,6 +230,80 @@ class ProductServiceTest {
 
             assertThat(product.getProductType()).isEqualTo(ProductType.VARIANT);
             assertThat(product.getVariants()).hasSize(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("Reorder Product Tests")
+    class ReorderProductsTests {
+
+        @Test
+        @DisplayName("Should do nothing when items list is null or empty")
+        void shouldDoNothingWhenEmpty() {
+            productService.reorderProducts(tenantId, userId, null);
+            productService.reorderProducts(tenantId, userId, List.of());
+            verify(productRepository, never()).findByIdInAndTenantId(any(), any());
+            verify(productRepository, never()).saveAll(any());
+        }
+
+        @Test
+        @DisplayName("Should reorder products within the same tenant")
+        void shouldReorderProducts() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            
+            Product p1 = new Product();
+            p1.setId(id1);
+            p1.setTenantId(tenantId);
+            p1.setSortOrder(1);
+
+            Product p2 = new Product();
+            p2.setId(id2);
+            p2.setTenantId(tenantId);
+            p2.setSortOrder(2);
+
+            List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
+                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
+            );
+
+            when(productRepository.findByIdInAndTenantId(anySet(), eq(tenantId)))
+                .thenReturn(List.of(p1, p2));
+
+            productService.reorderProducts(tenantId, userId, items);
+
+            ArgumentCaptor<List<Product>> captor = ArgumentCaptor.forClass((Class)List.class);
+            verify(productRepository).saveAll(captor.capture());
+            
+            List<Product> saved = captor.getValue();
+            assertThat(saved).hasSize(2);
+            assertThat(saved).extracting(Product::getSortOrder).containsExactlyInAnyOrder(5, 3);
+            assertThat(p1.getUpdatedBy()).isEqualTo(userId);
+            assertThat(p2.getUpdatedBy()).isEqualTo(userId);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when IDs cross tenants or are missing")
+        void shouldThrowWhenCrossTenant() {
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            
+            Product p1 = new Product();
+            p1.setId(id1);
+
+            List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
+                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
+            );
+
+            when(productRepository.findByIdInAndTenantId(anySet(), eq(tenantId)))
+                .thenReturn(List.of(p1)); // Returned size = 1, requested = 2
+
+            assertThatThrownBy(() -> productService.reorderProducts(tenantId, userId, items))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("One or more");
+
+            verify(productRepository, never()).saveAll(any());
         }
     }
 
