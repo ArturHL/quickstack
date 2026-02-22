@@ -45,6 +45,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      * <p>
      * All filters are optional (null = no filter):
      * - categoryId: filter by specific category
+     * - isActive: filter by active status (true = active only, false = inactive only, null = both)
      * - isAvailable: filter by availability status
      * - nameSearch: case-insensitive LIKE search on product name
      * <p>
@@ -52,6 +53,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      *
      * @param tenantId the tenant ID
      * @param categoryId optional category filter
+     * @param isActive optional active filter
      * @param isAvailable optional availability filter
      * @param nameSearch optional name search (case-insensitive partial match)
      * @param pageable pagination parameters
@@ -62,12 +64,14 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         WHERE p.tenantId = :tenantId
         AND p.deletedAt IS NULL
         AND (:categoryId IS NULL OR p.categoryId = :categoryId)
+        AND (:isActive IS NULL OR p.isActive = :isActive)
         AND (:isAvailable IS NULL OR p.isAvailable = :isAvailable)
-        AND (:nameSearch IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :nameSearch, '%')))
+        AND (CAST(:nameSearch AS string) IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:nameSearch AS string), '%')))
         """)
     Page<Product> findAllByTenantIdWithFilters(
         @Param("tenantId") UUID tenantId,
         @Param("categoryId") UUID categoryId,
+        @Param("isActive") Boolean isActive,
         @Param("isAvailable") Boolean isAvailable,
         @Param("nameSearch") String nameSearch,
         Pageable pageable
@@ -178,5 +182,20 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         @Param("tenantId") UUID tenantId,
         @Param("categoryId") UUID categoryId,
         @Param("excludeId") UUID excludeId
+    );
+
+    /**
+     * Finds a product by ID and tenant ID, including soft-deleted records.
+     * <p>
+     * Used exclusively for restore operations.
+     *
+     * @param id the product ID
+     * @param tenantId the tenant ID
+     * @return Optional containing the product if found (deleted or not)
+     */
+    @Query("SELECT p FROM Product p WHERE p.id = :id AND p.tenantId = :tenantId")
+    Optional<Product> findByIdAndTenantIdIncludingDeleted(
+        @Param("id") UUID id,
+        @Param("tenantId") UUID tenantId
     );
 }

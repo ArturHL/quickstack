@@ -69,8 +69,24 @@ class ProductRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        // Create a test plan and tenant using native SQL
+        UUID planId = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) " +
+            "VALUES (?, 'Test Plan', 'TEST-PRODUCT', 0, 1, 5)"
+        ).setParameter(1, planId).executeUpdate();
+
         tenantA = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+            "VALUES (?, 'Tenant A Product', 'tenant-a-prod', ?, 'ACTIVE')"
+        ).setParameter(1, tenantA).setParameter(2, planId).executeUpdate();
+
         tenantB = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+            "VALUES (?, 'Tenant B Product', 'tenant-b-prod', ?, 'ACTIVE')"
+        ).setParameter(1, tenantB).setParameter(2, planId).executeUpdate();
 
         // Create a category for products
         Category category = new Category();
@@ -80,8 +96,7 @@ class ProductRepositoryTest {
         entityManager.flush();
         categoryId = category.getId();
 
-        // Clean up products
-        productRepository.deleteAll();
+        entityManager.clear();
     }
 
     @Test
@@ -188,7 +203,7 @@ class ProductRepositoryTest {
 
         // When
         Page<Product> result = productRepository.findAllByTenantIdWithFilters(
-            tenantA, categoryId, null, null, PageRequest.of(0, 10)
+            tenantA, categoryId, null, null, null, PageRequest.of(0, 10)
         );
 
         // Then
@@ -209,10 +224,10 @@ class ProductRepositoryTest {
 
         // When
         Page<Product> availableResults = productRepository.findAllByTenantIdWithFilters(
-            tenantA, null, true, null, PageRequest.of(0, 10)
+            tenantA, null, null, true, null, PageRequest.of(0, 10)
         );
         Page<Product> unavailableResults = productRepository.findAllByTenantIdWithFilters(
-            tenantA, null, false, null, PageRequest.of(0, 10)
+            tenantA, null, null, false, null, PageRequest.of(0, 10)
         );
 
         // Then
@@ -221,6 +236,33 @@ class ProductRepositoryTest {
 
         assertThat(unavailableResults.getContent()).hasSize(1);
         assertThat(unavailableResults.getContent().get(0).getName()).isEqualTo("Pepsi");
+    }
+
+    @Test
+    @DisplayName("Should filter by active status")
+    void shouldFilterByActiveStatus() {
+        // Given
+        Product active = createProduct(tenantA, categoryId, "Coca Cola", true, true, false);
+        Product inactive = createProduct(tenantA, categoryId, "Pepsi", false, true, false);
+
+        entityManager.persist(active);
+        entityManager.persist(inactive);
+        entityManager.flush();
+
+        // When
+        Page<Product> activeResults = productRepository.findAllByTenantIdWithFilters(
+            tenantA, null, true, null, null, PageRequest.of(0, 10)
+        );
+        Page<Product> inactiveResults = productRepository.findAllByTenantIdWithFilters(
+            tenantA, null, false, null, null, PageRequest.of(0, 10)
+        );
+
+        // Then
+        assertThat(activeResults.getContent()).hasSize(1);
+        assertThat(activeResults.getContent().get(0).getName()).isEqualTo("Coca Cola");
+
+        assertThat(inactiveResults.getContent()).hasSize(1);
+        assertThat(inactiveResults.getContent().get(0).getName()).isEqualTo("Pepsi");
     }
 
     @Test
@@ -238,7 +280,7 @@ class ProductRepositoryTest {
 
         // When
         Page<Product> result = productRepository.findAllByTenantIdWithFilters(
-            tenantA, null, null, "pastor", PageRequest.of(0, 10)
+            tenantA, null, null, null, "pastor", PageRequest.of(0, 10)
         );
 
         // Then
@@ -269,7 +311,7 @@ class ProductRepositoryTest {
 
         // When
         Page<Product> result = productRepository.findAllByTenantIdWithFilters(
-            tenantA, categoryId, true, "taco", PageRequest.of(0, 10)
+            tenantA, categoryId, null, true, "taco", PageRequest.of(0, 10)
         );
 
         // Then

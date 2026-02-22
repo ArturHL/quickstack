@@ -120,7 +120,7 @@ public class Product {
     private UUID deletedBy;
 
     // Relationships
-    @OneToMany(mappedBy = "productId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "productId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants = new ArrayList<>();
 
     // -------------------------------------------------------------------------

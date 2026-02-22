@@ -68,11 +68,27 @@ class CategoryRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        tenantA = UUID.randomUUID();
-        tenantB = UUID.randomUUID();
+        // Create a test plan and tenant using native SQL as entities might not be available in this module
+        UUID planId = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) " +
+            "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)"
+        ).setParameter(1, planId).executeUpdate();
 
-        // Clean up before each test
-        categoryRepository.deleteAll();
+        tenantA = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+            "VALUES (?, 'Tenant A', 'tenant-a', ?, 'ACTIVE')"
+        ).setParameter(1, tenantA).setParameter(2, planId).executeUpdate();
+
+        tenantB = UUID.randomUUID();
+        entityManager.getEntityManager().createNativeQuery(
+            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+            "VALUES (?, 'Tenant B', 'tenant-b', ?, 'ACTIVE')"
+        ).setParameter(1, tenantB).setParameter(2, planId).executeUpdate();
+
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test

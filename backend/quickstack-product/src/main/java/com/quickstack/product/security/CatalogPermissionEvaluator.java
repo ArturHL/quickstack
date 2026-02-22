@@ -69,7 +69,25 @@ public class CatalogPermissionEvaluator {
     }
 
     /**
-     * Returns true if the authenticated user can view inactive categories.
+     * Returns true if the authenticated user can delete products.
+     * Allowed roles: OWNER, MANAGER.
+     */
+    public boolean canDeleteProduct(Authentication auth) {
+        String roleCode = resolveRoleCode(auth);
+        return ROLE_OWNER.equals(roleCode) || ROLE_MANAGER.equals(roleCode);
+    }
+
+    /**
+     * Returns true if the authenticated user can restore soft-deleted products.
+     * Only OWNER is allowed to restore deleted resources.
+     */
+    public boolean canRestoreProduct(Authentication auth) {
+        String roleCode = resolveRoleCode(auth);
+        return ROLE_OWNER.equals(roleCode);
+    }
+
+    /**
+     * Returns true if the authenticated user can view inactive categories or products.
      * Allowed roles: OWNER, MANAGER.
      * CASHIER users always see only active categories.
      */
