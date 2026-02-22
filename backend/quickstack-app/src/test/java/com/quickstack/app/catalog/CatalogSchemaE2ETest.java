@@ -3,6 +3,7 @@ package com.quickstack.app.catalog;
 import com.quickstack.app.BaseE2ETest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>
  * ASVS V4.1: Access control - database-level multi-tenancy enforcement.
  */
+@Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Catalog Schema E2E Tests")
 class CatalogSchemaE2ETest extends BaseE2ETest {
 

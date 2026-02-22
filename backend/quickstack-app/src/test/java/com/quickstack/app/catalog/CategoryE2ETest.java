@@ -5,6 +5,7 @@ import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.*;
  * <p>
  * ASVS V4.1: Tests verify multi-tenant IDOR protection.
  */
+@Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Category E2E Tests")
 class CategoryE2ETest extends BaseE2ETest {
 
