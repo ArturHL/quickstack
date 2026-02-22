@@ -530,7 +530,7 @@ Logica de negocio: crear y leer productos.
 
 ---
 
-## Sprint 4: Variant Management
+## Sprint 4: Variant Management ✅
 
 **Duracion:** 1.5 dias | **Objetivo:** CRUD de variantes como sub-recurso de producto
 
@@ -538,11 +538,11 @@ Logica de negocio: crear y leer productos.
 **Prioridad:** Alta | **Dependencias:** 1.3
 
 **Criterios de Aceptacion:**
-- [ ] `findAllByProductIdAndTenantId(UUID productId, UUID tenantId)` retorna variantes no borradas ordenadas por `sort_order`
-- [ ] `findByIdAndProductIdAndTenantId(UUID id, UUID productId, UUID tenantId)` retorna `Optional<ProductVariant>`
-- [ ] `countByProductIdAndTenantIdAndDeletedAtIsNull(UUID productId, UUID tenantId)` para validar que VARIANT tiene al menos 1 variante antes de borrar
-- [ ] `existsBySkuAndTenantId(String sku, UUID tenantId)` para unicidad de SKU
-- [ ] Tests de repositorio `@DataJpaTest`: 8 tests
+- [x] `findAllByProductIdAndTenantId(UUID productId, UUID tenantId)` retorna variantes no borradas ordenadas por `sort_order`
+- [x] `findByIdAndProductIdAndTenantId(UUID id, UUID productId, UUID tenantId)` retorna `Optional<ProductVariant>`
+- [x] `countByProductIdAndTenantIdAndDeletedAtIsNull(UUID productId, UUID tenantId)` para validar que VARIANT tiene al menos 1 variante antes de borrar
+- [x] `existsBySkuAndTenantId(String sku, UUID tenantId)` para unicidad de SKU
+- [x] Tests de repositorio `@DataJpaTest`: 8 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/repository/VariantRepository.java`
@@ -554,22 +554,22 @@ Logica de negocio: crear y leer productos.
 **Prioridad:** Alta | **Dependencias:** 4.1, 3.1
 
 **Criterios de Aceptacion:**
-- [ ] `addVariant(UUID tenantId, UUID userId, UUID productId, VariantCreateRequest)`:
+- [x] `addVariant(UUID tenantId, UUID userId, UUID productId, VariantCreateRequest)`:
   - Valida que el producto existe, es del tenant, y su `productType == VARIANT`
   - Valida SKU unico por tenant
   - Valida nombre unico dentro del producto
   - Si `isDefault == true`, resetea `isDefault = false` en todas las otras variantes del producto (en misma transaccion)
   - Retorna `VariantResponse`
-- [ ] `updateVariant(UUID tenantId, UUID userId, UUID productId, UUID variantId, VariantUpdateRequest)`:
+- [x] `updateVariant(UUID tenantId, UUID userId, UUID productId, UUID variantId, VariantUpdateRequest)`:
   - Valida que variante pertenece al producto y al tenant
   - Maneja cambio de `isDefault` (resetea otras)
   - Retorna `VariantResponse`
-- [ ] `deleteVariant(UUID tenantId, UUID userId, UUID productId, UUID variantId)`:
+- [x] `deleteVariant(UUID tenantId, UUID userId, UUID productId, UUID variantId)`:
   - Lanza `BusinessRuleException` si el producto solo tiene 1 variante (no puede quedar sin ninguna)
   - Si la variante a borrar es `isDefault`, asigna `isDefault = true` a la primera variante restante
   - Soft delete
-- [ ] `listVariants(UUID tenantId, UUID productId)`: retorna lista de `VariantResponse` ordenada por `sort_order`
-- [ ] Tests unitarios con mocks: 16 tests
+- [x] `listVariants(UUID tenantId, UUID productId)`: retorna lista de `VariantResponse` ordenada por `sort_order`
+- [x] Tests unitarios con mocks: 16 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/VariantService.java`
@@ -581,13 +581,13 @@ Logica de negocio: crear y leer productos.
 **Prioridad:** Alta | **Dependencias:** 4.2, 2.3
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/products/{productId}/variants` — JWT. Retorna `List<VariantResponse>` HTTP 200
-- [ ] `POST /api/v1/products/{productId}/variants` — OWNER/MANAGER. Retorna `VariantResponse` HTTP 201
-- [ ] `PUT /api/v1/products/{productId}/variants/{variantId}` — OWNER/MANAGER. Retorna `VariantResponse` HTTP 200
-- [ ] `DELETE /api/v1/products/{productId}/variants/{variantId}` — OWNER/MANAGER. HTTP 204
-- [ ] Si el producto no existe o es de otro tenant: todos los endpoints retornan 404
-- [ ] Si el producto es de tipo SIMPLE: `POST` retorna 409 con codigo `PRODUCT_NOT_VARIANT`
-- [ ] Tests unitarios con `@WebMvcTest`: 12 tests
+- [x] `GET /api/v1/products/{productId}/variants` — JWT. Retorna `List<VariantResponse>` HTTP 200
+- [x] `POST /api/v1/products/{productId}/variants` — OWNER/MANAGER. Retorna `VariantResponse` HTTP 201
+- [x] `PUT /api/v1/products/{productId}/variants/{variantId}` — OWNER/MANAGER. Retorna `VariantResponse` HTTP 200
+- [x] `DELETE /api/v1/products/{productId}/variants/{variantId}` — OWNER/MANAGER. HTTP 204
+- [x] Si el producto no existe o es de otro tenant: todos los endpoints retornan 404
+- [x] Si el producto es de tipo SIMPLE: `POST` retorna 409 con codigo `PRODUCT_NOT_VARIANT`
+- [x] Tests unitarios con `@WebMvcTest`: 12 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/controller/VariantController.java`
