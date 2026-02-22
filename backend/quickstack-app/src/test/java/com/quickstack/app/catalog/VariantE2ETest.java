@@ -51,9 +51,9 @@ class VariantE2ETest extends BaseE2ETest {
 
         given()
             .header("Authorization", cashierToken) // Any user can read
-        .when()
+        .when().log().all()
             .get("/products/{id}/variants", productId)
-        .then()
+        .then().log().all()
             .statusCode(200)
             .body("data", hasSize(2))
             .body("data[0].name", is("Chica"))
@@ -69,9 +69,9 @@ class VariantE2ETest extends BaseE2ETest {
             .header("Authorization", ownerToken)
             .contentType(ContentType.JSON)
             .body(request)
-        .when()
+        .when().log().all()
             .post("/products/{id}/variants", productId)
-        .then()
+        .then().log().all()
             .statusCode(201)
             .body("data.name", is("Familiar"))
             .body("data.effectivePrice", is(110.0f)); // Product base = 10.00, variant adjustment = +100.00
@@ -86,9 +86,9 @@ class VariantE2ETest extends BaseE2ETest {
             .header("Authorization", cashierToken)
             .contentType(ContentType.JSON)
             .body(request)
-        .when()
+        .when().log().all()
             .post("/products/{id}/variants", productId)
-        .then()
+        .then().log().all()
             .statusCode(403);
     }
 
@@ -103,9 +103,9 @@ class VariantE2ETest extends BaseE2ETest {
             .header("Authorization", ownerToken)
             .contentType(ContentType.JSON)
             .body(request)
-        .when()
+        .when().log().all()
             .put("/products/{productId}/variants/{variantId}", productId, variantId)
-        .then()
+        .then().log().all()
             .statusCode(200)
             .body("data.name", is("Super Chica"))
             .body("data.effectivePrice", is(8.0f)); // 10.00 - 2.00
@@ -120,17 +120,17 @@ class VariantE2ETest extends BaseE2ETest {
 
         given()
             .header("Authorization", ownerToken)
-        .when()
+        .when().log().all()
             .delete("/products/{productId}/variants/{variantId}", productId, variantToDelete)
-        .then()
+        .then().log().all()
             .statusCode(204);
 
         // Verify it was softly deleted (should not return in list)
         given()
             .header("Authorization", ownerToken)
-        .when()
+        .when().log().all()
             .get("/products/{id}/variants", productId)
-        .then()
+        .then().log().all()
             .statusCode(200)
             .body("data", hasSize(1))
             .body("data[0].name", is("Chica"));

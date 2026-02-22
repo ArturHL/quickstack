@@ -1,5 +1,6 @@
 package com.quickstack.product.controller;
 
+import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.VariantCreateRequest;
 import com.quickstack.product.dto.request.VariantUpdateRequest;
@@ -27,16 +28,16 @@ public class VariantController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VariantResponse>> listVariants(
+    public ResponseEntity<ApiResponse<List<VariantResponse>>> listVariants(
             @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
             @PathVariable UUID productId) {
 
-        return ResponseEntity.ok(variantService.listVariants(principal.tenantId(), productId));
+        return ResponseEntity.ok(ApiResponse.success(variantService.listVariants(principal.tenantId(), productId)));
     }
 
     @PostMapping
     @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
-    public ResponseEntity<VariantResponse> addVariant(
+    public ResponseEntity<ApiResponse<VariantResponse>> addVariant(
             @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
             @PathVariable UUID productId,
             @Valid @RequestBody VariantCreateRequest request) {
@@ -49,18 +50,18 @@ public class VariantController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.created(location).body(ApiResponse.success(response));
     }
 
     @PutMapping("/{variantId}")
     @PreAuthorize("@catalogPermissionEvaluator.canManageCatalog(authentication)")
-    public ResponseEntity<VariantResponse> updateVariant(
+    public ResponseEntity<ApiResponse<VariantResponse>> updateVariant(
             @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
             @PathVariable UUID productId,
             @PathVariable UUID variantId,
             @Valid @RequestBody VariantUpdateRequest request) {
 
-        return ResponseEntity.ok(variantService.updateVariant(principal.tenantId(), principal.userId(), productId, variantId, request));
+        return ResponseEntity.ok(ApiResponse.success(variantService.updateVariant(principal.tenantId(), principal.userId(), productId, variantId, request)));
     }
 
     @DeleteMapping("/{variantId}")

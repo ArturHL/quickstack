@@ -72,7 +72,7 @@ class VariantControllerTest {
         mockMvc.perform(get("/api/v1/products/{productId}/variants", productId)
                 .with(authentication(new UsernamePasswordAuthenticationToken(principal, null, List.of(new SimpleGrantedAuthority("ROLE_MANAGER"))))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Chico"));
+                .andExpect(jsonPath("$.data[0].name").value("Chico"));
     }
 
     @Test
@@ -90,8 +90,8 @@ class VariantControllerTest {
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.id").value(variantId.toString()))
-                .andExpect(jsonPath("$.name").value("Medio"));
+                .andExpect(jsonPath("$.data.id").value(variantId.toString()))
+                .andExpect(jsonPath("$.data.name").value("Medio"));
     }
 
     @Test
@@ -123,7 +123,7 @@ class VariantControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Grande"));
+                .andExpect(jsonPath("$.data.name").value("Grande"));
     }
 
     @Test
