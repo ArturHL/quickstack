@@ -1,6 +1,6 @@
 package com.quickstack.app.catalog;
 
-import com.quickstack.app.BaseIntegrationTest;
+import com.quickstack.app.BaseE2ETest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.DisplayName;

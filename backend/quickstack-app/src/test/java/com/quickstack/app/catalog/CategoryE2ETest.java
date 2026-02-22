@@ -1,6 +1,6 @@
 package com.quickstack.app.catalog;
 
-import com.quickstack.app.BaseIntegrationTest;
+import com.quickstack.app.BaseE2ETest;
 import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import io.restassured.http.ContentType;
