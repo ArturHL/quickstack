@@ -13,6 +13,8 @@ import com.quickstack.product.entity.Product;
 import com.quickstack.product.entity.ProductType;
 import com.quickstack.product.repository.CategoryRepository;
 import com.quickstack.product.repository.ProductRepository;
+import com.quickstack.product.repository.VariantRepository;
+import com.quickstack.product.entity.ProductVariant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,6 +48,9 @@ class ProductServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private VariantRepository variantRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -85,7 +90,7 @@ class ProductServiceTest {
             when(productRepository.existsBySkuAndTenantId(request.sku(), tenantId)).thenReturn(false);
             when(productRepository.existsByNameAndTenantIdAndCategoryId(request.name(), tenantId, categoryId)).thenReturn(false);
             when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
-                Product p = inv.getArgument(0);
+                Product p = (Product) inv.getArgument(0);
                 p.setId(UUID.randomUUID());
                 return p;
             });
@@ -115,9 +120,14 @@ class ProductServiceTest {
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
             when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
-                Product p = inv.getArgument(0);
+                Product p = (Product) inv.getArgument(0);
                 p.setId(UUID.randomUUID());
                 return p;
+            });
+            when(variantRepository.save(any(ProductVariant.class))).thenAnswer(inv -> {
+                ProductVariant v = inv.getArgument(0);
+                v.setId(UUID.randomUUID());
+                return v;
             });
 
             // When
@@ -168,6 +178,11 @@ class ProductServiceTest {
             );
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
+            when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
+                Product p = (Product) inv.getArgument(0);
+                p.setId(UUID.randomUUID());
+                return p;
+            });
 
             assertThatThrownBy(() -> productService.createProduct(tenantId, userId, request))
                 .isInstanceOf(BusinessRuleException.class)
@@ -225,6 +240,7 @@ class ProductServiceTest {
 
             when(productRepository.findByIdAndTenantId(productId, tenantId)).thenReturn(Optional.of(product));
             when(productRepository.save(any(Product.class))).thenReturn(product);
+            when(variantRepository.save(any(ProductVariant.class))).thenAnswer(inv -> inv.getArgument(0));
 
             ProductResponse response = productService.updateProduct(tenantId, userId, productId, request);
 

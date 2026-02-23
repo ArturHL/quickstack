@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>
  * ASVS V4.1: Access control - database-level multi-tenancy enforcement.
  */
-@Disabled("E2E tests disabled for Phase 1.1 development")
+////@Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Catalog Schema E2E Tests")
 class CatalogSchemaE2ETest extends BaseE2ETest {
 
@@ -181,10 +181,10 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
         UUID tenantId = UUID.randomUUID();
         jdbcTemplate.update(
             """
-            INSERT INTO tenants (id, name, created_at, updated_at)
-            VALUES (?, ?, NOW(), NOW())
+            INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at)
+            VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())
             """,
-            tenantId, "Test Tenant " + tenantId
+            tenantId, "Test Tenant " + tenantId, "test-tenant-" + tenantId
         );
         return tenantId;
     }

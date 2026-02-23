@@ -16,6 +16,7 @@ import com.quickstack.product.entity.ProductType;
 import com.quickstack.product.entity.ProductVariant;
 import com.quickstack.product.repository.CategoryRepository;
 import com.quickstack.product.repository.ProductRepository;
+import com.quickstack.product.repository.VariantRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -41,10 +42,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final VariantRepository variantRepository;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, VariantRepository variantRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.variantRepository = variantRepository;
     }
 
     /**
@@ -77,18 +80,18 @@ public class ProductService {
             throw new DuplicateResourceException("Product", "name", request.name());
         }
 
-        // 4. Create Product
+        // 4. Create Product (Initial save to generate ID)
         Product product = new Product();
         product.setTenantId(tenantId);
         product.setCreatedBy(userId);
         updateProductFromRequest(product, request);
 
+        product = productRepository.save(product);
+
         // 5. Handle Variants if VARIANT type
         if (product.getProductType() == ProductType.VARIANT) {
             handleNewVariants(product, request.variants(), tenantId);
         }
-
-        product = productRepository.save(product);
 
         logInfo(CatalogAction.PRODUCT_CREATED, tenantId, userId, product.getId(), "PRODUCT");
         return ProductResponse.from(product, CategorySummaryResponse.from(category));
@@ -363,12 +366,15 @@ public class ProductService {
                 hasDefault = true;
             }
             
+            variant = variantRepository.save(variant);
             product.getVariants().add(variant);
         }
 
         // If no default was specified, make the first one default
         if (!hasDefault && !product.getVariants().isEmpty()) {
-            product.getVariants().get(0).setDefault(true);
+            ProductVariant first = product.getVariants().get(0);
+            first.setDefault(true);
+            variantRepository.save(first);
         }
     }
 

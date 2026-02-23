@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.*;
  * <p>
  * ASVS V4.1: Tests verify multi-tenant IDOR protection.
  */
-@Disabled("E2E tests disabled for Phase 1.1 development")
+////@Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Category E2E Tests")
 class CategoryE2ETest extends BaseE2ETest {
 
@@ -49,6 +49,7 @@ class CategoryE2ETest extends BaseE2ETest {
     void setUpTenantAndUsers() {
         tenantId = createTenant();
         userId = UUID.randomUUID();
+        createUser(tenantId, userId, OWNER_ROLE_ID, "owner@test.com");
         ownerToken = authHeader(userId, tenantId, OWNER_ROLE_ID, "owner@test.com");
         cashierToken = authHeader(userId, tenantId, CASHIER_ROLE_ID, "cashier@test.com");
     }
@@ -253,6 +254,7 @@ class CategoryE2ETest extends BaseE2ETest {
     @DisplayName("9. Second OWNER user can create category (OWNER always has catalog write access)")
     void secondOwnerCanCreateCategory() {
         UUID anotherOwnerId = UUID.randomUUID();
+        createUser(tenantId, anotherOwnerId, OWNER_ROLE_ID, "owner2@test.com");
         String anotherOwnerToken = authHeader(anotherOwnerId, tenantId, OWNER_ROLE_ID, "owner2@test.com");
 
         CategoryCreateRequest request = new CategoryCreateRequest("Snacks", null, null, null, null);
@@ -346,10 +348,18 @@ class CategoryE2ETest extends BaseE2ETest {
     private UUID createTenant() {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO tenants (id, name, created_at, updated_at) VALUES (?, ?, NOW(), NOW())",
-            id, "Test Tenant " + id
+            "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
+            id, "Test Tenant " + id, "test-tenant-" + id
         );
         return id;
+    }
+
+    private void createUser(UUID tenantId, UUID userId, UUID roleId, String email) {
+        jdbcTemplate.update(
+            "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
+            userId, tenantId, roleId, email, "Test User"
+        );
     }
 
     private UUID createCategoryDirect(UUID forTenantId, String name, boolean isActive) {

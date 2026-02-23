@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.*;
 /**
  * End-to-end integration tests for product management.
  */
-@Disabled("E2E tests disabled for Phase 1.1 development")
+////@Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Product E2E Tests")
 class ProductE2ETest extends BaseE2ETest {
 
@@ -46,6 +46,7 @@ class ProductE2ETest extends BaseE2ETest {
     void setUp() {
         tenantId = createTenant();
         userId = UUID.randomUUID();
+        createUser(tenantId, userId, OWNER_ROLE_ID, "owner@test.com");
         categoryId = createCategoryDirect(tenantId, "Bebidas", true);
         ownerToken = authHeader(userId, tenantId, OWNER_ROLE_ID, "owner@test.com");
         cashierToken = authHeader(userId, tenantId, CASHIER_ROLE_ID, "cashier@test.com");
@@ -273,10 +274,18 @@ class ProductE2ETest extends BaseE2ETest {
     private UUID createTenant() {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO tenants (id, name, created_at, updated_at) VALUES (?, ?, NOW(), NOW())",
-            id, "Test Tenant " + id
+            "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
+            id, "Test Tenant " + id, "test-tenant-" + id
         );
         return id;
+    }
+
+    private void createUser(UUID tenantId, UUID userId, UUID roleId, String email) {
+        jdbcTemplate.update(
+            "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
+            userId, tenantId, roleId, email, "Test User"
+        );
     }
 
     private UUID createCategoryDirect(UUID forTenantId, String name, boolean isActive) {
