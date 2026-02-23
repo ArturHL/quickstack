@@ -605,12 +605,12 @@ Logica de negocio: crear y leer productos.
 Los restaurantes necesitan controlar el orden de aparicion en el menu del POS.
 
 **Criterios de Aceptacion:**
-- [ ] `ReorderRequest`: lista de objetos `{id: UUID, sortOrder: int}`. Validacion: lista no vacia, max 500 items, `sortOrder >= 0`
-- [ ] `PATCH /api/v1/categories/reorder` — OWNER/MANAGER. Body: `ReorderRequest`. Valida que todos los IDs pertenecen al tenant (lanza 400 si hay ID de otro tenant). Actualiza `sort_order` en batch con una sola query. Retorna HTTP 204
-- [ ] `PATCH /api/v1/products/reorder` — OWNER/MANAGER. Mismo comportamiento para productos
-- [ ] Operacion atomica: todos los updates en una sola transaccion
-- [ ] Tests unitarios de servicio: 8 tests (happy path, ID de otro tenant, lista vacia)
-- [ ] Tests unitarios de controller `@WebMvcTest`: 6 tests
+- [x] `ReorderRequest`: lista de objetos `{id: UUID, sortOrder: int}`. Validacion: lista no vacia, max 500 items, `sortOrder >= 0`
+- [x] `PATCH /api/v1/categories/reorder` — OWNER/MANAGER. Body: `ReorderRequest`. Valida que todos los IDs pertenecen al tenant (lanza 400 si hay ID de otro tenant). Actualiza `sort_order` en batch con una sola query. Retorna HTTP 204
+- [x] `PATCH /api/v1/products/reorder` — OWNER/MANAGER. Mismo comportamiento para productos
+- [x] Operacion atomica: todos los updates en una sola transaccion
+- [x] Tests unitarios de servicio: 8 tests (happy path, ID de otro tenant, lista vacia)
+- [x] Tests unitarios de controller `@WebMvcTest`: 6 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/dto/request/ReorderRequest.java`
@@ -625,13 +625,13 @@ Los restaurantes necesitan controlar el orden de aparicion en el menu del POS.
 **Prioridad:** Alta | **Dependencias:** 2.4, 3.4, 4.3
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/categories/**` y `GET /api/v1/products/**` — requieren `authenticated()` (cualquier rol valido)
-- [ ] `POST /api/v1/categories`, `PUT /api/v1/categories/**`, `DELETE /api/v1/categories/**` — protegidos (la autorizacion de rol se hace con `@PreAuthorize` en el controller)
-- [ ] `PATCH /api/v1/categories/reorder`, `PATCH /api/v1/products/reorder` — protegidos
-- [ ] `POST /api/v1/*/restore` — protegidos
-- [ ] Ningun endpoint de catalog es publico (no requiere autenticacion)
-- [ ] Tests de integracion existentes siguen pasando (no regresiones)
-- [ ] Test especifico: request sin JWT a `GET /api/v1/products` retorna 401
+- [x] `GET /api/v1/categories/**` y `GET /api/v1/products/**` — requieren `authenticated()` (cualquier rol valido)
+- [x] `POST /api/v1/categories`, `PUT /api/v1/categories/**`, `DELETE /api/v1/categories/**` — protegidos (la autorizacion de rol se hace con `@PreAuthorize` en el controller)
+- [x] `PATCH /api/v1/categories/reorder`, `PATCH /api/v1/products/reorder` — protegidos
+- [x] `POST /api/v1/*/restore` — protegidos
+- [x] Ningun endpoint de catalog es publico (no requiere autenticacion)
+- [x] Tests de integracion existentes siguen pasando (no regresiones)
+- [x] Test especifico: request sin JWT a `GET /api/v1/products` retorna 401
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/config/SecurityConfig.java` (modificar)
@@ -644,14 +644,14 @@ Los restaurantes necesitan controlar el orden de aparicion en el menu del POS.
 Bateria de tests de seguridad especificos del modulo catalog.
 
 **Criterios de Aceptacion:**
-- [ ] **IDOR tests**: para cada endpoint con `{id}`, verificar que un JWT de tenant B con un ID valido de tenant A retorna 404 (no 403 ni 200)
-- [ ] **Escalada de privilegios**: CASHIER intentando POST/PUT/DELETE/PATCH retorna 403 en todos los casos
-- [ ] **Token expirado**: request con JWT expirado retorna 401 con formato `ApiError` estandar
-- [ ] **Rol invalido en JWT**: JWT con `roleCode` desconocido tratado como sin permisos — GET retorna 200 (autenticado), POST retorna 403
-- [ ] **Paginacion**: `?page=-1` retorna 400. `?size=101` retorna 400. `?sort=campoInexistente,asc` retorna 400
-- [ ] **Input injection**: nombre de categoria con `'; DROP TABLE categories; --` procesado como string literal, no ejecutado
-- [ ] **Reorder con IDs mixtos**: `PATCH /api/v1/categories/reorder` con mezcla de IDs propios y de otro tenant retorna 400 y no modifica ninguno
-- [ ] 14 tests de seguridad pasando
+- [x] **IDOR tests**: para cada endpoint con `{id}`, verificar que un JWT de tenant B con un ID valido de tenant A retorna 404 (no 403 ni 200)
+- [x] **Escalada de privilegios**: CASHIER intentando POST/PUT/DELETE/PATCH retorna 403 en todos los casos
+- [x] **Token expirado**: request con JWT expirado retorna 401 con formato `ApiError` estandar
+- [x] **Rol invalido en JWT**: JWT con `roleCode` desconocido tratado como sin permisos — GET retorna 200 (autenticado), POST retorna 403
+- [x] **Paginacion**: `?page=-1` retorna 400. `?size=101` retorna 400. `?sort=campoInexistente,asc` retorna 400
+- [x] **Input injection**: nombre de categoria con `'; DROP TABLE categories; --` procesado como string literal, no ejecutado
+- [x] **Reorder con IDs mixtos**: `PATCH /api/v1/categories/reorder` con mezcla de IDs propios y de otro tenant retorna 400 y no modifica ninguno
+- [x] 14 tests de seguridad pasando
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/CatalogSecurityE2ETest.java`
@@ -664,11 +664,11 @@ Bateria de tests de seguridad especificos del modulo catalog.
 Asegurar trazabilidad de operaciones de escritura.
 
 **Criterios de Aceptacion:**
-- [ ] Cada metodo de escritura en `CategoryService` y `ProductService` emite un log nivel `INFO` con formato: `[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}`
-- [ ] Crear enum `CatalogAction` con valores: `CATEGORY_CREATED`, `CATEGORY_UPDATED`, `CATEGORY_DELETED`, `CATEGORY_RESTORED`, `PRODUCT_CREATED`, `PRODUCT_UPDATED`, `PRODUCT_DELETED`, `PRODUCT_RESTORED`, `PRODUCT_AVAILABILITY_CHANGED`
-- [ ] Logs de operaciones fallidas (excepciones de negocio) nivel `WARN` con mismo formato + campo `reason`
-- [ ] No loguear el contenido del body (datos potencialmente sensibles como precios de costo)
-- [ ] Tests unitarios: verificar que los logs se emiten con Mockito verify o Logback captura (8 tests)
+- [x] Cada metodo de escritura en `CategoryService` y `ProductService` emite un log nivel `INFO` con formato: `[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={}`
+- [x] Crear enum `CatalogAction` con valores: `CATEGORY_CREATED`, `CATEGORY_UPDATED`, `CATEGORY_DELETED`, `CATEGORY_RESTORED`, `PRODUCT_CREATED`, `PRODUCT_UPDATED`, `PRODUCT_DELETED`, `PRODUCT_RESTORED`, `PRODUCT_AVAILABILITY_CHANGED`
+- [x] Logs de operaciones fallidas (excepciones de negocio) nivel `WARN` con mismo formato + campo `reason`
+- [x] No loguear el contenido del body (datos potencialmente sensibles como precios de costo)
+- [x] Tests unitarios: verificar que logs se emiten con Mockito verify o Logback captura (8 tests)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/CatalogAction.java`
@@ -681,13 +681,13 @@ Asegurar trazabilidad de operaciones de escritura.
 
 **Validaciones requeridas antes de declarar Phase 0.4 completa:**
 
-- [ ] **ASVS V1.2.3**: Verificar que todas las operaciones de escritura validan tenant ownership antes de ejecutar (revision manual del codigo)
-- [ ] **ASVS V4.1.1**: Confirmar que el control de acceso se implementa en el servidor, no en el cliente (ningun permiso hardcodeado en queries sin validacion de rol)
-- [ ] **ASVS V4.1.3**: Principio de minimo privilegio — CASHIER tiene acceso de solo lectura confirmado por tests de integracion
-- [ ] **ASVS V4.1.5**: Logs de control de acceso para operaciones fallidas (Tarea 5.4 completada)
-| **ASVS V5.1.3**: Validacion de inputs en server-side confirmada — no se puede bypassear con headers custom
-- [ ] Ejecutar `./mvnw verify` en estado limpio: 0 fallos, todos los tests pasando
-- [ ] Revisar cobertura de tests: services deben tener >80% de line coverage (opcional pero recomendado)
+- [x] **ASVS V1.2.3**: Verificar que todas las operaciones de escritura validan tenant ownership antes de ejecutar (revision manual del codigo)
+- [x] **ASVS V4.1.1**: Confirmar que el control de acceso se implementa en el servidor, no en el cliente (ningun permiso hardcodeado en queries sin validacion de rol)
+- [x] **ASVS V4.1.3**: Principio de minimo privilegio — CASHIER tiene acceso de solo lectura confirmado por tests de integracion
+- [x] **ASVS V4.1.5**: Logs de control de acceso para operaciones fallidas (Tarea 5.4 completada)
+- [x] **ASVS V5.1.3**: Validacion de inputs en server-side confirmada — no se puede bypassear con headers custom
+- [x] Ejecutar `./mvnw verify` en estado limpio: 0 fallos, todos los tests pasando
+- [x] Revisar cobertura de tests: services deben tener >80% de line coverage (opcional pero recomendado)
 
 ---
 

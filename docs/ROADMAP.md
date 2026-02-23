@@ -312,7 +312,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.1: Catálogo Base (Productos + Variantes)
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 3/6 completado)
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 5/6 completado)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md`
 
@@ -320,7 +320,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] Entidades: Category, Product, ProductVariant
 - [x] CRUD completo de categorías jerárquicas (2 niveles)
 - [x] CRUD completo de productos (SIMPLE y VARIANT)
-- [ ] CRUD de variantes detallado (Sprint 4)
+- [x] CRUD de variantes detallado (Sprint 4)
 - [ ] Endpoint `/api/v1/menu` optimizado para POS (Sprint 6)
 - [x] Permisos por rol (OWNER/MANAGER/CASHIER)
 - [x] Soporte para Docker 29 (Testcontainers 2.0.3)
