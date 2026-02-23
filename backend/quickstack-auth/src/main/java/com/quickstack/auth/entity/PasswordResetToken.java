@@ -59,8 +59,8 @@ public class PasswordResetToken {
     /**
      * Check if the token is valid (not expired and not used).
      */
-    public boolean isValid() {
-        return usedAt == null && Instant.now().isBefore(expiresAt);
+    public boolean isValid(Instant now) {
+        return usedAt == null && now.isBefore(expiresAt);
     }
 
     /**
@@ -73,8 +73,8 @@ public class PasswordResetToken {
     /**
      * Check if the token has expired.
      */
-    public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
+    public boolean isExpired(Instant now) {
+        return now.isAfter(expiresAt);
     }
 
     /**

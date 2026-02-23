@@ -123,7 +123,7 @@ public class RefreshTokenService {
         }
 
         // Check expiration
-        if (token.isExpired()) {
+        if (token.isExpired(clock.instant())) {
             log.debug("Refresh token expired for family {}", token.getFamilyId());
             throw InvalidTokenException.expired(TokenType.REFRESH_TOKEN);
         }

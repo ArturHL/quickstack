@@ -78,8 +78,8 @@ public class RefreshToken {
     /**
      * Check if the token is valid (not expired and not revoked).
      */
-    public boolean isValid() {
-        return revokedAt == null && Instant.now().isBefore(expiresAt);
+    public boolean isValid(Instant now) {
+        return revokedAt == null && now.isBefore(expiresAt);
     }
 
     /**
@@ -92,8 +92,8 @@ public class RefreshToken {
     /**
      * Check if the token has expired.
      */
-    public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
+    public boolean isExpired(Instant now) {
+        return now.isAfter(expiresAt);
     }
 
     /**

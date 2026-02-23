@@ -66,7 +66,7 @@ class PasswordResetTokenTest {
             Instant expiresAt = Instant.now().plus(1, ChronoUnit.HOURS);
             PasswordResetToken token = PasswordResetToken.create(USER_ID, TOKEN_HASH, expiresAt, IP_ADDRESS);
 
-            assertThat(token.isValid()).isTrue();
+            assertThat(token.isValid(Instant.now())).isTrue();
         }
 
         @Test
@@ -76,7 +76,7 @@ class PasswordResetTokenTest {
             PasswordResetToken token = PasswordResetToken.create(USER_ID, TOKEN_HASH, expiresAt, IP_ADDRESS);
             token.markAsUsed();
 
-            assertThat(token.isValid()).isFalse();
+            assertThat(token.isValid(Instant.now())).isFalse();
         }
 
         @Test
@@ -85,7 +85,7 @@ class PasswordResetTokenTest {
             Instant expiresAt = Instant.now().minus(1, ChronoUnit.HOURS);
             PasswordResetToken token = PasswordResetToken.create(USER_ID, TOKEN_HASH, expiresAt, IP_ADDRESS);
 
-            assertThat(token.isValid()).isFalse();
+            assertThat(token.isValid(Instant.now())).isFalse();
         }
 
         @Test
@@ -107,12 +107,12 @@ class PasswordResetTokenTest {
             // Not expired
             Instant futureExpiry = Instant.now().plus(1, ChronoUnit.HOURS);
             PasswordResetToken validToken = PasswordResetToken.create(USER_ID, TOKEN_HASH, futureExpiry, IP_ADDRESS);
-            assertThat(validToken.isExpired()).isFalse();
+            assertThat(validToken.isExpired(Instant.now())).isFalse();
 
             // Expired
             Instant pastExpiry = Instant.now().minus(1, ChronoUnit.HOURS);
             PasswordResetToken expiredToken = PasswordResetToken.create(USER_ID, "other", pastExpiry, IP_ADDRESS);
-            assertThat(expiredToken.isExpired()).isTrue();
+            assertThat(expiredToken.isExpired(Instant.now())).isTrue();
         }
     }
 
@@ -142,11 +142,11 @@ class PasswordResetTokenTest {
             Instant expiresAt = Instant.now().plus(1, ChronoUnit.HOURS);
             PasswordResetToken token = PasswordResetToken.create(USER_ID, TOKEN_HASH, expiresAt, IP_ADDRESS);
 
-            assertThat(token.isValid()).isTrue();
+            assertThat(token.isValid(Instant.now())).isTrue();
 
             token.markAsUsed();
 
-            assertThat(token.isValid()).isFalse();
+            assertThat(token.isValid(Instant.now())).isFalse();
         }
     }
 

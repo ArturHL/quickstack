@@ -156,7 +156,7 @@ public class PasswordResetService {
                     log.warn("Attempt to reuse password reset token");
                     throw InvalidTokenException.revoked(TokenType.PASSWORD_RESET_TOKEN);
                 }
-                if (token.isExpired()) {
+                if (token.isExpired(clock.instant())) {
                     log.warn("Attempt to use expired password reset token");
                     throw InvalidTokenException.expired(TokenType.PASSWORD_RESET_TOKEN);
                 }
