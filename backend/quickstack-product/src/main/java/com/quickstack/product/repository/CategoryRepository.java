@@ -141,6 +141,17 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     );
 
     /**
+     * Finds all active categories for a tenant, ordered by sort order.
+     * <p>
+     * Non-paginated version used by MenuService to load the full menu in one query.
+     *
+     * @param tenantId the tenant ID
+     * @return list of active categories ordered by sort_order ascending
+     */
+    @Query("SELECT c FROM Category c WHERE c.tenantId = :tenantId AND c.isActive = true AND c.deletedAt IS NULL ORDER BY c.sortOrder ASC")
+    java.util.List<Category> findAllActiveForMenuByTenantId(@Param("tenantId") UUID tenantId);
+
+    /**
      * Counts active products in a category.
      * <p>
      * Used to prevent deletion of categories that still contain active products.

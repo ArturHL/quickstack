@@ -83,7 +83,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/**").authenticated()
 
                 // Catalog requires JWT (not public yet)
-                .requestMatchers("/api/v1/categories/**", "/api/v1/products/**").authenticated()
+                .requestMatchers("/api/v1/categories/**", "/api/v1/products/**", "/api/v1/menu").authenticated()
 
                 // All other endpoints require authentication
                 .anyRequest().authenticated()

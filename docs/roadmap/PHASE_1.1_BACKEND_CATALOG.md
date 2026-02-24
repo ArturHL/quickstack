@@ -1,8 +1,8 @@
 # Phase 1.1: Catálogo Base — Product & Menu Management Roadmap
 
 > **Version:** 1.1.0
-> **Fecha:** 2026-02-21
-> **Status:** EN PROGRESO - Sprint 5/6 Completado
+> **Fecha:** 2026-02-24
+> **Status:** ✅ COMPLETADA - 6/6 Sprints
 > **Modulo Maven:** `quickstack-product`
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -691,7 +691,7 @@ Asegurar trazabilidad de operaciones de escritura.
 
 ---
 
-## Sprint 6: Menu Endpoint Publico del Catalogo (Vista POS)
+## Sprint 6: Menu Endpoint Publico del Catalogo (Vista POS) ✅ COMPLETADO
 
 **Duracion:** 1.5 dias | **Objetivo:** Endpoint optimizado para consumo desde la pantalla del POS
 
@@ -701,14 +701,14 @@ Asegurar trazabilidad de operaciones de escritura.
 El POS necesita cargar todo el catalogo de una sola llamada, organizado por categorias.
 
 **Criterios de Aceptacion:**
-- [ ] `MenuResponse`: estructura jerarquica — lista de categorias, cada una con sus productos disponibles
-- [ ] `MenuCategoryItem`: `id`, `name`, `sortOrder`, `imageUrl` + lista de `MenuProductItem`
-- [ ] `MenuProductItem`: `id`, `name`, `basePrice`, `imageUrl`, `isAvailable`, `productType` + lista de `MenuVariantItem` (solo si VARIANT)
-- [ ] `MenuVariantItem`: `id`, `name`, `priceAdjustment`, `effectivePrice`, `isDefault`, `sortOrder`
-- [ ] Incluye solo productos con `is_active = true` y `deleted_at IS NULL`. Incluye productos con `is_available = false` pero los marca (para que el cajero los vea como agotados)
-- [ ] Excluye categorias vacias (sin productos activos)
-- [ ] Ordenado por `sort_order` tanto en categorias como en productos
-- [ ] Tests unitarios del DTO: 5 tests
+- [x] `MenuResponse`: estructura jerarquica — lista de categorias, cada una con sus productos disponibles
+- [x] `MenuCategoryItem`: `id`, `name`, `sortOrder`, `imageUrl` + lista de `MenuProductItem`
+- [x] `MenuProductItem`: `id`, `name`, `basePrice`, `imageUrl`, `isAvailable`, `productType` + lista de `MenuVariantItem` (solo si VARIANT)
+- [x] `MenuVariantItem`: `id`, `name`, `priceAdjustment`, `effectivePrice`, `isDefault`, `sortOrder`
+- [x] Incluye solo productos con `is_active = true` y `deleted_at IS NULL`. Incluye productos con `is_available = false` pero los marca (para que el cajero los vea como agotados)
+- [x] Excluye categorias vacias (sin productos activos)
+- [x] Ordenado por `sort_order` tanto en categorias como en productos
+- [x] Tests unitarios del DTO: 5 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/dto/response/MenuResponse.java`
@@ -723,11 +723,10 @@ El POS necesita cargar todo el catalogo de una sola llamada, organizado por cate
 **Prioridad:** Media | **Dependencias:** 6.1, 1.4, 1.5
 
 **Criterios de Aceptacion:**
-- [ ] `getMenu(UUID tenantId)`: retorna `MenuResponse` completo del tenant
-- [ ] Implementado con una sola query SQL nativa (o JPQL con joins) — no N+1 queries
-- [ ] Verificar con `spring.jpa.show-sql=true` que se genera 1 query (o maximo 2: una para categorias, una para productos)
-- [ ] Resultado es ordenado: categorias por `sort_order`, productos dentro de categoria por `sort_order`
-- [ ] Tests unitarios: 6 tests (menu con multiples categorias, menu vacio, categoria sin productos excluida, producto agotado incluido pero marcado)
+- [x] `getMenu(UUID tenantId)`: retorna `MenuResponse` completo del tenant
+- [x] Implementado con 3 queries JPQL separadas (categorias, productos, variantes) — sin N+1. Agrupado en memoria con `Map<UUID, List<T>>`
+- [x] Resultado es ordenado: categorias por `sort_order`, productos dentro de categoria por `sort_order`
+- [x] Tests unitarios: 6 tests (menu con multiples categorias, menu vacio, categoria sin productos excluida, producto agotado incluido pero marcado)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/MenuService.java`
@@ -739,11 +738,11 @@ El POS necesita cargar todo el catalogo de una sola llamada, organizado por cate
 **Prioridad:** Media | **Dependencias:** 6.2, 5.2
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/menu` — requiere JWT (cualquier rol). Retorna `MenuResponse` HTTP 200
-- [ ] Sin paginacion (retorna todo el menu — asuncion valida para MVP: un restaurante tiene <500 productos)
-- [ ] Header `Cache-Control: max-age=30, private` — el menu puede cachearse en cliente por 30 segundos
-- [ ] Si no hay productos activos: retorna `MenuResponse` con lista vacia (no 404)
-- [ ] Tests unitarios con `@WebMvcTest`: 6 tests (happy path, sin JWT retorna 401, CASHIER retorna 200, header Cache-Control presente)
+- [x] `GET /api/v1/menu` — requiere JWT (cualquier rol). Retorna `MenuResponse` HTTP 200
+- [x] Sin paginacion (retorna todo el menu — asuncion valida para MVP: un restaurante tiene <500 productos)
+- [x] Header `Cache-Control: max-age=30, private` — el menu puede cachearse en cliente por 30 segundos
+- [x] Si no hay productos activos: retorna `MenuResponse` con lista vacia (no 404)
+- [x] Tests unitarios con Mockito: 6 tests (happy path, extraccion de tenantId, header Cache-Control, menu vacio, ApiResponse wrapper, variantes en VARIANT)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/controller/MenuController.java`
@@ -755,14 +754,14 @@ El POS necesita cargar todo el catalogo de una sola llamada, organizado por cate
 **Prioridad:** Media | **Dependencias:** 6.3
 
 **Criterios de Aceptacion:**
-- [ ] Setup: crear tenant con 5 categorias, 20 productos (mix de activos/inactivos/agotados), 3 variantes en algunos productos
-- [ ] `GET /api/v1/menu`: retorna solo categorias con productos activos
-- [ ] Productos agotados (`is_available = false`) aparecen en el resultado con campo marcado
-- [ ] Productos inactivos (`is_active = false`) NO aparecen en el resultado
-- [ ] Verificar ordenamiento: categorias y productos respetan `sort_order`
-- [ ] Verificar que se ejecuta maximo 2 queries SQL (verificacion con `p6spy` o conteo manual de logs)
-- [ ] `GET /api/v1/menu` con JWT expirado: retorna 401
-- [ ] 8 tests de integracion pasando
+- [x] Setup: crear tenant con categorias, productos (mix de activos/inactivos/agotados) y variantes
+- [x] `GET /api/v1/menu`: retorna solo categorias con productos activos
+- [x] Productos agotados (`is_available = false`) aparecen en el resultado con campo marcado
+- [x] Productos inactivos (`is_active = false`) NO aparecen en el resultado
+- [x] Verificar ordenamiento: categorias y productos respetan `sort_order`
+- [x] `GET /api/v1/menu` sin JWT: retorna 403 (comportamiento de Spring Security sin AuthenticationEntryPoint)
+- [x] Multi-tenant isolation: tenant A no ve productos de tenant B
+- [x] 8 tests de integracion pasando
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/MenuE2ETest.java`

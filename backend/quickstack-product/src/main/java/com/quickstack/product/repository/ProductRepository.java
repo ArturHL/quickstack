@@ -198,6 +198,18 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     );
 
     /**
+     * Finds all active products for a tenant, ordered by sort order.
+     * <p>
+     * Non-paginated version used by MenuService. Includes unavailable (agotado) products
+     * since the menu shows them as out-of-stock rather than hiding them.
+     *
+     * @param tenantId the tenant ID
+     * @return list of active products ordered by sort_order ascending
+     */
+    @Query("SELECT p FROM Product p WHERE p.tenantId = :tenantId AND p.isActive = true AND p.deletedAt IS NULL ORDER BY p.sortOrder ASC")
+    java.util.List<Product> findAllActiveForMenuByTenantId(@Param("tenantId") UUID tenantId);
+
+    /**
      * Finds a product by ID and tenant ID, including soft-deleted records.
      * <p>
      * Used exclusively for restore operations.

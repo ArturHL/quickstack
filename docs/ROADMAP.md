@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-18
-> **Estado:** Phase 1.1 EN PROGRESO (Sprint 5/6 completado) | Próximo: Sprint 6
+> **Última actualización:** 2026-02-24
+> **Estado:** Phase 1.1 ✅ COMPLETADA (6/6 sprints) | Próximo: Phase 1.2
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.1 (Sprint 2/6 completado)
+**Status**: En progreso — Phase 1.2 (pendiente)
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -245,7 +245,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 | Sub-fase | Nombre | Duración | Estado |
 |----------|--------|----------|--------|
-| 1.1 | Catálogo Base (Productos + Variantes) | 3 semanas | ⏳ En Progreso (Sprint 2/6) |
+| 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ⏳ Pendiente |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
@@ -312,7 +312,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.1: Catálogo Base (Productos + Variantes)
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (Sprint 5/6 completado)
+**Duración:** 3 semanas (6 sprints) | **Status:** ✅ COMPLETADA (6/6 sprints)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.1_BACKEND_CATALOG.md`
 
@@ -321,11 +321,11 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] CRUD completo de categorías jerárquicas (2 niveles)
 - [x] CRUD completo de productos (SIMPLE y VARIANT)
 - [x] CRUD de variantes detallado (Sprint 4)
-- [ ] Endpoint `/api/v1/menu` optimizado para POS (Sprint 6)
+- [x] Endpoint `GET /api/v1/menu` optimizado para POS (Sprint 6) — 3 queries, sin N+1, Cache-Control 30s
 - [x] Permisos por rol (OWNER/MANAGER/CASHIER)
 - [x] Soporte para Docker 29 (Testcontainers 2.0.3)
 - [x] Integridad referencial en tests (fixtures de Tenant/Plan)
-- [x] ~500 tests backend totales acumulados
+- [x] ~650 tests backend acumulados | 20 endpoints REST
 
 **Deuda técnica aceptada:**
 - Modifier groups y modifiers → Phase 1.2
@@ -698,6 +698,16 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-24
+- **Phase 1.1 COMPLETADA — Sprint 6/6: Menú Público POS:**
+  - `MenuResponse`, `MenuCategoryItem`, `MenuProductItem`, `MenuVariantItem` DTOs jerárquicos
+  - `MenuService`: carga menú con 3 queries (sin N+1), ensamblado en memoria con `Map<UUID, List<T>>`
+  - `MenuController`: `GET /api/v1/menu` — cualquier rol autenticado, `Cache-Control: max-age=30, private`
+  - Métodos de query para menú en `CategoryRepository`, `ProductRepository`, `VariantRepository`
+  - `SecurityConfig` actualizado: `/api/v1/menu` requiere JWT
+  - 25 tests nuevos: 5 DTO + 6 service + 6 controller (unit) + 8 E2E (Testcontainers)
+  - **Phase 1.1 finalizada: 20 endpoints REST | ~650 tests backend**
 
 ### 2026-02-21
 - **Phase 1.1 Sprint 3 completado — Product Management:**
