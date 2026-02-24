@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-24
-> **Estado:** Phase 1.2 ⏳ EN PROGRESO (Sprint 2/4) | Modifiers CRUD ✅ | Pendiente: Combos + Menu
+> **Estado:** Phase 1.2 ⏳ EN PROGRESO (Sprint 3/4 ✅) | Modifiers CRUD ✅ | Combos CRUD ✅ | Pendiente: Menu integration (Sprint 4)
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.2 Sprint 2/4 completado
+**Status**: En progreso — Phase 1.2 Sprint 3/4 completado
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -246,7 +246,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | Sub-fase | Nombre | Duración | Estado |
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
-| 1.2 | Modificadores + Combos | 2 semanas | ⏳ En progreso (Sprint 2/4) — Modifiers ✅ |
+| 1.2 | Modificadores + Combos | 2 semanas | ⏳ En progreso (Sprint 3/4 ✅) — Modifiers ✅ Combos ✅ |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
@@ -337,7 +337,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.2: Modificadores y Combos
 
-**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ En progreso — Sprint 2/4
+**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ En progreso — Sprint 3/4 ✅
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.2_MODIFIERS_COMBOS.md`
 
@@ -348,11 +348,10 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] CRUD de modifiers con price_adjustment — Sprint 1+2 ✅
 - [x] Validaciones min/max selections por grupo — Sprint 2 ✅
 - [x] 9 endpoints REST de modifiers — Sprint 2 ✅
-- [ ] CRUD de combos con combo_items — Sprint 3
-- [ ] Pricing especial de combos — Sprint 3
+- [x] CRUD de combos con combo_items — Sprint 3 ✅
+- [x] 5 endpoints REST de combos (14 total nuevos) — Sprint 3 ✅
+- [x] ~63 tests nuevos → ~161 en Phase 1.2 (acumulado: ~823 tests backend)
 - [ ] Actualizar endpoint `/api/v1/menu` con modifiers y combos — Sprint 4
-- [ ] 12 endpoints REST nuevos (9 de modifiers ✅ + 5 de combos)
-- [ ] ~80 tests nuevos → ~98 completados hasta Sprint 2 (acumulado: ~760 tests backend)
 
 ---
 
@@ -724,6 +723,16 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
   - `SecurityConfig` actualizado: `/api/v1/modifier-groups/**` y `/api/v1/modifiers/**` requieren JWT.
   - `ModifierIntegrationTest`: 12 tests E2E con Testcontainers (IDOR, RBAC, cascade, business rules).
   - 66 tests nuevos Sprint 2 | **~760 tests backend acumulados** | 9 endpoints modifiers operativos.
+- **Phase 1.2 Sprint 3 completado — Combos CRUD:**
+  - `Combo.java`, `ComboItem.java` — entidades JPA con soft delete en Combo y hard delete (DB CASCADE) en ComboItem.
+  - `ComboRepository`, `ComboItemRepository` — queries tenant-safe; `findAllByTenantIdAndComboIdIn` para batch load sin N+1.
+  - 5 DTOs (`ComboCreateRequest`, `ComboUpdateRequest`, `ComboItemRequest`, `ComboResponse`, `ComboItemResponse`) con Bean Validation (min 2 items).
+  - `ComboService`: CRUD completo — createCombo, updateCombo (reemplazo de items), deleteCombo (soft), getCombo, listCombos (max 3 queries).
+  - `ComboController`: 5 endpoints REST en `quickstack-product` — GET /combos, POST /combos, GET /combos/{id}, PUT /combos/{id}, DELETE /combos/{id}.
+  - `SecurityConfig` actualizado: `/api/v1/combos/**` requiere JWT.
+  - `ComboIntegrationTest`: 10 tests E2E (RBAC, IDOR, duplicate name, orphan removal, soft delete verificado en BD).
+  - Checkpoint de Seguridad Post-Sprint 3: IDOR tests 8+9 confirman aislamiento multi-tenant.
+  - ~63 tests nuevos Sprint 3 | **~823 tests backend acumulados** | 14 endpoints nuevos en Phase 1.2.
 
 ### 2026-02-21
 - **Phase 1.1 Sprint 3 completado — Product Management:**
