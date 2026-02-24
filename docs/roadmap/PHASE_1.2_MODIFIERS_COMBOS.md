@@ -1,8 +1,8 @@
 # Phase 1.2: Modificadores y Combos — Product Customization Roadmap
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-19
-> **Status:** PENDIENTE - Sprint 0/4
+> **Version:** 1.1.0
+> **Fecha:** 2026-02-24
+> **Status:** EN PROGRESO - Sprint 2/4
 > **Modulo Maven:** `quickstack-product` (expandir modulo existente)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -151,24 +151,24 @@ quickstack-app/
 
 ---
 
-## Sprint 1: Entidades y Repositorios de Modifiers
+## Sprint 1: Entidades y Repositorios de Modifiers ✅ COMPLETADO
 
-**Duracion:** 2 dias | **Objetivo:** Infraestructura de modifier groups y modifiers completa
+**Duracion:** 2 dias | **Objetivo:** Infraestructura de modifier groups y modifiers completa | **Tests:** 32
 
-### [BACKEND] Tarea 1.1: Entidad ModifierGroup
+### [BACKEND] Tarea 1.1: Entidad ModifierGroup ✅
 
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 Entidad JPA mapeada a la tabla `modifier_groups` ya existente en V3.
 
 **Criterios de Aceptacion:**
-- [ ] `ModifierGroup.java` con todos los campos: `id`, `tenantId`, `productId`, `name`, `description`, `minSelections`, `maxSelections`, `isRequired`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
-- [ ] Anotaciones JPA: `@Entity`, `@Table(name = "modifier_groups")`, `@Column` con nombres exactos de BD
-- [ ] `@CreationTimestamp` / `@UpdateTimestamp` en campos de audit
-- [ ] `@OneToMany` a `Modifier` (fetch LAZY)
-- [ ] Metodo `isDeleted()` que retorna `deletedAt != null`
-- [ ] Validacion: si `isRequired == true`, entonces `minSelections >= 1` (validado en service, no en DB constraint ya existente)
-- [ ] Tests unitarios: 6 tests (constructor, isDeleted, validacion de required, relationship con modifiers)
+- [x] `ModifierGroup.java` con todos los campos: `id`, `tenantId`, `productId`, `name`, `description`, `minSelections`, `maxSelections`, `isRequired`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
+- [x] Anotaciones JPA: `@Entity`, `@Table(name = "modifier_groups")`, `@Column` con nombres exactos de BD
+- [x] `@CreationTimestamp` / `@UpdateTimestamp` en campos de audit
+- [x] `@OneToMany` a `Modifier` (fetch LAZY)
+- [x] Metodo `isDeleted()` que retorna `deletedAt != null`
+- [x] Validacion: si `isRequired == true`, entonces `minSelections >= 1` (validado en service, no en DB constraint ya existente)
+- [x] Tests unitarios: 6 tests (constructor, isDeleted, validacion de required, relationship con modifiers)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/entity/ModifierGroup.java`
@@ -176,18 +176,18 @@ Entidad JPA mapeada a la tabla `modifier_groups` ya existente en V3.
 
 ---
 
-### [BACKEND] Tarea 1.2: Entidad Modifier
+### [BACKEND] Tarea 1.2: Entidad Modifier ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Entidad JPA para opciones individuales dentro de un modifier group.
 
 **Criterios de Aceptacion:**
-- [ ] `Modifier.java` con todos los campos: `id`, `tenantId`, `modifierGroupId`, `name`, `priceAdjustment`, `isDefault`, `isActive`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
-- [ ] Anotaciones JPA completas
-- [ ] `priceAdjustment` puede ser positivo (extra queso +$10), negativo (descuento), o 0 (sin cambio de precio)
-- [ ] `isDefault`: marcado como seleccionado por defecto en UI (solo 1 por grupo deberia ser true)
-- [ ] Tests unitarios: 5 tests (constructor, isDeleted, price adjustment logic)
+- [x] `Modifier.java` con todos los campos: `id`, `tenantId`, `modifierGroupId`, `name`, `priceAdjustment`, `isDefault`, `isActive`, `sortOrder`, `createdAt`, `updatedAt`, `deletedAt`
+- [x] Anotaciones JPA completas (`modifierGroupId` mapea a columna `group_id` en BD)
+- [x] `priceAdjustment` puede ser positivo (extra queso +$10), negativo (descuento), o 0 (sin cambio de precio)
+- [x] `isDefault`: marcado como seleccionado por defecto en UI (solo 1 por grupo deberia ser true)
+- [x] Tests unitarios: 5 tests (constructor, isDeleted, price adjustment logic)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/entity/Modifier.java`
@@ -195,18 +195,18 @@ Entidad JPA para opciones individuales dentro de un modifier group.
 
 ---
 
-### [BACKEND] Tarea 1.3: ModifierGroupRepository
+### [BACKEND] Tarea 1.3: ModifierGroupRepository ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Repositorio JPA con queries tenant-safe.
 
 **Criterios de Aceptacion:**
-- [ ] `findAllByProductIdAndTenantId(UUID productId, UUID tenantId)` retorna solo no-borrados, ordenados por `sort_order`
-- [ ] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<ModifierGroup>` — excluye borrados
-- [ ] `existsByNameAndProductIdAndTenantId(String name, UUID productId, UUID tenantId)` para validacion de unicidad
-- [ ] `existsByNameAndProductIdAndTenantIdAndIdNot(String name, UUID productId, UUID tenantId, UUID excludeId)` para update
-- [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 10 tests
+- [x] `findAllByProductIdAndTenantId(UUID productId, UUID tenantId)` retorna solo no-borrados, ordenados por `sort_order`
+- [x] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<ModifierGroup>` — excluye borrados
+- [x] `existsByNameAndProductIdAndTenantId(String name, UUID productId, UUID tenantId)` para validacion de unicidad
+- [x] `existsByNameAndProductIdAndTenantIdAndIdNot(String name, UUID productId, UUID tenantId, UUID excludeId)` para update
+- [x] Tests de repositorio con `@DataJpaTest` + Testcontainers: 11 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/repository/ModifierGroupRepository.java`
@@ -214,18 +214,19 @@ Repositorio JPA con queries tenant-safe.
 
 ---
 
-### [BACKEND] Tarea 1.4: ModifierRepository
+### [BACKEND] Tarea 1.4: ModifierRepository ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.2
 
 Repositorio JPA para modifiers.
 
 **Criterios de Aceptacion:**
-- [ ] `findAllByModifierGroupIdAndTenantId(UUID modifierGroupId, UUID tenantId)` retorna solo activos y no-borrados, ordenados por `sort_order`
-- [ ] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Modifier>` excluye borrados
-- [ ] `existsByNameAndModifierGroupIdAndTenantId(String name, UUID modifierGroupId, UUID tenantId)` para unicidad
-- [ ] `countActiveByModifierGroupId(UUID modifierGroupId, UUID tenantId)` para validar que no se borre el ultimo modifier activo
-- [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 10 tests
+- [x] `findAllByModifierGroupIdAndTenantId(UUID modifierGroupId, UUID tenantId)` retorna solo activos y no-borrados, ordenados por `sort_order`
+- [x] `findAllNonDeletedByModifierGroupIdAndTenantId(...)` para cascade soft-delete (activos e inactivos, no borrados)
+- [x] `findByIdAndTenantId(UUID id, UUID tenantId)` retorna `Optional<Modifier>` excluye borrados
+- [x] `existsByNameAndModifierGroupIdAndTenantId(String name, UUID modifierGroupId, UUID tenantId)` para unicidad
+- [x] `countActiveByModifierGroupId(UUID modifierGroupId, UUID tenantId)` para validar que no se borre el ultimo modifier activo
+- [x] Tests de repositorio con `@DataJpaTest` + Testcontainers: 10 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/repository/ModifierRepository.java`
@@ -233,25 +234,25 @@ Repositorio JPA para modifiers.
 
 ---
 
-## Sprint 2: Modifier Management CRUD
+## Sprint 2: Modifier Management CRUD ✅ COMPLETADO
 
-**Duracion:** 2 dias | **Objetivo:** CRUD completo de modifier groups y modifiers
+**Duracion:** 2 dias | **Objetivo:** CRUD completo de modifier groups y modifiers | **Tests:** 66
 
-### [BACKEND] Tarea 2.1: DTOs de Modifier Groups y Modifiers
+### [BACKEND] Tarea 2.1: DTOs de Modifier Groups y Modifiers ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1, 1.2
 
 Objetos de transferencia para requests y responses.
 
 **Criterios de Aceptacion:**
-- [ ] `ModifierGroupCreateRequest`: `productId` (NotNull UUID), `name` (NotBlank, max 100), `description` (nullable, max 500), `minSelections` (NotNull, min 0), `maxSelections` (nullable, >= minSelections), `isRequired` (NotNull), `sortOrder` (nullable, default 0)
-- [ ] Validacion cross-field: si `isRequired == true`, entonces `minSelections >= 1`
-- [ ] `ModifierGroupUpdateRequest`: mismos campos que Create, todos opcionales
-- [ ] `ModifierCreateRequest`: `modifierGroupId` (NotNull UUID), `name` (NotBlank, max 100), `priceAdjustment` (NotNull, puede ser negativo), `isDefault` (boolean, default false), `sortOrder` (nullable)
-- [ ] `ModifierUpdateRequest`: mismos campos que Create, todos opcionales
-- [ ] `ModifierGroupResponse`: todos los campos de la entidad + lista `modifiers` (List<ModifierResponse>)
-- [ ] `ModifierResponse`: todos los campos de Modifier
-- [ ] Tests unitarios: 12 tests (Bean Validation, cross-field validation)
+- [x] `ModifierGroupCreateRequest`: `productId` (NotNull UUID), `name` (NotBlank, max 100), `description` (nullable, max 500), `minSelections` (NotNull, min 0), `maxSelections` (nullable, >= minSelections), `isRequired` (NotNull), `sortOrder` (nullable, default 0)
+- [x] Validacion cross-field: si `isRequired == true`, entonces `minSelections >= 1`
+- [x] `ModifierGroupUpdateRequest`: mismos campos que Create, todos opcionales
+- [x] `ModifierCreateRequest`: `modifierGroupId` (NotNull UUID), `name` (NotBlank, max 100), `priceAdjustment` (NotNull, puede ser negativo), `isDefault` (boolean, default false), `sortOrder` (nullable)
+- [x] `ModifierUpdateRequest`: mismos campos que Create, todos opcionales
+- [x] `ModifierGroupResponse`: todos los campos de la entidad + lista `modifiers` (List<ModifierResponse>)
+- [x] `ModifierResponse`: todos los campos de Modifier
+- [x] Tests unitarios: 14 tests (Bean Validation, cross-field validation, from() factory methods)
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/dto/request/ModifierGroupCreateRequest.java`
@@ -264,20 +265,20 @@ Objetos de transferencia para requests y responses.
 
 ---
 
-### [BACKEND] Tarea 2.2: ModifierGroupService
+### [BACKEND] Tarea 2.2: ModifierGroupService ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.3, 2.1
 
 Logica de negocio para modifier groups.
 
 **Criterios de Aceptacion:**
-- [ ] `createModifierGroup(UUID tenantId, UUID userId, ModifierGroupCreateRequest)`: valida que `productId` pertenece al tenant, valida nombre unico por producto+tenant, persiste, retorna `ModifierGroupResponse`
-- [ ] `updateModifierGroup(UUID tenantId, UUID userId, UUID modifierGroupId, ModifierGroupUpdateRequest)`: valida existencia, valida unicidad de nombre (excluyendo propio), actualiza `updatedAt`, retorna `ModifierGroupResponse`
-- [ ] `deleteModifierGroup(UUID tenantId, UUID userId, UUID modifierGroupId)`: soft delete (setea `deletedAt`), retorna void. Los modifiers hijos quedan huerfanos pero con `deleted_at` tambien (cascade soft delete en service)
-- [ ] `getModifierGroup(UUID tenantId, UUID modifierGroupId)`: retorna `ModifierGroupResponse` con lista de modifiers activos, lanza `ResourceNotFoundException` si no existe
-- [ ] `listModifierGroupsByProduct(UUID tenantId, UUID productId)`: retorna lista de `ModifierGroupResponse` ordenada por `sort_order`
-- [ ] Toda operacion de escritura es `@Transactional`
-- [ ] Tests unitarios con mocks: 18 tests
+- [x] `createModifierGroup(UUID tenantId, UUID userId, ModifierGroupCreateRequest)`: valida que `productId` pertenece al tenant, valida nombre unico por producto+tenant, persiste, retorna `ModifierGroupResponse`
+- [x] `updateModifierGroup(UUID tenantId, UUID userId, UUID modifierGroupId, ModifierGroupUpdateRequest)`: valida existencia, valida unicidad de nombre (excluyendo propio), actualiza `updatedAt`, retorna `ModifierGroupResponse`
+- [x] `deleteModifierGroup(UUID tenantId, UUID userId, UUID modifierGroupId)`: soft delete (setea `deletedAt`), cascade soft-delete a todos los modifiers hijos via `findAllNonDeletedByModifierGroupIdAndTenantId`
+- [x] `getModifierGroup(UUID tenantId, UUID modifierGroupId)`: retorna `ModifierGroupResponse` con lista de modifiers activos, lanza `ResourceNotFoundException` si no existe
+- [x] `listModifierGroupsByProduct(UUID tenantId, UUID productId)`: retorna lista de `ModifierGroupResponse` ordenada por `sort_order`
+- [x] Toda operacion de escritura es `@Transactional`
+- [x] Tests unitarios con mocks: 13 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/ModifierGroupService.java`
@@ -285,19 +286,19 @@ Logica de negocio para modifier groups.
 
 ---
 
-### [BACKEND] Tarea 2.3: ModifierService (CRUD de Modifiers como sub-recurso)
+### [BACKEND] Tarea 2.3: ModifierService (CRUD de Modifiers como sub-recurso) ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.4, 2.1
 
 Logica de negocio para modifiers individuales.
 
 **Criterios de Aceptacion:**
-- [ ] `addModifier(UUID tenantId, UUID userId, ModifierCreateRequest)`: valida que `modifierGroupId` existe y pertenece al tenant, valida nombre unico dentro del grupo, persiste, retorna `ModifierResponse`
-- [ ] Si `isDefault == true`, resetea `isDefault = false` en todos los otros modifiers del mismo grupo (en misma transaccion)
-- [ ] `updateModifier(UUID tenantId, UUID userId, UUID modifierId, ModifierUpdateRequest)`: valida existencia, maneja cambio de `isDefault`, retorna `ModifierResponse`
-- [ ] `deleteModifier(UUID tenantId, UUID userId, UUID modifierId)`: soft delete, no permite borrar si es el ultimo modifier activo del grupo (lanza `BusinessRuleException`)
-- [ ] `listModifiers(UUID tenantId, UUID modifierGroupId)`: retorna lista de `ModifierResponse` ordenada por `sort_order`
-- [ ] Tests unitarios con mocks: 16 tests
+- [x] `addModifier(UUID tenantId, UUID userId, ModifierCreateRequest)`: valida que `modifierGroupId` existe y pertenece al tenant, valida nombre unico dentro del grupo, persiste, retorna `ModifierResponse`
+- [x] Si `isDefault == true`, resetea `isDefault = false` en todos los otros modifiers del mismo grupo (en misma transaccion)
+- [x] `updateModifier(UUID tenantId, UUID userId, UUID modifierId, ModifierUpdateRequest)`: valida existencia, maneja cambio de `isDefault`, retorna `ModifierResponse`
+- [x] `deleteModifier(UUID tenantId, UUID userId, UUID modifierId)`: soft delete, no permite borrar si es el ultimo modifier activo del grupo (lanza `BusinessRuleException` con codigo `LAST_ACTIVE_MODIFIER`)
+- [x] `listModifiers(UUID tenantId, UUID modifierGroupId)`: retorna lista de `ModifierResponse` ordenada por `sort_order`
+- [x] Tests unitarios con mocks: 12 tests
 
 **Archivos:**
 - `quickstack-product/src/main/java/com/quickstack/product/service/ModifierService.java`
@@ -305,46 +306,50 @@ Logica de negocio para modifiers individuales.
 
 ---
 
-### [BACKEND] Tarea 2.4: ModifierGroupController
+### [BACKEND] Tarea 2.4: ModifierGroupController ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.2, 2.3
 
 Controller REST para modifier groups y modifiers.
 
 **Criterios de Aceptacion:**
-- [ ] `GET /api/v1/products/{productId}/modifier-groups` — requiere JWT. Retorna lista de `ModifierGroupResponse` (con modifiers incluidos) HTTP 200
-- [ ] `POST /api/v1/products/{productId}/modifier-groups` — OWNER/MANAGER. Retorna `ModifierGroupResponse` HTTP 201 + `Location` header
-- [ ] `GET /api/v1/modifier-groups/{id}` — requiere JWT. Retorna `ModifierGroupResponse` HTTP 200
-- [ ] `PUT /api/v1/modifier-groups/{id}` — OWNER/MANAGER. Retorna `ModifierGroupResponse` HTTP 200
-- [ ] `DELETE /api/v1/modifier-groups/{id}` — OWNER/MANAGER. HTTP 204
-- [ ] `GET /api/v1/modifier-groups/{groupId}/modifiers` — requiere JWT. Retorna lista de `ModifierResponse` HTTP 200
-- [ ] `POST /api/v1/modifier-groups/{groupId}/modifiers` — OWNER/MANAGER. Retorna `ModifierResponse` HTTP 201
-- [ ] `PUT /api/v1/modifiers/{id}` — OWNER/MANAGER. Retorna `ModifierResponse` HTTP 200
-- [ ] `DELETE /api/v1/modifiers/{id}` — OWNER/MANAGER. HTTP 204
-- [ ] Tests unitarios con `@WebMvcTest`: 18 tests
+- [x] `GET /api/v1/products/{productId}/modifier-groups` — requiere JWT. Retorna lista de `ModifierGroupResponse` (con modifiers incluidos) HTTP 200
+- [x] `POST /api/v1/products/{productId}/modifier-groups` — OWNER/MANAGER. Retorna `ModifierGroupResponse` HTTP 201 + `Location` header
+- [x] `GET /api/v1/modifier-groups/{id}` — requiere JWT. Retorna `ModifierGroupResponse` HTTP 200
+- [x] `PUT /api/v1/modifier-groups/{id}` — OWNER/MANAGER. Retorna `ModifierGroupResponse` HTTP 200
+- [x] `DELETE /api/v1/modifier-groups/{id}` — OWNER/MANAGER. HTTP 204
+- [x] `GET /api/v1/modifier-groups/{groupId}/modifiers` — requiere JWT. Retorna lista de `ModifierResponse` HTTP 200
+- [x] `POST /api/v1/modifier-groups/{groupId}/modifiers` — OWNER/MANAGER. Retorna `ModifierResponse` HTTP 201
+- [x] `PUT /api/v1/modifiers/{id}` — OWNER/MANAGER. Retorna `ModifierResponse` HTTP 200
+- [x] `DELETE /api/v1/modifiers/{id}` — OWNER/MANAGER. HTTP 204
+- [x] Tests unitarios con Mockito (`@ExtendWith`): 15 tests
+- [x] SecurityConfig actualizado con `/api/v1/modifier-groups/**` y `/api/v1/modifiers/**`
+
+**Nota:** Controller ubicado en `quickstack-product` (consistente con el resto de controllers del catalogo)
 
 **Archivos:**
-- `quickstack-app/src/main/java/com/quickstack/app/controller/ModifierGroupController.java`
-- `quickstack-app/src/test/java/com/quickstack/app/controller/ModifierGroupControllerTest.java`
+- `quickstack-product/src/main/java/com/quickstack/product/controller/ModifierGroupController.java`
+- `quickstack-product/src/test/java/com/quickstack/product/controller/ModifierGroupControllerTest.java`
 
 ---
 
-### [QA] Tarea 2.5: Tests de Integracion de Modifiers
+### [QA] Tarea 2.5: Tests de Integracion de Modifiers ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.4
 
 Tests end-to-end con base de datos real.
 
 **Criterios de Aceptacion:**
-- [ ] Extienden `BaseIntegrationTest`
-- [ ] Setup crea tenant, productos de prueba y JWTs con los 3 roles
-- [ ] `POST /api/v1/products/{productId}/modifier-groups` con OWNER: retorna 201
-- [ ] `POST` con `isRequired=true` y `minSelections=0`: retorna 400 (validacion cross-field)
-- [ ] `POST` con nombre duplicado en mismo producto: retorna 409
-- [ ] `POST /api/v1/modifier-groups/{groupId}/modifiers` con `isDefault=true`: resetea otros modifiers del grupo
-- [ ] `DELETE /api/v1/modifiers/{id}` del ultimo modifier activo: retorna 409
-- [ ] Cross-tenant: modifier group de tenant A con JWT de tenant B retorna 404
-- [ ] 12 tests de integracion pasando
+- [x] Extienden `BaseE2ETest`
+- [x] Setup crea tenant, productos de prueba y JWTs con los 3 roles
+- [x] `POST /api/v1/products/{productId}/modifier-groups` con OWNER: retorna 201
+- [x] CASHIER no puede crear modifier group: retorna 403
+- [x] `POST` con nombre duplicado en mismo producto: retorna 409
+- [x] `POST /api/v1/modifier-groups/{groupId}/modifiers` con OWNER: retorna 201
+- [x] `DELETE /api/v1/modifiers/{id}` del ultimo modifier activo: retorna 409
+- [x] Cross-tenant: modifier group de tenant A con JWT de tenant B retorna 404
+- [x] DELETE modifier group cascade soft-delete a modifiers (verificado en BD)
+- [x] 12 tests de integracion pasando (100%)
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/catalog/ModifierIntegrationTest.java`

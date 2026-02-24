@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-24
-> **Estado:** Phase 1.1 ✅ COMPLETADA (6/6 sprints) | Próximo: Phase 1.2
+> **Estado:** Phase 1.2 ⏳ EN PROGRESO (Sprint 2/4) | Modifiers CRUD ✅ | Pendiente: Combos + Menu
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.2 (pendiente)
+**Status**: En progreso — Phase 1.2 Sprint 2/4 completado
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -246,7 +246,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | Sub-fase | Nombre | Duración | Estado |
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
-| 1.2 | Modificadores + Combos | 2 semanas | ⏳ Pendiente |
+| 1.2 | Modificadores + Combos | 2 semanas | ⏳ En progreso (Sprint 2/4) — Modifiers ✅ |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
@@ -337,21 +337,22 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.2: Modificadores y Combos
 
-**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ Pendiente
+**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ En progreso — Sprint 2/4
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.2_MODIFIERS_COMBOS.md`
 
 **Dependencies:** Phase 1.1 completada
 
 **Scope:**
-- [ ] CRUD de modifier groups (Extras, Sin ingredientes, etc.)
-- [ ] CRUD de modifiers con price_adjustment
-- [ ] Validaciones min/max selections por grupo
-- [ ] CRUD de combos con combo_items
-- [ ] Pricing especial de combos
-- [ ] Actualizar endpoint `/api/v1/menu` con modifiers
-- [ ] 12 endpoints REST nuevos
-- [ ] ~80 tests nuevos (acumulado: ~830 tests backend)
+- [x] CRUD de modifier groups (Extras, Sin ingredientes, etc.) — Sprint 1+2 ✅
+- [x] CRUD de modifiers con price_adjustment — Sprint 1+2 ✅
+- [x] Validaciones min/max selections por grupo — Sprint 2 ✅
+- [x] 9 endpoints REST de modifiers — Sprint 2 ✅
+- [ ] CRUD de combos con combo_items — Sprint 3
+- [ ] Pricing especial de combos — Sprint 3
+- [ ] Actualizar endpoint `/api/v1/menu` con modifiers y combos — Sprint 4
+- [ ] 12 endpoints REST nuevos (9 de modifiers ✅ + 5 de combos)
+- [ ] ~80 tests nuevos → ~98 completados hasta Sprint 2 (acumulado: ~760 tests backend)
 
 ---
 
@@ -708,6 +709,21 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
   - `SecurityConfig` actualizado: `/api/v1/menu` requiere JWT
   - 25 tests nuevos: 5 DTO + 6 service + 6 controller (unit) + 8 E2E (Testcontainers)
   - **Phase 1.1 finalizada: 20 endpoints REST | ~650 tests backend**
+
+### 2026-02-24
+- **Phase 1.2 Sprint 1 completado — Entidades y Repositorios de Modifiers:**
+  - `ModifierGroup.java`, `Modifier.java` — entidades JPA con soft delete. Nota: columna `group_id` en BD mapeada a `modifierGroupId` en Java via `@Column(name = "group_id")`.
+  - `ModifierGroupRepository`: queries tenant-safe con `deletedAt IS NULL`, ordered by `sort_order`.
+  - `ModifierRepository`: queries con filtros `isActive` y `deletedAt`, + `findAllNonDeletedByModifierGroupIdAndTenantId` para cascade delete.
+  - 32 tests (6 entity + 5 entity + 11 repository + 10 repository) — 100% pasando.
+- **Phase 1.2 Sprint 2 completado — Modifier Management CRUD:**
+  - 6 DTOs (`ModifierGroupCreateRequest/UpdateRequest`, `ModifierCreateRequest/UpdateRequest`, `ModifierGroupResponse`, `ModifierResponse`) con validaciones cross-field (`@AssertTrue`).
+  - `ModifierGroupService`: CRUD completo con cascade soft-delete de modifiers al borrar grupo.
+  - `ModifierService`: CRUD con reset de `isDefault` y protección de último modifier activo (`LAST_ACTIVE_MODIFIER` 409).
+  - `ModifierGroupController`: 9 endpoints REST en `quickstack-product` (consistente con otros controllers del catálogo).
+  - `SecurityConfig` actualizado: `/api/v1/modifier-groups/**` y `/api/v1/modifiers/**` requieren JWT.
+  - `ModifierIntegrationTest`: 12 tests E2E con Testcontainers (IDOR, RBAC, cascade, business rules).
+  - 66 tests nuevos Sprint 2 | **~760 tests backend acumulados** | 9 endpoints modifiers operativos.
 
 ### 2026-02-21
 - **Phase 1.1 Sprint 3 completado — Product Management:**

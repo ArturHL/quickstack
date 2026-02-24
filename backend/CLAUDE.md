@@ -55,12 +55,12 @@ quickstack-user/src/main/java/.../user/
 └── repository/          # UserRepository
 
 quickstack-product/src/main/java/.../product/
-├── controller/          # CategoryController
+├── controller/          # CategoryController, ProductController, VariantController, MenuController, ModifierGroupController
 ├── security/            # CatalogPermissionEvaluator
-├── service/             # CategoryService
-├── entity/              # Category
-├── repository/          # CategoryRepository
-└── dto/                 # CategoryCreateRequest, CategoryUpdateRequest, CategoryResponse, CategorySummaryResponse
+├── service/             # CategoryService, ProductService, VariantService, MenuService, ModifierGroupService, ModifierService
+├── entity/              # Category, Product, ProductVariant, ModifierGroup, Modifier
+├── repository/          # CategoryRepository, ProductRepository, VariantRepository, ModifierGroupRepository, ModifierRepository
+└── dto/                 # *CreateRequest, *UpdateRequest, *Response para todas las entidades del catálogo
 
 quickstack-app/src/main/resources/
 ├── application.yml      # Config con quickstack.* properties

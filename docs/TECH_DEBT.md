@@ -2,7 +2,7 @@
 
 Registro de deuda técnica conocida, priorizada por fase de implementación.
 
-**Última actualización:** 2026-02-19 (Noche)
+**Última actualización:** 2026-02-24
 
 ---
 
@@ -420,4 +420,4 @@ Crear tenants dinámicamente mediante endpoints de Phase 1 (`POST /api/v1/tenant
 - **Priorizar:** Mueve entre secciones según cambien las necesidades del proyecto
 - **Referencias:** Siempre incluir path a archivos o docs relevantes
 
-**Última revisión:** 2026-02-19
+**Última revisión:** 2026-02-24
