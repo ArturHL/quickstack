@@ -1,7 +1,6 @@
 package com.quickstack.product.dto;
 
 import com.quickstack.product.dto.request.CategoryCreateRequest;
-import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import com.quickstack.product.dto.response.CategoryResponse;
 import com.quickstack.product.dto.response.CategorySummaryResponse;
 import com.quickstack.product.entity.Category;
@@ -41,7 +40,7 @@ class CategoryDtoTest {
         @DisplayName("should be valid with only required name")
         void shouldBeValidWithOnlyName() {
             CategoryCreateRequest request = new CategoryCreateRequest(
-                "Bebidas", null, null, null, null);
+                    "Bebidas", null, null, null, null);
 
             Set<ConstraintViolation<CategoryCreateRequest>> violations = validator.validate(request);
 
@@ -52,7 +51,7 @@ class CategoryDtoTest {
         @DisplayName("should fail validation when name is blank")
         void shouldFailWhenNameIsBlank() {
             CategoryCreateRequest request = new CategoryCreateRequest(
-                "", null, null, null, null);
+                    "", null, null, null, null);
 
             Set<ConstraintViolation<CategoryCreateRequest>> violations = validator.validate(request);
 
@@ -65,7 +64,7 @@ class CategoryDtoTest {
         void shouldFailWhenNameExceeds255() {
             String longName = "A".repeat(256);
             CategoryCreateRequest request = new CategoryCreateRequest(
-                longName, null, null, null, null);
+                    longName, null, null, null, null);
 
             Set<ConstraintViolation<CategoryCreateRequest>> violations = validator.validate(request);
 
@@ -77,7 +76,7 @@ class CategoryDtoTest {
         @DisplayName("should default sortOrder to 0 when null")
         void shouldDefaultSortOrderToZero() {
             CategoryCreateRequest request = new CategoryCreateRequest(
-                "Bebidas", null, null, null, null);
+                    "Bebidas", null, null, null, null);
 
             assertThat(request.effectiveSortOrder()).isEqualTo(0);
         }
@@ -86,7 +85,7 @@ class CategoryDtoTest {
         @DisplayName("should use provided sortOrder when present")
         void shouldUseProvidedSortOrder() {
             CategoryCreateRequest request = new CategoryCreateRequest(
-                "Bebidas", null, null, null, 5);
+                    "Bebidas", null, null, null, 5);
 
             assertThat(request.effectiveSortOrder()).isEqualTo(5);
         }
@@ -95,7 +94,7 @@ class CategoryDtoTest {
         @DisplayName("should fail validation when imageUrl is not a valid URL")
         void shouldFailWhenImageUrlIsInvalid() {
             CategoryCreateRequest request = new CategoryCreateRequest(
-                "Bebidas", null, "not-a-url", null, null);
+                    "Bebidas", null, "not-a-url", null, null);
 
             Set<ConstraintViolation<CategoryCreateRequest>> violations = validator.validate(request);
 

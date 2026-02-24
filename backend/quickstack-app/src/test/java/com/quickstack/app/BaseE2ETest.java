@@ -7,7 +7,6 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -25,11 +24,12 @@ import java.util.UUID;
  * <p>
  * Provides:
  * <ul>
- *   <li>PostgreSQL 16 via Testcontainers (shared across all subclasses in same JVM)</li>
- *   <li>Flyway migrations applied automatically</li>
- *   <li>RSA key pair generated at test startup for JWT signing</li>
- *   <li>HIBP mocked via {@link MockBean} — all passwords pass by default</li>
- *   <li>RestAssured pre-configured with base URI and port</li>
+ * <li>PostgreSQL 16 via Testcontainers (shared across all subclasses in same
+ * JVM)</li>
+ * <li>Flyway migrations applied automatically</li>
+ * <li>RSA key pair generated at test startup for JWT signing</li>
+ * <li>HIBP mocked via {@link MockBean} — all passwords pass by default</li>
+ * <li>RestAssured pre-configured with base URI and port</li>
  * </ul>
  * <p>
  * Subclasses should use {@link #generateAccessToken} to obtain Bearer tokens
@@ -37,15 +37,16 @@ import java.util.UUID;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@SuppressWarnings({ "resource", "deprecation" })
 public abstract class BaseE2ETest {
 
     static final PostgreSQLContainer<?> postgres;
 
     static {
         postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("quickstack_test")
-            .withUsername("test")
-            .withPassword("test");
+                .withDatabaseName("quickstack_test")
+                .withUsername("test")
+                .withPassword("test");
         postgres.start();
     }
 
@@ -73,7 +74,7 @@ public abstract class BaseE2ETest {
      * HIBP is mocked so all passwords pass breach checks by default.
      * Tests that need a compromised password can stub this bean.
      */
-    @MockBean
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
     protected PasswordBreachChecker breachChecker;
 
     @Autowired

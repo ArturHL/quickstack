@@ -81,14 +81,14 @@ class ProductServiceTest {
         void shouldCreateSimpleProductSuccessfully() {
             // Given
             ProductCreateRequest request = new ProductCreateRequest(
-                "Coca Cola", "Refresco", categoryId, "COCA-001",
-                new BigDecimal("15.00"), new BigDecimal("8.00"),
-                "http://image.com/coca.png", ProductType.SIMPLE, 1, null
-            );
+                    "Coca Cola", "Refresco", categoryId, "COCA-001",
+                    new BigDecimal("15.00"), new BigDecimal("8.00"),
+                    "http://image.com/coca.png", ProductType.SIMPLE, 1, null);
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
             when(productRepository.existsBySkuAndTenantId(request.sku(), tenantId)).thenReturn(false);
-            when(productRepository.existsByNameAndTenantIdAndCategoryId(request.name(), tenantId, categoryId)).thenReturn(false);
+            when(productRepository.existsByNameAndTenantIdAndCategoryId(request.name(), tenantId, categoryId))
+                    .thenReturn(false);
             when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
                 Product p = (Product) inv.getArgument(0);
                 p.setId(UUID.randomUUID());
@@ -113,10 +113,9 @@ class ProductServiceTest {
             VariantCreateRequest v2 = new VariantCreateRequest("Grande", "COF-L", new BigDecimal("10.00"), false, 2);
 
             ProductCreateRequest request = new ProductCreateRequest(
-                "Cafe", "Cafe caliente", categoryId, "COF-001",
-                new BigDecimal("30.00"), new BigDecimal("10.00"),
-                null, ProductType.VARIANT, 1, List.of(v1, v2)
-            );
+                    "Cafe", "Cafe caliente", categoryId, "COF-001",
+                    new BigDecimal("30.00"), new BigDecimal("10.00"),
+                    null, ProductType.VARIANT, 1, List.of(v1, v2));
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
             when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
@@ -144,38 +143,35 @@ class ProductServiceTest {
         @DisplayName("Should throw exception when category not found")
         void shouldThrowExceptionWhenCategoryNotFound() {
             ProductCreateRequest request = new ProductCreateRequest(
-                "Coca Cola", null, categoryId, null,
-                new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null
-            );
+                    "Coca Cola", null, categoryId, null,
+                    new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null);
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> productService.createProduct(tenantId, userId, request))
-                .isInstanceOf(ResourceNotFoundException.class);
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
 
         @Test
         @DisplayName("Should throw exception when SKU duplicated")
         void shouldThrowExceptionWhenSkuDuplicated() {
             ProductCreateRequest request = new ProductCreateRequest(
-                "Coca Cola", null, categoryId, "DUPLICATED",
-                new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null
-            );
+                    "Coca Cola", null, categoryId, "DUPLICATED",
+                    new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null);
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
             when(productRepository.existsBySkuAndTenantId("DUPLICATED", tenantId)).thenReturn(true);
 
             assertThatThrownBy(() -> productService.createProduct(tenantId, userId, request))
-                .isInstanceOf(DuplicateResourceException.class);
+                    .isInstanceOf(DuplicateResourceException.class);
         }
 
         @Test
         @DisplayName("Should throw exception for VARIANT product without variants")
         void shouldThrowExceptionForVariantProductWithoutVariants() {
             ProductCreateRequest request = new ProductCreateRequest(
-                "Cafe", null, categoryId, null,
-                new BigDecimal("30.00"), null, null, ProductType.VARIANT, null, List.of()
-            );
+                    "Cafe", null, categoryId, null,
+                    new BigDecimal("30.00"), null, null, ProductType.VARIANT, null, List.of());
 
             when(categoryRepository.findByIdAndTenantId(categoryId, tenantId)).thenReturn(Optional.of(category));
             when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
@@ -185,8 +181,8 @@ class ProductServiceTest {
             });
 
             assertThatThrownBy(() -> productService.createProduct(tenantId, userId, request))
-                .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("Product of type VARIANT must have at least one variant");
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("Product of type VARIANT must have at least one variant");
         }
     }
 
@@ -213,13 +209,13 @@ class ProductServiceTest {
         @DisplayName("Should update product successfully")
         void shouldUpdateProductSuccessfully() {
             ProductUpdateRequest request = new ProductUpdateRequest(
-                "New Name", "New Desc", null, "NEW-SKU",
-                new BigDecimal("12.00"), null, null, null, 2, true, null
-            );
+                    "New Name", "New Desc", null, "NEW-SKU",
+                    new BigDecimal("12.00"), null, null, null, 2, true, null);
 
             when(productRepository.findByIdAndTenantId(productId, tenantId)).thenReturn(Optional.of(product));
             when(productRepository.existsBySkuAndTenantIdAndIdNot("NEW-SKU", tenantId, productId)).thenReturn(false);
-            when(productRepository.existsByNameAndTenantIdAndCategoryIdAndIdNot("New Name", tenantId, categoryId, productId)).thenReturn(false);
+            when(productRepository.existsByNameAndTenantIdAndCategoryIdAndIdNot("New Name", tenantId, categoryId,
+                    productId)).thenReturn(false);
             when(productRepository.save(any(Product.class))).thenReturn(product);
 
             ProductResponse response = productService.updateProduct(tenantId, userId, productId, request);
@@ -234,15 +230,14 @@ class ProductServiceTest {
         void shouldChangeTypeToVariantAndSetNewVariants() {
             VariantCreateRequest v1 = new VariantCreateRequest("Normal", "NOR", BigDecimal.ZERO, true, 1);
             ProductUpdateRequest request = new ProductUpdateRequest(
-                null, null, null, null, null, null, null,
-                ProductType.VARIANT, null, null, List.of(v1)
-            );
+                    null, null, null, null, null, null, null,
+                    ProductType.VARIANT, null, null, List.of(v1));
 
             when(productRepository.findByIdAndTenantId(productId, tenantId)).thenReturn(Optional.of(product));
             when(productRepository.save(any(Product.class))).thenReturn(product);
             when(variantRepository.save(any(ProductVariant.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            ProductResponse response = productService.updateProduct(tenantId, userId, productId, request);
+            productService.updateProduct(tenantId, userId, productId, request);
 
             assertThat(product.getProductType()).isEqualTo(ProductType.VARIANT);
             assertThat(product.getVariants()).hasSize(1);
@@ -267,7 +262,7 @@ class ProductServiceTest {
         void shouldReorderProducts() {
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            
+
             Product p1 = new Product();
             p1.setId(id1);
             p1.setTenantId(tenantId);
@@ -279,18 +274,18 @@ class ProductServiceTest {
             p2.setSortOrder(2);
 
             List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
-                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
-                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
-            );
+                    new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                    new com.quickstack.product.dto.request.ReorderItem(id2, 3));
 
             when(productRepository.findByIdInAndTenantId(anySet(), eq(tenantId)))
-                .thenReturn(List.of(p1, p2));
+                    .thenReturn(List.of(p1, p2));
 
             productService.reorderProducts(tenantId, userId, items);
 
-            ArgumentCaptor<List<Product>> captor = ArgumentCaptor.forClass((Class)List.class);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            ArgumentCaptor<List<Product>> captor = ArgumentCaptor.forClass((Class) List.class);
             verify(productRepository).saveAll(captor.capture());
-            
+
             List<Product> saved = captor.getValue();
             assertThat(saved).hasSize(2);
             assertThat(saved).extracting(Product::getSortOrder).containsExactlyInAnyOrder(5, 3);
@@ -303,21 +298,20 @@ class ProductServiceTest {
         void shouldThrowWhenCrossTenant() {
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            
+
             Product p1 = new Product();
             p1.setId(id1);
 
             List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
-                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
-                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
-            );
+                    new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                    new com.quickstack.product.dto.request.ReorderItem(id2, 3));
 
             when(productRepository.findByIdInAndTenantId(anySet(), eq(tenantId)))
-                .thenReturn(List.of(p1)); // Returned size = 1, requested = 2
+                    .thenReturn(List.of(p1)); // Returned size = 1, requested = 2
 
             assertThatThrownBy(() -> productService.reorderProducts(tenantId, userId, items))
-                .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("One or more");
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("One or more");
 
             verify(productRepository, never()).saveAll(any());
         }
@@ -354,16 +348,15 @@ class ProductServiceTest {
             product.setId(UUID.randomUUID());
             product.setName("Coca Cola");
             product.setBasePrice(new BigDecimal("15.00"));
-            
+
             Page<Product> page = new PageImpl<>(List.of(product));
             Pageable pageable = PageRequest.of(0, 10);
 
             when(productRepository.findAllByTenantIdWithFilters(eq(tenantId), any(), any(), any(), any(), eq(pageable)))
-                .thenReturn(page);
+                    .thenReturn(page);
 
             Page<ProductSummaryResponse> result = productService.listProducts(
-                tenantId, categoryId, true, "coca", false, pageable
-            );
+                    tenantId, categoryId, true, "coca", false, pageable);
 
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).name()).isEqualTo("Coca Cola");
@@ -402,10 +395,11 @@ class ProductServiceTest {
             product.setTenantId(tenantId);
             product.softDelete(userId);
 
-            when(productRepository.findByIdAndTenantIdIncludingDeleted(productId, tenantId)).thenReturn(Optional.of(product));
+            when(productRepository.findByIdAndTenantIdIncludingDeleted(productId, tenantId))
+                    .thenReturn(Optional.of(product));
             when(productRepository.save(any(Product.class))).thenReturn(product);
 
-            ProductResponse response = productService.restoreProduct(tenantId, userId, productId);
+            productService.restoreProduct(tenantId, userId, productId);
 
             assertThat(product.getDeletedAt()).isNull();
             assertThat(product.isActive()).isTrue();

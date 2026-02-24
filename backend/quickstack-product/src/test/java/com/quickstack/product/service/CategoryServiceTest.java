@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
+@ExtendWith({ MockitoExtension.class, OutputCaptureExtension.class })
 @DisplayName("CategoryService")
 class CategoryServiceTest {
 
@@ -63,9 +63,9 @@ class CategoryServiceTest {
         @DisplayName("1. Returns created category when valid - audit log verified")
         void shouldCreateCategorySuccessfully(CapturedOutput output) {
             CategoryCreateRequest request = new CategoryCreateRequest("Bebidas", "Todas", null, null, 1);
-            
+
             when(categoryRepository.existsByNameAndTenantIdAndParentId("Bebidas", TENANT_ID, null))
-                .thenReturn(false);
+                    .thenReturn(false);
 
             Category saved = new Category();
             saved.setId(CATEGORY_ID);
@@ -80,10 +80,10 @@ class CategoryServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.id()).isEqualTo(CATEGORY_ID);
             assertThat(response.sortOrder()).isEqualTo(1);
-            
+
             assertThat(output.getOut())
-                .contains("[CATALOG] ACTION=CATEGORY_CREATED")
-                .contains(TENANT_ID.toString());
+                    .contains("[CATALOG] ACTION=CATEGORY_CREATED")
+                    .contains(TENANT_ID.toString());
         }
 
         @Test
@@ -92,7 +92,7 @@ class CategoryServiceTest {
             CategoryCreateRequest request = new CategoryCreateRequest("Comidas", null, null, null, null);
 
             when(categoryRepository.existsByNameAndTenantIdAndParentId("Comidas", TENANT_ID, null))
-                .thenReturn(false);
+                    .thenReturn(false);
             when(categoryRepository.save(any(Category.class))).thenAnswer(inv -> {
                 Category c = inv.getArgument(0);
                 c.setId(CATEGORY_ID);
@@ -116,7 +116,7 @@ class CategoryServiceTest {
             CategoryCreateRequest request = new CategoryCreateRequest("Postres", null, null, null, null);
 
             when(categoryRepository.existsByNameAndTenantIdAndParentId("Postres", TENANT_ID, null))
-                .thenReturn(false);
+                    .thenReturn(false);
             when(categoryRepository.save(any(Category.class))).thenAnswer(inv -> {
                 Category c = inv.getArgument(0);
                 c.setId(CATEGORY_ID);
@@ -137,10 +137,10 @@ class CategoryServiceTest {
             CategoryCreateRequest request = new CategoryCreateRequest("Bebidas", null, null, null, null);
 
             when(categoryRepository.existsByNameAndTenantIdAndParentId("Bebidas", TENANT_ID, null))
-                .thenReturn(true);
+                    .thenReturn(true);
 
             assertThatThrownBy(() -> categoryService.createCategory(TENANT_ID, USER_ID, request))
-                .isInstanceOf(DuplicateResourceException.class);
+                    .isInstanceOf(DuplicateResourceException.class);
 
             verify(categoryRepository, never()).save(any());
         }
@@ -159,13 +159,13 @@ class CategoryServiceTest {
         void shouldUpdateNameWhenUnique() {
             Category existing = buildCategory("Bebidas");
             CategoryUpdateRequest request = new CategoryUpdateRequest(
-                "Drinks", null, null, null, null, null);
+                    "Drinks", null, null, null, null, null);
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.existsByNameAndTenantIdAndParentIdAndIdNot(
-                "Drinks", TENANT_ID, null, CATEGORY_ID))
-                .thenReturn(false);
+                    "Drinks", TENANT_ID, null, CATEGORY_ID))
+                    .thenReturn(false);
             when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
@@ -180,10 +180,10 @@ class CategoryServiceTest {
             CategoryUpdateRequest request = new CategoryUpdateRequest("NewName", null, null, null, null, null);
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.updateCategory(TENANT_ID, USER_ID, CATEGORY_ID, request))
-                .isInstanceOf(ResourceNotFoundException.class);
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
 
         @Test
@@ -193,13 +193,13 @@ class CategoryServiceTest {
             CategoryUpdateRequest request = new CategoryUpdateRequest("Comidas", null, null, null, null, null);
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.existsByNameAndTenantIdAndParentIdAndIdNot(
-                "Comidas", TENANT_ID, null, CATEGORY_ID))
-                .thenReturn(true);
+                    "Comidas", TENANT_ID, null, CATEGORY_ID))
+                    .thenReturn(true);
 
             assertThatThrownBy(() -> categoryService.updateCategory(TENANT_ID, USER_ID, CATEGORY_ID, request))
-                .isInstanceOf(DuplicateResourceException.class);
+                    .isInstanceOf(DuplicateResourceException.class);
         }
 
         @Test
@@ -207,13 +207,13 @@ class CategoryServiceTest {
         void shouldSetUpdatedBy() {
             Category existing = buildCategory("Bebidas");
             CategoryUpdateRequest request = new CategoryUpdateRequest(
-                "Drinks", null, null, null, null, null);
+                    "Drinks", null, null, null, null, null);
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.existsByNameAndTenantIdAndParentIdAndIdNot(
-                "Drinks", TENANT_ID, null, CATEGORY_ID))
-                .thenReturn(false);
+                    "Drinks", TENANT_ID, null, CATEGORY_ID))
+                    .thenReturn(false);
             when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
@@ -229,10 +229,10 @@ class CategoryServiceTest {
         void shouldNotUpdateNullFields() {
             Category existing = buildCategory("Bebidas");
             CategoryUpdateRequest request = new CategoryUpdateRequest(
-                null, null, null, null, 5, null);
+                    null, null, null, null, 5, null);
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
@@ -267,10 +267,10 @@ class CategoryServiceTest {
             verify(categoryRepository).save(category);
             assertThat(category.getDeletedAt()).isNotNull();
             assertThat(category.getDeletedBy()).isEqualTo(USER_ID);
-            
+
             assertThat(output.getOut())
-                .contains("[CATALOG] ACTION=CATEGORY_DELETED")
-                .contains(CATEGORY_ID.toString());
+                    .contains("[CATALOG] ACTION=CATEGORY_DELETED")
+                    .contains(CATEGORY_ID.toString());
         }
 
         @Test
@@ -279,13 +279,13 @@ class CategoryServiceTest {
             Category existing = buildCategory("Bebidas");
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID))
-                .thenReturn(3L);
+                    .thenReturn(3L);
 
             assertThatThrownBy(() -> categoryService.deleteCategory(TENANT_ID, USER_ID, CATEGORY_ID))
-                .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("3");
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("3");
 
             verify(categoryRepository, never()).save(any());
         }
@@ -301,13 +301,13 @@ class CategoryServiceTest {
             when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID)).thenReturn(5L);
 
             assertThatThrownBy(() -> categoryService.deleteCategory(TENANT_ID, USER_ID, CATEGORY_ID))
-                .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("has 5 active product(s)");
-                
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("has 5 active product(s)");
+
             assertThat(output.getOut())
-                .contains("WARN")
-                .contains("ACTION=CATEGORY_DELETED")
-                .contains("reason=\"Cannot delete category: it has 5 active product(s)\"");
+                    .contains("WARN")
+                    .contains("ACTION=CATEGORY_DELETED")
+                    .contains("reason=\"Cannot delete category: it has 5 active product(s)\"");
             verify(categoryRepository, never()).save(any());
         }
 
@@ -315,10 +315,10 @@ class CategoryServiceTest {
         @DisplayName("should throw ResourceNotFoundException when category not found")
         void shouldThrowWhenCategoryNotFound() {
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.deleteCategory(TENANT_ID, USER_ID, CATEGORY_ID))
-                .isInstanceOf(ResourceNotFoundException.class);
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
     }
 
@@ -336,9 +336,9 @@ class CategoryServiceTest {
             Category existing = buildCategory("Bebidas");
 
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(existing));
+                    .thenReturn(Optional.of(existing));
             when(categoryRepository.countActiveProductsByCategory(CATEGORY_ID, TENANT_ID))
-                .thenReturn(2L);
+                    .thenReturn(2L);
 
             CategoryResponse response = categoryService.getCategory(TENANT_ID, CATEGORY_ID);
 
@@ -350,10 +350,10 @@ class CategoryServiceTest {
         @DisplayName("should throw ResourceNotFoundException when category not found or cross-tenant")
         void shouldThrowWhenNotFound() {
             when(categoryRepository.findByIdAndTenantId(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.getCategory(TENANT_ID, CATEGORY_ID))
-                .isInstanceOf(ResourceNotFoundException.class);
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
     }
 
@@ -372,7 +372,7 @@ class CategoryServiceTest {
             deleted.softDelete(USER_ID);
 
             when(categoryRepository.findByIdAndTenantIdIncludingDeleted(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.of(deleted));
+                    .thenReturn(Optional.of(deleted));
             when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
@@ -389,10 +389,10 @@ class CategoryServiceTest {
         @DisplayName("should throw ResourceNotFoundException when category not found including deleted")
         void shouldThrowWhenNotFound() {
             when(categoryRepository.findByIdAndTenantIdIncludingDeleted(CATEGORY_ID, TENANT_ID))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.restoreCategory(TENANT_ID, USER_ID, CATEGORY_ID))
-                .isInstanceOf(ResourceNotFoundException.class);
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
     }
 
@@ -418,7 +418,7 @@ class CategoryServiceTest {
         void shouldReorderCategories() {
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            
+
             Category c1 = buildCategory("Cat 1");
             c1.setId(id1);
             c1.setSortOrder(1);
@@ -428,18 +428,18 @@ class CategoryServiceTest {
             c2.setSortOrder(2);
 
             List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
-                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
-                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
-            );
+                    new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                    new com.quickstack.product.dto.request.ReorderItem(id2, 3));
 
             when(categoryRepository.findByIdInAndTenantId(anySet(), eq(TENANT_ID)))
-                .thenReturn(List.of(c1, c2));
+                    .thenReturn(List.of(c1, c2));
 
             categoryService.reorderCategories(TENANT_ID, USER_ID, items);
 
-            ArgumentCaptor<List<Category>> captor = ArgumentCaptor.forClass((Class)List.class);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            ArgumentCaptor<List<Category>> captor = ArgumentCaptor.forClass((Class) List.class);
             verify(categoryRepository).saveAll(captor.capture());
-            
+
             List<Category> saved = captor.getValue();
             assertThat(saved).hasSize(2);
             assertThat(saved).extracting(Category::getSortOrder).containsExactlyInAnyOrder(5, 3);
@@ -452,21 +452,20 @@ class CategoryServiceTest {
         void shouldThrowWhenCrossTenant() {
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            
+
             Category c1 = buildCategory("Cat 1");
             c1.setId(id1);
 
             List<com.quickstack.product.dto.request.ReorderItem> items = List.of(
-                new com.quickstack.product.dto.request.ReorderItem(id1, 5),
-                new com.quickstack.product.dto.request.ReorderItem(id2, 3)
-            );
+                    new com.quickstack.product.dto.request.ReorderItem(id1, 5),
+                    new com.quickstack.product.dto.request.ReorderItem(id2, 3));
 
             when(categoryRepository.findByIdInAndTenantId(anySet(), eq(TENANT_ID)))
-                .thenReturn(List.of(c1)); // Returned size = 1, requested = 2
+                    .thenReturn(List.of(c1)); // Returned size = 1, requested = 2
 
             assertThatThrownBy(() -> categoryService.reorderCategories(TENANT_ID, USER_ID, items))
-                .isInstanceOf(BusinessRuleException.class)
-                .hasMessageContaining("One or more");
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("One or more");
 
             verify(categoryRepository, never()).saveAll(any());
         }
@@ -487,7 +486,7 @@ class CategoryServiceTest {
             Pageable pageable = PageRequest.of(0, 10);
 
             when(categoryRepository.findAllByTenantId(TENANT_ID, pageable))
-                .thenReturn(new PageImpl<>(List.of(active)));
+                    .thenReturn(new PageImpl<>(List.of(active)));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
             Page<CategoryResponse> result = categoryService.listCategories(TENANT_ID, false, pageable);
@@ -506,7 +505,7 @@ class CategoryServiceTest {
             Pageable pageable = PageRequest.of(0, 10);
 
             when(categoryRepository.findAllByTenantIdIncludingInactive(TENANT_ID, pageable))
-                .thenReturn(new PageImpl<>(List.of(active, inactive)));
+                    .thenReturn(new PageImpl<>(List.of(active, inactive)));
             when(categoryRepository.countActiveProductsByCategory(any(), any())).thenReturn(0L);
 
             Page<CategoryResponse> result = categoryService.listCategories(TENANT_ID, true, pageable);

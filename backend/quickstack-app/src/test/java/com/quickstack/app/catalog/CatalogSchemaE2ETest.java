@@ -1,9 +1,6 @@
 package com.quickstack.app.catalog;
 
 import com.quickstack.app.BaseE2ETest;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +25,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>
  * ASVS V4.1: Access control - database-level multi-tenancy enforcement.
  */
-////@Disabled("E2E tests disabled for Phase 1.1 development")
+//// @Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Catalog Schema E2E Tests")
 class CatalogSchemaE2ETest extends BaseE2ETest {
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -48,9 +42,8 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
         // When/Then - Insert should fail with FK violation
         assertThatThrownBy(() -> {
             jdbcTemplate.update(
-                "INSERT INTO categories (id, tenant_id, name) VALUES (?, ?, ?)",
-                UUID.randomUUID(), invalidTenantId, "Test Category"
-            );
+                    "INSERT INTO categories (id, tenant_id, name) VALUES (?, ?, ?)",
+                    UUID.randomUUID(), invalidTenantId, "Test Category");
         }).isInstanceOf(Exception.class);
     }
 
@@ -69,7 +62,7 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
         assertThatThrownBy(() -> {
             createCategory(tenantId, "Calientes", parentId);
         }).isInstanceOf(Exception.class)
-          .hasMessageContaining("uq_categories_tenant_name_parent");
+                .hasMessageContaining("uq_categories_tenant_name_parent");
     }
 
     @Test
@@ -104,7 +97,7 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
         assertThatThrownBy(() -> {
             createCategory(tenantB, "Calientes", parentInTenantA);
         }).isInstanceOf(Exception.class)
-          .hasMessageContaining("fk_categories_parent");
+                .hasMessageContaining("fk_categories_parent");
     }
 
     @Test
@@ -122,7 +115,7 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
         assertThatThrownBy(() -> {
             createProduct(tenantId, categoryId, "Pepsi", "COCA-001");
         }).isInstanceOf(Exception.class)
-          .hasMessageContaining("uq_products_tenant_sku");
+                .hasMessageContaining("uq_products_tenant_sku");
     }
 
     @Test
@@ -154,9 +147,8 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
 
         // Soft delete category
         jdbcTemplate.update(
-            "UPDATE categories SET deleted_at = NOW() WHERE id = ?",
-            categoryId
-        );
+                "UPDATE categories SET deleted_at = NOW() WHERE id = ?",
+                categoryId);
 
         // When - Create new category with same name
         UUID newCategoryId = createCategory(tenantId, "Bebidas", null);
@@ -166,9 +158,8 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
 
         // Verify old category still exists
         List<Map<String, Object>> results = jdbcTemplate.queryForList(
-            "SELECT id, deleted_at FROM categories WHERE tenant_id = ? AND name = ?",
-            tenantId, "Bebidas"
-        );
+                "SELECT id, deleted_at FROM categories WHERE tenant_id = ? AND name = ?",
+                tenantId, "Bebidas");
         assertThat(results).hasSize(2); // Both exist
         assertThat(results.stream().filter(r -> r.get("deleted_at") != null).count()).isEqualTo(1);
     }
@@ -180,37 +171,34 @@ class CatalogSchemaE2ETest extends BaseE2ETest {
     private UUID createTenant() {
         UUID tenantId = UUID.randomUUID();
         jdbcTemplate.update(
-            """
-            INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at)
-            VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())
-            """,
-            tenantId, "Test Tenant " + tenantId, "test-tenant-" + tenantId
-        );
+                """
+                        INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at)
+                        VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())
+                        """,
+                tenantId, "Test Tenant " + tenantId, "test-tenant-" + tenantId);
         return tenantId;
     }
 
     private UUID createCategory(UUID tenantId, String name, UUID parentId) {
         UUID categoryId = UUID.randomUUID();
         jdbcTemplate.update(
-            """
-            INSERT INTO categories (id, tenant_id, parent_id, name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, NOW(), NOW())
-            """,
-            categoryId, tenantId, parentId, name
-        );
+                """
+                        INSERT INTO categories (id, tenant_id, parent_id, name, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, NOW(), NOW())
+                        """,
+                categoryId, tenantId, parentId, name);
         return categoryId;
     }
 
     private UUID createProduct(UUID tenantId, UUID categoryId, String name, String sku) {
         UUID productId = UUID.randomUUID();
         jdbcTemplate.update(
-            """
-            INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
-                                  product_type, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', NOW(), NOW())
-            """,
-            productId, tenantId, categoryId, name, sku
-        );
+                """
+                        INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
+                                              product_type, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', NOW(), NOW())
+                        """,
+                productId, tenantId, categoryId, name, sku);
         return productId;
     }
 }

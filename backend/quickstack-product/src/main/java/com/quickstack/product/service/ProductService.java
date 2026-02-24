@@ -3,7 +3,6 @@ package com.quickstack.product.service;
 import com.quickstack.common.exception.BusinessRuleException;
 import com.quickstack.common.exception.DuplicateResourceException;
 import com.quickstack.common.exception.ResourceNotFoundException;
-import com.quickstack.product.dto.request.ProductAvailabilityRequest;
 import com.quickstack.product.dto.request.ProductCreateRequest;
 import com.quickstack.product.dto.request.ProductUpdateRequest;
 import com.quickstack.product.dto.request.VariantCreateRequest;
@@ -24,8 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +41,8 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final VariantRepository variantRepository;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, VariantRepository variantRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository,
+            VariantRepository variantRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.variantRepository = variantRepository;
@@ -54,8 +52,8 @@ public class ProductService {
      * Creates a new product for the tenant.
      *
      * @param tenantId the tenant ID
-     * @param userId the user ID performing the creation
-     * @param request the creation request
+     * @param userId   the user ID performing the creation
+     * @param request  the creation request
      * @return the created product details
      */
     @Transactional
@@ -100,10 +98,10 @@ public class ProductService {
     /**
      * Updates an existing product.
      *
-     * @param tenantId the tenant ID
-     * @param userId the user ID performing the update
+     * @param tenantId  the tenant ID
+     * @param userId    the user ID performing the update
      * @param productId the product ID to update
-     * @param request the update request
+     * @param request   the update request
      * @return the updated product details
      */
     @Transactional
@@ -114,7 +112,7 @@ public class ProductService {
         // 1. Validate Category change
         if (request.categoryId() != null && !request.categoryId().equals(product.getCategoryId())) {
             if (!categoryRepository.existsById(request.categoryId())) { // Should be tenant-safe check
-                 throw new ResourceNotFoundException("Category", request.categoryId());
+                throw new ResourceNotFoundException("Category", request.categoryId());
             }
             product.setCategoryId(request.categoryId());
         }
@@ -132,26 +130,34 @@ public class ProductService {
         // 3. Validate Name Uniqueness within Category if changed
         UUID effectiveCategoryId = request.categoryId() != null ? request.categoryId() : product.getCategoryId();
         String effectiveName = request.name() != null ? request.name() : product.getName();
-        if (productRepository.existsByNameAndTenantIdAndCategoryIdAndIdNot(effectiveName, tenantId, effectiveCategoryId, productId)) {
+        if (productRepository.existsByNameAndTenantIdAndCategoryIdAndIdNot(effectiveName, tenantId, effectiveCategoryId,
+                productId)) {
             String reason = String.format("Product with name %s already exists in category", effectiveName);
             logWarn(CatalogAction.PRODUCT_UPDATED, tenantId, userId, productId, "PRODUCT", reason);
             throw new DuplicateResourceException("Product", "name", effectiveName);
         }
 
         // 4. Update core fields
-        if (request.name() != null) product.setName(request.name());
-        if (request.description() != null) product.setDescription(request.description());
-        if (request.basePrice() != null) product.setBasePrice(request.basePrice());
-        if (request.costPrice() != null) product.setCostPrice(request.costPrice());
-        if (request.imageUrl() != null) product.setImageUrl(request.imageUrl());
+        if (request.name() != null)
+            product.setName(request.name());
+        if (request.description() != null)
+            product.setDescription(request.description());
+        if (request.basePrice() != null)
+            product.setBasePrice(request.basePrice());
+        if (request.costPrice() != null)
+            product.setCostPrice(request.costPrice());
+        if (request.imageUrl() != null)
+            product.setImageUrl(request.imageUrl());
         if (request.productType() != null) {
             // Business Rule: Changing product type is complex, but required for this sprint
             if (product.getProductType() != request.productType()) {
-                 product.setProductType(request.productType());
+                product.setProductType(request.productType());
             }
         }
-        if (request.sortOrder() != null) product.setSortOrder(request.sortOrder());
-        if (request.isActive() != null) product.setActive(request.isActive());
+        if (request.sortOrder() != null)
+            product.setSortOrder(request.sortOrder());
+        if (request.isActive() != null)
+            product.setActive(request.isActive());
 
         // 5. Handle variants if type is VARIANT or changed to VARIANT
         if (product.getProductType() == ProductType.VARIANT && request.variants() != null) {
@@ -179,12 +185,14 @@ public class ProductService {
      * @param items    the list of items to reorder
      */
     @Transactional
-    public void reorderProducts(UUID tenantId, UUID userId, List<com.quickstack.product.dto.request.ReorderItem> items) {
+    public void reorderProducts(UUID tenantId, UUID userId,
+            List<com.quickstack.product.dto.request.ReorderItem> items) {
         if (items == null || items.isEmpty()) {
             return;
         }
 
-        Set<UUID> itemIds = items.stream().map(com.quickstack.product.dto.request.ReorderItem::id).collect(Collectors.toSet());
+        Set<UUID> itemIds = items.stream().map(com.quickstack.product.dto.request.ReorderItem::id)
+                .collect(Collectors.toSet());
         List<Product> products = productRepository.findByIdInAndTenantId(itemIds, tenantId);
 
         if (products.size() != itemIds.size()) {
@@ -194,7 +202,8 @@ public class ProductService {
         }
 
         Map<UUID, Integer> orderMap = items.stream()
-            .collect(Collectors.toMap(com.quickstack.product.dto.request.ReorderItem::id, com.quickstack.product.dto.request.ReorderItem::sortOrder));
+                .collect(Collectors.toMap(com.quickstack.product.dto.request.ReorderItem::id,
+                        com.quickstack.product.dto.request.ReorderItem::sortOrder));
 
         for (Product product : products) {
             Integer newSortOrder = orderMap.get(product.getId());
@@ -210,7 +219,7 @@ public class ProductService {
     /**
      * Gets a single product by ID.
      *
-     * @param tenantId the tenant ID
+     * @param tenantId  the tenant ID
      * @param productId the product ID
      * @return the product details
      */
@@ -228,12 +237,12 @@ public class ProductService {
     /**
      * Lists products with filtering and pagination.
      *
-     * @param tenantId the tenant ID
-     * @param categoryId optional category filter
-     * @param isAvailable optional availability filter
-     * @param nameSearch optional name search
+     * @param tenantId        the tenant ID
+     * @param categoryId      optional category filter
+     * @param isAvailable     optional availability filter
+     * @param nameSearch      optional name search
      * @param includeInactive if true, includes inactive products (OWNER/MANAGER)
-     * @param pageable pagination parameters
+     * @param pageable        pagination parameters
      * @return page of product summaries
      */
     @Transactional(readOnly = true)
@@ -247,16 +256,16 @@ public class ProductService {
 
         Boolean isActive = includeInactive ? null : true;
         Page<Product> products = productRepository.findAllByTenantIdWithFilters(
-            tenantId, categoryId, isActive, isAvailable, nameSearch, pageable);
-        
+                tenantId, categoryId, isActive, isAvailable, nameSearch, pageable);
+
         return products.map(ProductSummaryResponse::from);
     }
 
     /**
      * Soft deletes a product.
      *
-     * @param tenantId the tenant ID
-     * @param userId the user ID performing the deletion
+     * @param tenantId  the tenant ID
+     * @param userId    the user ID performing the deletion
      * @param productId the product ID to delete
      */
     @Transactional
@@ -273,9 +282,9 @@ public class ProductService {
     /**
      * Changes product availability.
      *
-     * @param tenantId the tenant ID
-     * @param userId the user ID performing the action
-     * @param productId the product ID
+     * @param tenantId    the tenant ID
+     * @param userId      the user ID performing the action
+     * @param productId   the product ID
      * @param isAvailable the new availability status
      * @return the updated product details
      */
@@ -297,8 +306,8 @@ public class ProductService {
     /**
      * Restores a soft-deleted product.
      *
-     * @param tenantId the tenant ID
-     * @param userId the user ID performing the restoration
+     * @param tenantId  the tenant ID
+     * @param userId    the user ID performing the restoration
      * @param productId the product ID to restore
      * @return the restored product details
      */
@@ -308,8 +317,8 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
 
         if (!product.isDeleted()) {
-             // Already active, nothing to do
-             return getProduct(tenantId, productId);
+            // Already active, nothing to do
+            return getProduct(tenantId, productId);
         }
 
         product.restore();
@@ -355,17 +364,18 @@ public class ProductService {
             variant.setSku(vr.sku());
             variant.setPriceAdjustment(vr.priceAdjustment());
             variant.setSortOrder(vr.sortOrder() != null ? vr.sortOrder() : 0);
-            
+
             if (vr.isDefault()) {
                 if (hasDefault) {
                     // Only one can be default, reset previous if needed or throw error
-                    // Strategy: last one wins or throw? Roadmap says "exactly one", I'll mark previous as false
+                    // Strategy: last one wins or throw? Roadmap says "exactly one", I'll mark
+                    // previous as false
                     product.getVariants().forEach(v -> v.setDefault(false));
                 }
                 variant.setDefault(true);
                 hasDefault = true;
             }
-            
+
             variant = variantRepository.save(variant);
             product.getVariants().add(variant);
         }
@@ -383,8 +393,10 @@ public class ProductService {
                 action, tenantId, userId, resourceId != null ? resourceId : "BATCH", resourceType);
     }
 
-    private void logWarn(CatalogAction action, UUID tenantId, UUID userId, UUID resourceId, String resourceType, String reason) {
+    private void logWarn(CatalogAction action, UUID tenantId, UUID userId, UUID resourceId, String resourceType,
+            String reason) {
         log.warn("[CATALOG] ACTION={} tenantId={} userId={} resourceId={} resourceType={} reason=\"{}\"",
-                action, tenantId, userId != null ? userId : "SYSTEM", resourceId != null ? resourceId : "BATCH", resourceType, reason);
+                action, tenantId, userId != null ? userId : "SYSTEM", resourceId != null ? resourceId : "BATCH",
+                resourceType, reason);
     }
 }

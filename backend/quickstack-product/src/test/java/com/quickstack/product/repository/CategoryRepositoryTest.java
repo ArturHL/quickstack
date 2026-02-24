@@ -68,24 +68,26 @@ class CategoryRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Create a test plan and tenant using native SQL as entities might not be available in this module
+        // Create a test plan and tenant using native SQL as entities might not be
+        // available in this module
         UUID planId = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-            "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) " +
-            "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)"
-        ).setParameter(1, planId).executeUpdate();
+                "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) "
+                        +
+                        "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)")
+                .setParameter(1, planId).executeUpdate();
 
         tenantA = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
-            "VALUES (?, 'Tenant A', 'tenant-a', ?, 'ACTIVE')"
-        ).setParameter(1, tenantA).setParameter(2, planId).executeUpdate();
+                "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+                        "VALUES (?, 'Tenant A', 'tenant-a', ?, 'ACTIVE')")
+                .setParameter(1, tenantA).setParameter(2, planId).executeUpdate();
 
         tenantB = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
-            "VALUES (?, 'Tenant B', 'tenant-b', ?, 'ACTIVE')"
-        ).setParameter(1, tenantB).setParameter(2, planId).executeUpdate();
+                "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+                        "VALUES (?, 'Tenant B', 'tenant-b', ?, 'ACTIVE')")
+                .setParameter(1, tenantB).setParameter(2, planId).executeUpdate();
 
         entityManager.flush();
         entityManager.clear();
@@ -132,6 +134,23 @@ class CategoryRepositoryTest {
 
         assertThat(tenantBResults.getContent()).hasSize(1);
         assertThat(tenantBResults.getContent().get(0).getName()).isEqualTo("Comidas");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void canSaveAndFindCategory() {
+        // Given
+        Category category = createCategory(tenantA, "Bebidas", null);
+        entityManager.persist(category);
+        entityManager.flush();
+
+        // When
+        Optional<Category> foundCategory = categoryRepository.findById(category.getId());
+
+        // Then
+        assertThat(foundCategory).isPresent();
+        assertThat(foundCategory.get().getName()).isEqualTo("Bebidas");
+        assertThat(foundCategory.get().getTenantId()).isEqualTo(tenantA);
     }
 
     @Test
@@ -195,10 +214,9 @@ class CategoryRepositoryTest {
 
         // When
         boolean exists = categoryRepository.existsByNameAndTenantIdAndParentId(
-            "Calientes",
-            tenantA,
-            parent.getId()
-        );
+                "Calientes",
+                tenantA,
+                parent.getId());
 
         // Then
         assertThat(exists).isTrue();
@@ -220,10 +238,9 @@ class CategoryRepositoryTest {
 
         // When
         boolean exists = categoryRepository.existsByNameAndTenantIdAndParentId(
-            "Especiales",
-            tenantA,
-            parent2.getId()
-        );
+                "Especiales",
+                tenantA,
+                parent2.getId());
 
         // Then
         assertThat(exists).isFalse(); // Different parent, so name can be reused
@@ -239,11 +256,10 @@ class CategoryRepositoryTest {
 
         // When
         boolean exists = categoryRepository.existsByNameAndTenantIdAndParentIdAndIdNot(
-            "Bebidas",
-            tenantA,
-            null,
-            category.getId()
-        );
+                "Bebidas",
+                tenantA,
+                null,
+                category.getId());
 
         // Then
         assertThat(exists).isFalse(); // Same category ID excluded, so no duplicate
@@ -261,11 +277,10 @@ class CategoryRepositoryTest {
 
         // When
         boolean exists = categoryRepository.existsByNameAndTenantIdAndParentIdAndIdNot(
-            "Bebidas",
-            tenantA,
-            null,
-            other.getId()
-        );
+                "Bebidas",
+                tenantA,
+                null,
+                other.getId());
 
         // Then
         assertThat(exists).isTrue(); // Different category, so duplicate detected

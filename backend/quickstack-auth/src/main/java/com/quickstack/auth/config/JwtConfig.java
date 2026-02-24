@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -22,7 +21,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -47,11 +45,9 @@ public class JwtConfig {
     private static final String RSA_ALGORITHM = "RSA";
 
     private final JwtProperties properties;
-    private final Environment environment;
 
-    public JwtConfig(JwtProperties properties, Environment environment) {
+    public JwtConfig(JwtProperties properties) {
         this.properties = properties;
-        this.environment = environment;
     }
 
     /**
@@ -80,7 +76,7 @@ public class JwtConfig {
         } else {
             throw new IllegalStateException(
                     "JWT private key not configured. Set either quickstack.jwt.private-key-base64 " +
-                    "or quickstack.jwt.private-key-path");
+                            "or quickstack.jwt.private-key-path");
         }
 
         RSAPrivateKey privateKey = parsePrivateKey(keyBytes);
@@ -111,7 +107,7 @@ public class JwtConfig {
         } else {
             throw new IllegalStateException(
                     "JWT public key not configured. Set either quickstack.jwt.public-key-base64 " +
-                    "or quickstack.jwt.public-key-path");
+                            "or quickstack.jwt.public-key-path");
         }
 
         RSAPublicKey publicKey = parsePublicKey(keyBytes);
@@ -265,7 +261,7 @@ public class JwtConfig {
         if (keySizeBits < MIN_RSA_KEY_SIZE_BITS) {
             throw new IllegalStateException(
                     String.format("RSA %s key size (%d bits) is below minimum required (%d bits). " +
-                                  "ASVS V6.2.1 requires at least 2048-bit RSA keys",
+                            "ASVS V6.2.1 requires at least 2048-bit RSA keys",
                             keyType, keySizeBits, MIN_RSA_KEY_SIZE_BITS));
         }
         log.debug("Validated RSA {} key: {} bits", keyType, keySizeBits);

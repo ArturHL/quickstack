@@ -1,7 +1,6 @@
 package com.quickstack.auth.controller;
 
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
-import com.quickstack.auth.dto.response.SessionResponse;
 import com.quickstack.auth.service.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,8 +52,7 @@ class UserSessionControllerTest {
             SessionService.SessionInfo sessionInfo = new SessionService.SessionInfo(
                     sessionId, "192.168.1.1", "Mozilla/5.0",
                     Instant.parse("2026-02-18T09:00:00Z"),
-                    Instant.parse("2026-02-25T09:00:00Z")
-            );
+                    Instant.parse("2026-02-25T09:00:00Z"));
             when(sessionService.getActiveSessions(USER_ID)).thenReturn(List.of(sessionInfo));
 
             ResponseEntity<?> response = userController.getSessions(principal);

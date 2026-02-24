@@ -88,8 +88,7 @@ public class AuthController {
             RefreshTokenService refreshTokenService,
             JwtProperties jwtProperties,
             CookieProperties cookieProperties,
-            JwtServiceAdapter jwtService
-    ) {
+            JwtServiceAdapter jwtService) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.passwordService = passwordService;
@@ -115,8 +114,7 @@ public class AuthController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<ApiResponse<UserResponse>> register(
-            @Valid @RequestBody RegisterRequest request
-    ) {
+            @Valid @RequestBody RegisterRequest request) {
         UUID tenantId = UUID.fromString(request.tenantId());
         UUID roleId = UUID.fromString(request.roleId());
         UUID branchId = request.branchId() != null ? UUID.fromString(request.branchId()) : null;
@@ -130,8 +128,7 @@ public class AuthController {
                 request.fullName(),
                 roleId,
                 branchId,
-                request.phone()
-        );
+                request.phone());
 
         User user = userService.registerUser(command);
 
@@ -144,8 +141,8 @@ public class AuthController {
      * Authenticates a user and returns access token.
      * Refresh token is set as HttpOnly cookie.
      *
-     * @param request login credentials
-     * @param httpRequest for extracting client IP
+     * @param request      login credentials
+     * @param httpRequest  for extracting client IP
      * @param httpResponse for setting refresh token cookie
      * @return access token and user info
      */
@@ -154,8 +151,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
-    ) {
+            HttpServletResponse httpResponse) {
         String ipAddress = IpAddressExtractor.extract(httpRequest);
         String userAgent = httpRequest.getHeader("User-Agent");
         UUID tenantId = UUID.fromString(request.tenantId());
@@ -173,8 +169,7 @@ public class AuthController {
         if (user == null) {
             loginAttemptService.recordFailedLogin(
                     request.email(), null, tenantId, ipAddress, userAgent,
-                    LoginAttempt.REASON_USER_NOT_FOUND
-            );
+                    LoginAttempt.REASON_USER_NOT_FOUND);
             throw new AuthenticationException();
         }
 
@@ -184,8 +179,7 @@ public class AuthController {
                     ? LoginAttempt.REASON_ACCOUNT_LOCKED
                     : LoginAttempt.REASON_ACCOUNT_INACTIVE;
             loginAttemptService.recordFailedLogin(
-                    request.email(), user.getId(), tenantId, ipAddress, userAgent, reason
-            );
+                    request.email(), user.getId(), tenantId, ipAddress, userAgent, reason);
             throw new AuthenticationException();
         }
 
@@ -193,15 +187,13 @@ public class AuthController {
         if (!passwordService.verifyPassword(request.password(), user.getPasswordHash())) {
             loginAttemptService.recordFailedLogin(
                     request.email(), user.getId(), tenantId, ipAddress, userAgent,
-                    LoginAttempt.REASON_INVALID_CREDENTIALS
-            );
+                    LoginAttempt.REASON_INVALID_CREDENTIALS);
             throw new AuthenticationException();
         }
 
         // Successful login
         loginAttemptService.recordSuccessfulLogin(
-                request.email(), user.getId(), tenantId, ipAddress, userAgent
-        );
+                request.email(), user.getId(), tenantId, ipAddress, userAgent);
 
         // Update user login info
         user.recordSuccessfulLogin(ipAddress);
@@ -225,9 +217,7 @@ public class AuthController {
                         user.getTenantId().toString(),
                         user.getRoleId().toString(),
                         user.getBranchId() != null ? user.getBranchId().toString() : null,
-                        user.getLastLoginAt()
-                )
-        );
+                        user.getLastLoginAt()));
 
         log.info("Login successful for user {} from IP {}", user.getId(), ipAddress);
         return ResponseEntity.ok(ApiResponse.success(authResponse));
@@ -236,7 +226,7 @@ public class AuthController {
     /**
      * Refreshes an access token using the refresh token from cookie.
      *
-     * @param httpRequest for reading refresh token cookie
+     * @param httpRequest  for reading refresh token cookie
      * @param httpResponse for setting new refresh token cookie
      * @return new access token
      */
@@ -244,8 +234,7 @@ public class AuthController {
     @Transactional
     public ResponseEntity<ApiResponse<AuthResponse>> refresh(
             HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
-    ) {
+            HttpServletResponse httpResponse) {
         String ipAddress = IpAddressExtractor.extract(httpRequest);
         String userAgent = httpRequest.getHeader("User-Agent");
 
@@ -258,8 +247,7 @@ public class AuthController {
 
         // Rotate token
         RefreshTokenService.RotationResult rotation = refreshTokenService.rotateToken(
-                refreshToken, ipAddress, userAgent
-        );
+                refreshToken, ipAddress, userAgent);
 
         // Get user
         User user = userRepository.findById(rotation.userId())
@@ -286,9 +274,7 @@ public class AuthController {
                         user.getTenantId().toString(),
                         user.getRoleId().toString(),
                         user.getBranchId() != null ? user.getBranchId().toString() : null,
-                        user.getLastLoginAt()
-                )
-        );
+                        user.getLastLoginAt()));
 
         log.debug("Token refreshed for user {}", user.getId());
         return ResponseEntity.ok(ApiResponse.success(authResponse));
@@ -297,7 +283,7 @@ public class AuthController {
     /**
      * Logs out the user by revoking the refresh token.
      *
-     * @param httpRequest for reading refresh token cookie
+     * @param httpRequest  for reading refresh token cookie
      * @param httpResponse for clearing the cookie
      * @return 204 No Content
      */
@@ -305,8 +291,7 @@ public class AuthController {
     @Transactional
     public ResponseEntity<Void> logout(
             HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
-    ) {
+            HttpServletResponse httpResponse) {
         String refreshToken = getRefreshTokenFromCookie(httpRequest);
 
         if (refreshToken != null) {
@@ -329,7 +314,7 @@ public class AuthController {
      * The actual password reset token is NOT returned in the response.
      * In production, it would be sent via email.
      *
-     * @param request contains the email and tenant ID
+     * @param request     contains the email and tenant ID
      * @param httpRequest for extracting client IP
      * @return generic success message (doesn't reveal if user exists)
      */
@@ -337,8 +322,7 @@ public class AuthController {
     @Transactional
     public ResponseEntity<ApiResponse<ForgotPasswordResponse>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request,
-            HttpServletRequest httpRequest
-    ) {
+            HttpServletRequest httpRequest) {
         String ipAddress = IpAddressExtractor.extract(httpRequest);
         UUID tenantId = UUID.fromString(request.tenantId());
 
@@ -348,20 +332,17 @@ public class AuthController {
         PasswordResetService.ResetInitiationResult result = passwordResetService.initiateReset(
                 request.normalizedEmail(),
                 tenantId,
-                ipAddress
-        );
+                ipAddress);
 
         // In production, send email if result.success() is true
         // For security, we return the same response regardless of result
         if (result.success()) {
             log.info("Password reset token generated for user {} (token would be emailed)", result.userId());
-            // TODO: Send email with reset link containing result.token()
         }
 
         // Always return success message (timing-safe)
         return ResponseEntity.ok(ApiResponse.success(new ForgotPasswordResponse(
-                "If the email exists, you will receive a password reset link."
-        )));
+                "If the email exists, you will receive a password reset link.")));
     }
 
     /**
@@ -380,8 +361,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     @Transactional
     public ResponseEntity<ApiResponse<ResetPasswordResponse>> resetPassword(
-            @Valid @RequestBody ResetPasswordRequest request
-    ) {
+            @Valid @RequestBody ResetPasswordRequest request) {
         log.debug("Password reset attempt with token");
 
         passwordResetService.resetPassword(request.token(), request.newPassword());
@@ -389,8 +369,7 @@ public class AuthController {
         log.info("Password reset completed successfully");
 
         return ResponseEntity.ok(ApiResponse.success(new ResetPasswordResponse(
-                "Password has been reset successfully. Please login with your new password."
-        )));
+                "Password has been reset successfully. Please login with your new password.")));
     }
 
     // -------------------------------------------------------------------------
@@ -400,12 +379,14 @@ public class AuthController {
     /**
      * Response for forgot-password endpoint.
      */
-    public record ForgotPasswordResponse(String message) {}
+    public record ForgotPasswordResponse(String message) {
+    }
 
     /**
      * Response for reset-password endpoint.
      */
-    public record ResetPasswordResponse(String message) {}
+    public record ResetPasswordResponse(String message) {
+    }
 
     // -------------------------------------------------------------------------
     // Cookie Helpers

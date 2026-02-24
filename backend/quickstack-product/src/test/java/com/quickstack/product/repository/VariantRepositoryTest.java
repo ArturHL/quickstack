@@ -19,7 +19,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,18 +58,20 @@ class VariantRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Create a test plan and tenant using native SQL as entities might not be available in this module
+        // Create a test plan and tenant using native SQL as entities might not be
+        // available in this module
         UUID planId = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-            "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) " +
-            "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)"
-        ).setParameter(1, planId).executeUpdate();
+                "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) "
+                        +
+                        "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)")
+                .setParameter(1, planId).executeUpdate();
 
         tenantId = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-            "INSERT INTO tenants (id, name, slug, plan_id, status) " +
-            "VALUES (?, 'Tenant A', 'tenant-a', ?, 'ACTIVE')"
-        ).setParameter(1, tenantId).setParameter(2, planId).executeUpdate();
+                "INSERT INTO tenants (id, name, slug, plan_id, status) " +
+                        "VALUES (?, 'Tenant A', 'tenant-a', ?, 'ACTIVE')")
+                .setParameter(1, tenantId).setParameter(2, planId).executeUpdate();
 
         entityManager.flush();
 
@@ -80,7 +81,7 @@ class VariantRepositoryTest {
         category.setSortOrder(0);
         category.setActive(true);
         entityManager.persist(category);
-        
+
         Product product = new Product();
         product.setTenantId(tenantId);
         product.setCategoryId(category.getId());
@@ -90,7 +91,7 @@ class VariantRepositoryTest {
         product.setActive(true);
         product.setAvailable(true);
         entityManager.persist(product);
-        
+
         entityManager.flush();
         productId = product.getId();
     }
@@ -100,12 +101,13 @@ class VariantRepositoryTest {
         createVariant("Chico", "SKU-CH", 1, false);
         createVariant("Grande", "SKU-GR", 3, false);
         createVariant("Mediano", "SKU-ME", 2, true);
-        
+
         ProductVariant deleted = createVariant("Borrado", "SKU-DEL", 4, false);
         deleted.softDelete();
         variantRepository.save(deleted);
 
-        List<ProductVariant> variants = variantRepository.findAllByProductIdAndTenantIdAndDeletedAtIsNullOrderBySortOrderAsc(productId, tenantId);
+        List<ProductVariant> variants = variantRepository
+                .findAllByProductIdAndTenantIdAndDeletedAtIsNullOrderBySortOrderAsc(productId, tenantId);
 
         assertThat(variants).hasSize(3);
         assertThat(variants.get(0).getName()).isEqualTo("Chico");
@@ -117,17 +119,34 @@ class VariantRepositoryTest {
     void shouldFindByIdAndProductIdAndTenantId() {
         ProductVariant v1 = createVariant("Unica", "SKU-U", 1, true);
 
-        Optional<ProductVariant> found = variantRepository.findByIdAndProductIdAndTenantId(v1.getId(), productId, tenantId);
+        Optional<ProductVariant> found = variantRepository.findByIdAndProductIdAndTenantId(v1.getId(), productId,
+                tenantId);
 
         assertThat(found).isPresent();
         assertThat(found.get().getName()).isEqualTo("Unica");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void canSaveAndFindVariant() {
+        createVariant("V1", "SKU-1", 1, true);
+        createVariant("V2", "SKU-2", 2, false);
+
+        ProductVariant deleted = createVariant("V3", "SKU-3", 3, false);
+        deleted.softDelete();
+        variantRepository.save(deleted);
+
+        Optional<ProductVariant> foundV1 = variantRepository.findById(deleted.getId());
+        assertThat(foundV1).isPresent();
+        assertThat(foundV1.get().getName()).isEqualTo("V3");
+        assertThat(foundV1.get().getDeletedAt()).isNotNull();
     }
 
     @Test
     void shouldCountActiveVariants() {
         createVariant("V1", "SKU-1", 1, true);
         createVariant("V2", "SKU-2", 2, false);
-        
+
         ProductVariant deleted = createVariant("V3", "SKU-3", 3, false);
         deleted.softDelete();
         variantRepository.save(deleted);
@@ -150,8 +169,10 @@ class VariantRepositoryTest {
         ProductVariant v1 = createVariant("DuplicateName", "SKU-1", 1, true);
         ProductVariant v2 = createVariant("OtherName", "SKU-2", 2, false);
 
-        assertThat(variantRepository.existsByNameAndProductIdAndTenantIdAndIdNot("DuplicateName", productId, tenantId, v2.getId())).isTrue();
-        assertThat(variantRepository.existsByNameAndProductIdAndTenantIdAndIdNot("DuplicateName", productId, tenantId, v1.getId())).isFalse();
+        assertThat(variantRepository.existsByNameAndProductIdAndTenantIdAndIdNot("DuplicateName", productId, tenantId,
+                v2.getId())).isTrue();
+        assertThat(variantRepository.existsByNameAndProductIdAndTenantIdAndIdNot("DuplicateName", productId, tenantId,
+                v1.getId())).isFalse();
     }
 
     private ProductVariant createVariant(String name, String sku, int sortOrder, boolean isDefault) {

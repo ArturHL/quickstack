@@ -3,7 +3,6 @@ package com.quickstack.product.controller;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.ProductAvailabilityRequest;
 import com.quickstack.product.dto.request.ProductCreateRequest;
-import com.quickstack.product.dto.request.ProductUpdateRequest;
 import com.quickstack.product.dto.response.CategorySummaryResponse;
 import com.quickstack.product.dto.response.ProductResponse;
 import com.quickstack.product.dto.response.ProductSummaryResponse;
@@ -60,8 +59,8 @@ class ProductControllerTest {
     void setUp() {
         productController = new ProductController(productService, permissionEvaluator);
         principal = new JwtAuthenticationPrincipal(USER_ID, TENANT_ID, UUID.randomUUID(), null, "owner@test.com");
-        auth = new UsernamePasswordAuthenticationToken(principal, null, 
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        auth = new UsernamePasswordAuthenticationToken(principal, null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Nested
@@ -71,17 +70,16 @@ class ProductControllerTest {
         @DisplayName("should return 200 with page of products")
         void shouldReturn200WithProducts() {
             ProductSummaryResponse summary = new ProductSummaryResponse(
-                PRODUCT_ID, "Coca Cola", new BigDecimal("15.00"),
-                ProductType.SIMPLE, true, true, CATEGORY_ID, null, 0
-            );
+                    PRODUCT_ID, "Coca Cola", new BigDecimal("15.00"),
+                    ProductType.SIMPLE, true, true, CATEGORY_ID, null, 0);
             Page<ProductSummaryResponse> page = new PageImpl<>(List.of(summary));
-            
+
             org.mockito.Mockito.lenient().when(permissionEvaluator.canViewInactive(any())).thenReturn(false);
             when(productService.listProducts(any(), any(), any(), any(), anyBoolean(), any()))
-                .thenReturn(page);
+                    .thenReturn(page);
 
             ResponseEntity<?> result = productController.listProducts(
-                principal, auth, CATEGORY_ID, true, "coca", false, PageRequest.of(0, 10));
+                    principal, auth, CATEGORY_ID, true, "coca", false, PageRequest.of(0, 10));
 
             assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(productService).listProducts(eq(TENANT_ID), eq(CATEGORY_ID), eq(true), eq("coca"), eq(false), any());
@@ -95,11 +93,10 @@ class ProductControllerTest {
         @DisplayName("should return 201 when creation succeeds")
         void shouldReturn201WhenCreated() {
             ProductCreateRequest request = new ProductCreateRequest(
-                "Coca Cola", null, CATEGORY_ID, "COCA-001",
-                new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null
-            );
+                    "Coca Cola", null, CATEGORY_ID, "COCA-001",
+                    new BigDecimal("15.00"), null, null, ProductType.SIMPLE, null, null);
             ProductResponse response = buildProductResponse("Coca Cola");
-            
+
             when(productService.createProduct(eq(TENANT_ID), eq(USER_ID), eq(request))).thenReturn(response);
             mockServletRequestContext();
 
@@ -110,15 +107,13 @@ class ProductControllerTest {
         }
 
         private void mockServletRequestContext() {
-            org.springframework.mock.web.MockHttpServletRequest mockRequest =
-                new org.springframework.mock.web.MockHttpServletRequest();
+            org.springframework.mock.web.MockHttpServletRequest mockRequest = new org.springframework.mock.web.MockHttpServletRequest();
             mockRequest.setScheme("http");
             mockRequest.setServerName("localhost");
             mockRequest.setServerPort(8080);
             mockRequest.setRequestURI("/api/v1/products");
             org.springframework.web.context.request.RequestContextHolder.setRequestAttributes(
-                new org.springframework.web.context.request.ServletRequestAttributes(mockRequest)
-            );
+                    new org.springframework.web.context.request.ServletRequestAttributes(mockRequest));
         }
     }
 
@@ -145,7 +140,7 @@ class ProductControllerTest {
         void shouldReturn200WhenUpdated() {
             ProductAvailabilityRequest request = new ProductAvailabilityRequest(false);
             ProductResponse response = buildProductResponse("Coca Cola");
-            
+
             when(productService.setAvailability(TENANT_ID, USER_ID, PRODUCT_ID, false)).thenReturn(response);
 
             ResponseEntity<?> result = productController.setAvailability(principal, PRODUCT_ID, request);
@@ -157,10 +152,9 @@ class ProductControllerTest {
 
     private ProductResponse buildProductResponse(String name) {
         return new ProductResponse(
-            PRODUCT_ID, name, null, null, new BigDecimal("15.00"),
-            null, null, ProductType.SIMPLE, true, true, 0,
-            new CategorySummaryResponse(CATEGORY_ID, "Bebidas", 0, true, null),
-            List.of()
-        );
+                PRODUCT_ID, name, null, null, new BigDecimal("15.00"),
+                null, null, ProductType.SIMPLE, true, true, 0,
+                new CategorySummaryResponse(CATEGORY_ID, "Bebidas", 0, true, null),
+                List.of());
     }
 }

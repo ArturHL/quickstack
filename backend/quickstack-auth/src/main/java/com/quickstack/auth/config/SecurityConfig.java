@@ -4,7 +4,6 @@ import com.quickstack.auth.security.JwtAuthenticationFilter;
 import com.quickstack.auth.security.RateLimitFilter;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -51,47 +50,46 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF - stateless API with JWT
-            .csrf(AbstractHttpConfigurer::disable)
+                // Disable CSRF - stateless API with JWT
+                .csrf(AbstractHttpConfigurer::disable)
 
-            // Enable CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                // Enable CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-            // Stateless session management
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                // Stateless session management
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                // Public endpoints (actuator)
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints (actuator)
+                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                // Public auth endpoints (no JWT required)
-                .requestMatchers(HttpMethod.POST,
-                        "/api/v1/auth/login",
-                        "/api/v1/auth/register",
-                        "/api/v1/auth/forgot-password",
-                        "/api/v1/auth/reset-password").permitAll()
+                        // Public auth endpoints (no JWT required)
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/reset-password")
+                        .permitAll()
 
-                // Cookie-based auth endpoints (refresh token, no JWT required)
-                .requestMatchers(HttpMethod.POST,
-                        "/api/v1/auth/refresh",
-                        "/api/v1/auth/logout").permitAll()
+                        // Cookie-based auth endpoints (refresh token, no JWT required)
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/logout")
+                        .permitAll()
 
-                // Session management requires JWT
-                .requestMatchers("/api/v1/users/**").authenticated()
+                        // Session management requires JWT
+                        .requestMatchers("/api/v1/users/**").authenticated()
 
-                // Catalog requires JWT (not public yet)
-                .requestMatchers("/api/v1/categories/**", "/api/v1/products/**", "/api/v1/menu").authenticated()
+                        // Catalog requires JWT (not public yet)
+                        .requestMatchers("/api/v1/categories/**", "/api/v1/products/**", "/api/v1/menu").authenticated()
 
-                // All other endpoints require authentication
-                .anyRequest().authenticated()
-            )
+                        // All other endpoints require authentication
+                        .anyRequest().authenticated())
 
-            // Disable form login and basic auth (API only)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable);
+                // Disable form login and basic auth (API only)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
 
         // Add JWT filter if available (validates Bearer tokens)
         if (jwtAuthenticationFilter != null) {

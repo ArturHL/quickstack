@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -101,7 +100,7 @@ public class RateLimitConfig {
     /**
      * Gets or creates a bucket for the given IP address.
      *
-     * @param ip the IP address
+     * @param ip    the IP address
      * @param cache the cache to use
      * @return the bucket for rate limiting
      */
@@ -124,7 +123,7 @@ public class RateLimitConfig {
     /**
      * Gets or creates a bucket for password reset rate limiting.
      *
-     * @param key the rate limit key (IP or email)
+     * @param key   the rate limit key (IP or email)
      * @param cache the cache to use
      * @return the bucket for rate limiting
      */

@@ -7,7 +7,6 @@ import com.quickstack.auth.config.RateLimitConfig;
 import com.quickstack.common.config.properties.RateLimitProperties;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -53,8 +52,7 @@ class RateLimitFilterTest {
                 ipCache,
                 emailCache,
                 passwordResetCache,
-                objectMapper
-        );
+                objectMapper);
     }
 
     @Nested

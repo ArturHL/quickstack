@@ -1,8 +1,6 @@
 package com.quickstack.product.service;
 
 import com.quickstack.common.exception.BusinessRuleException;
-import com.quickstack.common.exception.DuplicateResourceException;
-import com.quickstack.common.exception.ResourceNotFoundException;
 import com.quickstack.product.dto.request.VariantCreateRequest;
 import com.quickstack.product.dto.request.VariantUpdateRequest;
 import com.quickstack.product.dto.response.VariantResponse;
@@ -19,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +24,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,11 +62,11 @@ class VariantServiceTest {
     @Test
     void addVariant_Success() {
         VariantCreateRequest request = new VariantCreateRequest("Chico", "SKU-CH", BigDecimal.ZERO, true, 1);
-        
+
         when(productRepository.findByIdAndTenantId(productId, tenantId)).thenReturn(Optional.of(mockProduct));
         when(variantRepository.existsByNameAndProductIdAndTenantId("Chico", productId, tenantId)).thenReturn(false);
         when(variantRepository.existsBySkuAndTenantId("SKU-CH", tenantId)).thenReturn(false);
-        
+
         ProductVariant savedVariant = new ProductVariant();
         savedVariant.setId(variantId);
         savedVariant.setProductId(productId);
@@ -96,7 +92,7 @@ class VariantServiceTest {
     void addVariant_ProductNotVariant_ThrowsException() {
         mockProduct.setProductType(ProductType.SIMPLE);
         VariantCreateRequest request = new VariantCreateRequest("Chico", "SKU", BigDecimal.ZERO, true, 1);
-        
+
         when(productRepository.findByIdAndTenantId(productId, tenantId)).thenReturn(Optional.of(mockProduct));
 
         Throwable thrown = catchThrowable(() -> variantService.addVariant(tenantId, userId, productId, request));
@@ -107,8 +103,9 @@ class VariantServiceTest {
 
     @Test
     void updateVariant_Success() {
-        VariantUpdateRequest request = new VariantUpdateRequest("Medio", null, new BigDecimal("10.00"), null, null, null);
-        
+        VariantUpdateRequest request = new VariantUpdateRequest("Medio", null, new BigDecimal("10.00"), null, null,
+                null);
+
         ProductVariant existingVariant = new ProductVariant();
         existingVariant.setId(variantId);
         existingVariant.setName("Chico");
@@ -119,7 +116,7 @@ class VariantServiceTest {
                 .thenReturn(Optional.of(existingVariant));
         when(variantRepository.existsByNameAndProductIdAndTenantIdAndIdNot("Medio", productId, tenantId, variantId))
                 .thenReturn(false);
-                
+
         when(variantRepository.save(any(ProductVariant.class))).thenReturn(existingVariant);
 
         VariantResponse response = variantService.updateVariant(tenantId, userId, productId, variantId, request);
@@ -140,7 +137,7 @@ class VariantServiceTest {
         when(variantRepository.findByIdAndProductIdAndTenantId(variantId, productId, tenantId))
                 .thenReturn(Optional.of(existingVariant));
         when(variantRepository.countByProductIdAndTenantIdAndDeletedAtIsNull(productId, tenantId)).thenReturn(2L);
-        
+
         variantService.deleteVariant(tenantId, userId, productId, variantId);
 
         assertThat(existingVariant.isDeleted()).isTrue();
@@ -157,7 +154,7 @@ class VariantServiceTest {
         when(variantRepository.findByIdAndProductIdAndTenantId(variantId, productId, tenantId))
                 .thenReturn(Optional.of(existingVariant));
         when(variantRepository.countByProductIdAndTenantIdAndDeletedAtIsNull(productId, tenantId)).thenReturn(1L);
-        
+
         Throwable thrown = catchThrowable(() -> variantService.deleteVariant(tenantId, userId, productId, variantId));
 
         assertThat(thrown).isInstanceOf(BusinessRuleException.class)

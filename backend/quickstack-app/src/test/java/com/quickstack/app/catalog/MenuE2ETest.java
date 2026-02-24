@@ -1,14 +1,12 @@
 package com.quickstack.app.catalog;
 
 import com.quickstack.app.BaseE2ETest;
-import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -29,7 +27,6 @@ import static org.hamcrest.Matchers.*;
 class MenuE2ETest extends BaseE2ETest {
 
     private static final UUID OWNER_ROLE_ID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    private static final UUID CASHIER_ROLE_ID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -37,7 +34,6 @@ class MenuE2ETest extends BaseE2ETest {
     private UUID tenantId;
     private UUID userId;
     private String ownerToken;
-    private String cashierToken;
 
     @BeforeEach
     void setUp() {
@@ -45,24 +41,23 @@ class MenuE2ETest extends BaseE2ETest {
         userId = UUID.randomUUID();
         createUser(tenantId, userId, OWNER_ROLE_ID, "owner@menutest.com");
         ownerToken = authHeader(userId, tenantId, OWNER_ROLE_ID, "owner@menutest.com");
-        cashierToken = authHeader(userId, tenantId, CASHIER_ROLE_ID, "cashier@menutest.com");
     }
 
     @Test
     @DisplayName("1. GET /api/v1/menu returns only categories that have active products")
     void returnsOnlyCategoriesWithActiveProducts() {
         UUID catWithProducts = createCategory(tenantId, "Tacos", 0);
-        UUID catEmpty = createCategory(tenantId, "Postres", 1);
+        createCategory(tenantId, "Postres", 1);
         createSimpleProduct(tenantId, catWithProducts, "Taco Pastor", true, true, 0);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories", hasSize(1))
-            .body("data.categories[0].name", is("Tacos"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories", hasSize(1))
+                .body("data.categories[0].name", is("Tacos"));
     }
 
     @Test
@@ -73,14 +68,14 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, cat, "Jugo", true, false, 1); // agotado
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories[0].products", hasSize(2))
-            .body("data.categories[0].products.find { it.name == 'Jugo' }.isAvailable", is(false))
-            .body("data.categories[0].products.find { it.name == 'Agua' }.isAvailable", is(true));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories[0].products", hasSize(2))
+                .body("data.categories[0].products.find { it.name == 'Jugo' }.isAvailable", is(false))
+                .body("data.categories[0].products.find { it.name == 'Agua' }.isAvailable", is(true));
     }
 
     @Test
@@ -91,13 +86,13 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, cat, "Taco Inactivo", false, true, 1);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories[0].products", hasSize(1))
-            .body("data.categories[0].products[0].name", is("Taco Activo"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories[0].products", hasSize(1))
+                .body("data.categories[0].products[0].name", is("Taco Activo"));
     }
 
     @Test
@@ -109,13 +104,13 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, catHidden, "Producto Inactivo", false, true, 0);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories", hasSize(1))
-            .body("data.categories[0].name", is("Tacos"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories", hasSize(1))
+                .body("data.categories[0].name", is("Tacos"));
     }
 
     @Test
@@ -127,14 +122,14 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, cat, "Tercero", true, true, 2);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories[0].products[0].name", is("Primero"))
-            .body("data.categories[0].products[1].name", is("Segundo"))
-            .body("data.categories[0].products[2].name", is("Tercero"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories[0].products[0].name", is("Primero"))
+                .body("data.categories[0].products[1].name", is("Segundo"))
+                .body("data.categories[0].products[2].name", is("Tercero"));
     }
 
     @Test
@@ -148,26 +143,27 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, cat3, "P3", true, true, 0);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories[0].name", is("A - Primera"))
-            .body("data.categories[1].name", is("B - Segunda"))
-            .body("data.categories[2].name", is("C - Tercera"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories[0].name", is("A - Primera"))
+                .body("data.categories[1].name", is("B - Segunda"))
+                .body("data.categories[2].name", is("C - Tercera"));
     }
 
     @Test
     @DisplayName("7. Request without JWT returns 403 (no AuthenticationEntryPoint configured)")
     void requestWithoutJwtReturns403() {
-        // Spring Security defaults to 403 when no AuthenticationEntryPoint is configured.
+        // Spring Security defaults to 403 when no AuthenticationEntryPoint is
+        // configured.
         // The important thing is that unauthenticated access is rejected.
         given()
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(403);
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(403);
     }
 
     @Test
@@ -181,14 +177,14 @@ class MenuE2ETest extends BaseE2ETest {
         createSimpleProduct(tenantId, catA, "Producto de Tenant A", true, true, 0);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/menu")
-        .then()
-            .statusCode(200)
-            .body("data.categories", hasSize(1))
-            .body("data.categories[0].name", is("Cat Tenant A"))
-            .body("data.categories[0].products[0].name", is("Producto de Tenant A"));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/menu")
+                .then()
+                .statusCode(200)
+                .body("data.categories", hasSize(1))
+                .body("data.categories[0].name", is("Cat Tenant A"))
+                .body("data.categories[0].products[0].name", is("Producto de Tenant A"));
     }
 
     // -------------------------------------------------------------------------
@@ -196,49 +192,45 @@ class MenuE2ETest extends BaseE2ETest {
     // -------------------------------------------------------------------------
 
     private UUID createTenant() {
-        jdbcTemplate.update("""
-            INSERT INTO subscription_plans (id, name, code, description, price_monthly_mxn, max_branches, max_users_per_branch, features, is_active, created_at, updated_at)
-            VALUES ('00000000-0000-0000-0000-000000000001', 'Test Plan', 'TEST', 'Test Plan', 0.00, 1, 5, '{}', true, NOW(), NOW())
-            ON CONFLICT (id) DO NOTHING
-            """
-        );
+        jdbcTemplate
+                .update("""
+                        INSERT INTO subscription_plans (id, name, code, description, price_monthly_mxn, max_branches, max_users_per_branch, features, is_active, created_at, updated_at)
+                        VALUES ('00000000-0000-0000-0000-000000000001', 'Test Plan', 'TEST', 'Test Plan', 0.00, 1, 5, '{}', true, NOW(), NOW())
+                        ON CONFLICT (id) DO NOTHING
+                        """);
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '00000000-0000-0000-0000-000000000001', NOW(), NOW())",
-            id, "Test Tenant " + id, "test-tenant-" + id
-        );
+                "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '00000000-0000-0000-0000-000000000001', NOW(), NOW())",
+                id, "Test Tenant " + id, "test-tenant-" + id);
         return id;
     }
 
     private void createUser(UUID forTenantId, UUID forUserId, UUID roleId, String email) {
         jdbcTemplate.update(
-            "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
-            forUserId, forTenantId, roleId, email, "Test User"
-        );
+                "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
+                forUserId, forTenantId, roleId, email, "Test User");
     }
 
     private UUID createCategory(UUID forTenantId, String name, int sortOrder) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
-            INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
-            VALUES (?, ?, ?, true, ?, NOW(), NOW())
-            """,
-            id, forTenantId, name, sortOrder
-        );
+                INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
+                VALUES (?, ?, ?, true, ?, NOW(), NOW())
+                """,
+                id, forTenantId, name, sortOrder);
         return id;
     }
 
     private UUID createSimpleProduct(UUID forTenantId, UUID catId, String name,
-                                     boolean isActive, boolean isAvailable, int sortOrder) {
+            boolean isActive, boolean isAvailable, int sortOrder) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
-            INSERT INTO products (id, tenant_id, category_id, name, base_price,
-                                  product_type, is_active, is_available, sort_order, created_at, updated_at)
-            VALUES (?, ?, ?, ?, 25.00, 'SIMPLE', ?, ?, ?, NOW(), NOW())
-            """,
-            id, forTenantId, catId, name, isActive, isAvailable, sortOrder
-        );
+                INSERT INTO products (id, tenant_id, category_id, name, base_price,
+                                      product_type, is_active, is_available, sort_order, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 25.00, 'SIMPLE', ?, ?, ?, NOW(), NOW())
+                """,
+                id, forTenantId, catId, name, isActive, isAvailable, sortOrder);
         return id;
     }
 }

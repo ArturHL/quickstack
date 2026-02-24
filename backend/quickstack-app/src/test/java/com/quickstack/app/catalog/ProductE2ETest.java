@@ -3,12 +3,10 @@ package com.quickstack.app.catalog;
 import com.quickstack.app.BaseE2ETest;
 import com.quickstack.product.dto.request.ProductAvailabilityRequest;
 import com.quickstack.product.dto.request.ProductCreateRequest;
-import com.quickstack.product.dto.request.ProductUpdateRequest;
 import com.quickstack.product.dto.request.VariantCreateRequest;
 import com.quickstack.product.entity.ProductType;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +14,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
 /**
  * End-to-end integration tests for product management.
  */
-////@Disabled("E2E tests disabled for Phase 1.1 development")
+//// @Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Product E2E Tests")
 class ProductE2ETest extends BaseE2ETest {
 
@@ -56,20 +52,20 @@ class ProductE2ETest extends BaseE2ETest {
     @DisplayName("1. OWNER can create SIMPLE product")
     void ownerCanCreateSimpleProduct() {
         ProductCreateRequest request = new ProductCreateRequest(
-            "Coca Cola", "Refresco frío", categoryId, "COCA-001",
-            new BigDecimal("15.00"), new BigDecimal("8.00"),
-            null, ProductType.SIMPLE, 1, null);
+                "Coca Cola", "Refresco frío", categoryId, "COCA-001",
+                new BigDecimal("15.00"), new BigDecimal("8.00"),
+                null, ProductType.SIMPLE, 1, null);
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/products")
-        .then()
-            .statusCode(201)
-            .body("data.name", is("Coca Cola"))
-            .body("data.sku", is("COCA-001"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(201)
+                .body("data.name", is("Coca Cola"))
+                .body("data.sku", is("COCA-001"));
     }
 
     @Test
@@ -79,38 +75,38 @@ class ProductE2ETest extends BaseE2ETest {
         VariantCreateRequest v2 = new VariantCreateRequest("Grande", "COF-L", new BigDecimal("10.00"), false, 2);
 
         ProductCreateRequest request = new ProductCreateRequest(
-            "Cafe", "Cafe caliente", categoryId, "COF-001",
-            new BigDecimal("30.00"), null, null, ProductType.VARIANT, 1, List.of(v1, v2));
+                "Cafe", "Cafe caliente", categoryId, "COF-001",
+                new BigDecimal("30.00"), null, null, ProductType.VARIANT, 1, List.of(v1, v2));
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/products")
-        .then()
-            .statusCode(201)
-            .body("data.productType", is("VARIANT"))
-            .body("data.variants", hasSize(2))
-            .body("data.variants[1].effectivePrice", is(40.0f));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(201)
+                .body("data.productType", is("VARIANT"))
+                .body("data.variants", hasSize(2))
+                .body("data.variants[1].effectivePrice", is(40.0f));
     }
 
     @Test
     @DisplayName("3. VARIANT product requires variants")
     void variantProductRequiresVariants() {
         ProductCreateRequest request = new ProductCreateRequest(
-            "Cafe", null, categoryId, null,
-            new BigDecimal("30.00"), null, null, ProductType.VARIANT, 1, List.of());
+                "Cafe", null, categoryId, null,
+                new BigDecimal("30.00"), null, null, ProductType.VARIANT, 1, List.of());
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/products")
-        .then()
-            .statusCode(409) // BusinessRuleException
-            .body("error.code", is("VARIANT_PRODUCT_REQUIRES_VARIANTS"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(409) // BusinessRuleException
+                .body("error.code", is("VARIANT_PRODUCT_REQUIRES_VARIANTS"));
     }
 
     @Test
@@ -119,18 +115,18 @@ class ProductE2ETest extends BaseE2ETest {
         createProductDirect(tenantId, categoryId, "Product 1", "SKU-DUPE");
 
         ProductCreateRequest request = new ProductCreateRequest(
-            "Product 2", null, categoryId, "SKU-DUPE",
-            new BigDecimal("10.00"), null, null, ProductType.SIMPLE, 1, null);
+                "Product 2", null, categoryId, "SKU-DUPE",
+                new BigDecimal("10.00"), null, null, ProductType.SIMPLE, 1, null);
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/products")
-        .then()
-            .statusCode(409)
-            .body("error.code", is("DUPLICATE_SKU"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(409)
+                .body("error.code", is("DUPLICATE_SKU"));
     }
 
     @Test
@@ -140,18 +136,18 @@ class ProductE2ETest extends BaseE2ETest {
         UUID otherCategoryId = createCategoryDirect(otherTenantId, "Other", true);
 
         ProductCreateRequest request = new ProductCreateRequest(
-            "Product", null, otherCategoryId, null,
-            new BigDecimal("10.00"), null, null, ProductType.SIMPLE, 1, null);
+                "Product", null, otherCategoryId, null,
+                new BigDecimal("10.00"), null, null, ProductType.SIMPLE, 1, null);
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/products")
-        .then()
-            .statusCode(404)
-            .body("error.code", is("CATEGORY_NOT_FOUND"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(404)
+                .body("error.code", is("CATEGORY_NOT_FOUND"));
     }
 
     @Test
@@ -162,14 +158,14 @@ class ProductE2ETest extends BaseE2ETest {
         createProductDirect(tenantId, cat2, "P2", "SKU2");
 
         given()
-            .header("Authorization", ownerToken)
-            .param("categoryId", categoryId.toString())
-        .when()
-            .get("/products")
-        .then()
-            .statusCode(200)
-            .body("data.content", hasSize(1))
-            .body("data.content[0].name", is("P1"));
+                .header("Authorization", ownerToken)
+                .param("categoryId", categoryId.toString())
+                .when()
+                .get("/products")
+                .then()
+                .statusCode(200)
+                .body("data.content", hasSize(1))
+                .body("data.content[0].name", is("P1"));
     }
 
     @Test
@@ -180,13 +176,13 @@ class ProductE2ETest extends BaseE2ETest {
         createProductDirect(tenantId, categoryId, "Gringa", "SKU3");
 
         given()
-            .header("Authorization", ownerToken)
-            .param("search", "taco")
-        .when()
-            .get("/products")
-        .then()
-            .statusCode(200)
-            .body("data.content", hasSize(2));
+                .header("Authorization", ownerToken)
+                .param("search", "taco")
+                .when()
+                .get("/products")
+                .then()
+                .statusCode(200)
+                .body("data.content", hasSize(2));
     }
 
     @Test
@@ -195,14 +191,14 @@ class ProductE2ETest extends BaseE2ETest {
         UUID productId = createProductDirect(tenantId, categoryId, "Agua", "SKU1");
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(new ProductAvailabilityRequest(false))
-        .when()
-            .patch("/products/{id}/availability", productId)
-        .then()
-            .statusCode(200)
-            .body("data.isAvailable", is(false));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(new ProductAvailabilityRequest(false))
+                .when()
+                .patch("/products/{id}/availability", productId)
+                .then()
+                .statusCode(200)
+                .body("data.isAvailable", is(false));
     }
 
     @Test
@@ -211,13 +207,13 @@ class ProductE2ETest extends BaseE2ETest {
         UUID productId = createProductDirect(tenantId, categoryId, "Agua", "SKU1");
 
         given()
-            .header("Authorization", cashierToken)
-            .contentType(ContentType.JSON)
-            .body(new ProductAvailabilityRequest(false))
-        .when()
-            .patch("/products/{id}/availability", productId)
-        .then()
-            .statusCode(403);
+                .header("Authorization", cashierToken)
+                .contentType(ContentType.JSON)
+                .body(new ProductAvailabilityRequest(false))
+                .when()
+                .patch("/products/{id}/availability", productId)
+                .then()
+                .statusCode(403);
     }
 
     @Test
@@ -228,11 +224,11 @@ class ProductE2ETest extends BaseE2ETest {
         UUID otherProductId = createProductDirect(otherTenantId, otherCatId, "Private", "SKU-OTHER");
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/products/{id}", otherProductId)
-        .then()
-            .statusCode(404);
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/products/{id}", otherProductId)
+                .then()
+                .statusCode(404);
     }
 
     @Test
@@ -242,29 +238,29 @@ class ProductE2ETest extends BaseE2ETest {
 
         // Delete
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .delete("/products/{id}", productId)
-        .then()
-            .statusCode(204);
+                .header("Authorization", ownerToken)
+                .when()
+                .delete("/products/{id}", productId)
+                .then()
+                .statusCode(204);
 
         // Verify not in list
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/products")
-        .then()
-            .statusCode(200)
-            .body("data.content.id", not(hasItem(productId.toString())));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/products")
+                .then()
+                .statusCode(200)
+                .body("data.content.id", not(hasItem(productId.toString())));
 
         // Restore
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .post("/products/{id}/restore", productId)
-        .then()
-            .statusCode(200)
-            .body("data.isActive", is(true));
+                .header("Authorization", ownerToken)
+                .when()
+                .post("/products/{id}/restore", productId)
+                .then()
+                .statusCode(200)
+                .body("data.isActive", is(true));
     }
 
     // -------------------------------------------------------------------------
@@ -274,40 +270,36 @@ class ProductE2ETest extends BaseE2ETest {
     private UUID createTenant() {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
-            id, "Test Tenant " + id, "test-tenant-" + id
-        );
+                "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
+                id, "Test Tenant " + id, "test-tenant-" + id);
         return id;
     }
 
     private void createUser(UUID tenantId, UUID userId, UUID roleId, String email) {
         jdbcTemplate.update(
-            "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
-            userId, tenantId, roleId, email, "Test User"
-        );
+                "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
+                userId, tenantId, roleId, email, "Test User");
     }
 
     private UUID createCategoryDirect(UUID forTenantId, String name, boolean isActive) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
-            INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
-            VALUES (?, ?, ?, ?, 0, NOW(), NOW())
-            """,
-            id, forTenantId, name, isActive
-        );
+                INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 0, NOW(), NOW())
+                """,
+                id, forTenantId, name, isActive);
         return id;
     }
 
     private UUID createProductDirect(UUID forTenantId, UUID catId, String name, String sku) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
-            INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
-                                  product_type, is_active, is_available, sort_order, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', true, true, 0, NOW(), NOW())
-            """,
-            id, forTenantId, catId, name, sku
-        );
+                INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
+                                      product_type, is_active, is_available, sort_order, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', true, true, 0, NOW(), NOW())
+                """,
+                id, forTenantId, catId, name, sku);
         return id;
     }
 }

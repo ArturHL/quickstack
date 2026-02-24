@@ -11,8 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,8 +40,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
 
         Set<ConstraintViolation<ProductCreateRequest>> violations = validator.validate(request);
         assertThat(violations).isEmpty();
@@ -62,8 +59,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
 
         Set<ConstraintViolation<ProductCreateRequest>> violations = validator.validate(request);
         assertThat(violations).hasSize(1);
@@ -83,8 +79,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
 
         Set<ConstraintViolation<ProductCreateRequest>> violations = validator.validate(request);
         assertThat(violations).isNotEmpty();
@@ -105,8 +100,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
         assertThat(validator.validate(nullPrice))
                 .anyMatch(v -> v.getMessage().equals("BASE_PRICE_REQUIRED"));
 
@@ -121,8 +115,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
         assertThat(validator.validate(negativePrice))
                 .anyMatch(v -> v.getMessage().equals("INVALID_PRICE"));
     }
@@ -140,8 +133,7 @@ class ProductDtoTest {
                 null,
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
 
         Set<ConstraintViolation<ProductCreateRequest>> violations = validator.validate(invalidSku);
         assertThat(violations).isNotEmpty();
@@ -161,8 +153,7 @@ class ProductDtoTest {
                 "not-a-url",
                 ProductType.SIMPLE,
                 0,
-                null
-        );
+                null);
 
         Set<ConstraintViolation<ProductCreateRequest>> violations = validator.validate(invalidUrl);
         assertThat(violations).isNotEmpty();

@@ -5,7 +5,6 @@ import com.quickstack.product.dto.request.CategoryCreateRequest;
 import com.quickstack.product.dto.request.CategoryUpdateRequest;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +21,15 @@ import static org.hamcrest.Matchers.*;
 /**
  * End-to-end integration tests for category management.
  * <p>
- * Each test that needs a fresh tenant creates its own tenant via {@link #createTenant()}.
+ * Each test that needs a fresh tenant creates its own tenant via
+ * {@link #createTenant()}.
  * Roles are the seeded system roles from V7 migration:
- * - OWNER:   aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+ * - OWNER: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
  * - CASHIER: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
  * <p>
  * ASVS V4.1: Tests verify multi-tenant IDOR protection.
  */
-////@Disabled("E2E tests disabled for Phase 1.1 development")
+//// @Disabled("E2E tests disabled for Phase 1.1 development")
 @DisplayName("Category E2E Tests")
 class CategoryE2ETest extends BaseE2ETest {
 
@@ -62,20 +62,20 @@ class CategoryE2ETest extends BaseE2ETest {
     @DisplayName("1. OWNER can create category and receives 201 with generated id")
     void ownerCanCreateCategory() {
         CategoryCreateRequest request = new CategoryCreateRequest(
-            "Bebidas", "Todo tipo de bebidas", null, null, 1);
+                "Bebidas", "Todo tipo de bebidas", null, null, 1);
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(201)
-            .header("Location", containsString("/categories/"))
-            .body("data.id", notNullValue())
-            .body("data.name", is("Bebidas"))
-            .body("data.sortOrder", is(1));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(201)
+                .header("Location", containsString("/categories/"))
+                .body("data.id", notNullValue())
+                .body("data.name", is("Bebidas"))
+                .body("data.sortOrder", is(1));
     }
 
     // -------------------------------------------------------------------------
@@ -88,13 +88,13 @@ class CategoryE2ETest extends BaseE2ETest {
         CategoryCreateRequest request = new CategoryCreateRequest("Comidas", null, null, null, null);
 
         given()
-            .header("Authorization", cashierToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(403);
+                .header("Authorization", cashierToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(403);
     }
 
     // -------------------------------------------------------------------------
@@ -108,24 +108,24 @@ class CategoryE2ETest extends BaseE2ETest {
 
         // Create first time
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(201);
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(201);
 
         // Attempt duplicate
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(409)
-            .body("error.code", is("DUPLICATE_NAME"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(409)
+                .body("error.code", is("DUPLICATE_NAME"));
     }
 
     // -------------------------------------------------------------------------
@@ -141,22 +141,23 @@ class CategoryE2ETest extends BaseE2ETest {
         createCategoryDirect(tenantId, "Inactiva", false);
 
         List<Map<String, Object>> content = given()
-            .header("Authorization", cashierToken)
-            .param("includeInactive", "true")   // CASHIER param ignored
-        .when()
-            .get("/categories")
-        .then()
-            .statusCode(200)
-            .extract()
-            .jsonPath()
-            .getList("data.content");
+                .header("Authorization", cashierToken)
+                .param("includeInactive", "true") // CASHIER param ignored
+                .when()
+                .get("/categories")
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("data.content");
 
         // Only active should appear
         assertThat(content).allMatch(c -> (Boolean) c.get("isActive"));
     }
 
     // -------------------------------------------------------------------------
-    // Test 5: GET categories with MANAGER + includeInactive=true -> includes inactive
+    // Test 5: GET categories with MANAGER + includeInactive=true -> includes
+    // inactive
     // -------------------------------------------------------------------------
 
     @Test
@@ -166,15 +167,15 @@ class CategoryE2ETest extends BaseE2ETest {
         createCategoryDirect(tenantId, "Inactiva", false);
 
         int totalCount = given()
-            .header("Authorization", ownerToken)
-            .param("includeInactive", "true")
-        .when()
-            .get("/categories")
-        .then()
-            .statusCode(200)
-            .extract()
-            .jsonPath()
-            .getInt("data.totalElements");
+                .header("Authorization", ownerToken)
+                .param("includeInactive", "true")
+                .when()
+                .get("/categories")
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getInt("data.totalElements");
 
         assertThat(totalCount).isGreaterThanOrEqualTo(2);
     }
@@ -190,16 +191,17 @@ class CategoryE2ETest extends BaseE2ETest {
         createProduct(tenantId, categoryId, "Agua", "AGUA-001");
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .delete("/categories/{id}", categoryId)
-        .then()
-            .statusCode(409)
-            .body("error.code", is("CATEGORY_HAS_PRODUCTS"));
+                .header("Authorization", ownerToken)
+                .when()
+                .delete("/categories/{id}", categoryId)
+                .then()
+                .statusCode(409)
+                .body("error.code", is("CATEGORY_HAS_PRODUCTS"));
     }
 
     // -------------------------------------------------------------------------
-    // Test 7: DELETE without products -> 204, record still in DB with deleted_at set
+    // Test 7: DELETE without products -> 204, record still in DB with deleted_at
+    // set
     // -------------------------------------------------------------------------
 
     @Test
@@ -208,15 +210,15 @@ class CategoryE2ETest extends BaseE2ETest {
         UUID categoryId = createCategoryDirect(tenantId, "Sin Productos", true);
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .delete("/categories/{id}", categoryId)
-        .then()
-            .statusCode(204);
+                .header("Authorization", ownerToken)
+                .when()
+                .delete("/categories/{id}", categoryId)
+                .then()
+                .statusCode(204);
 
         // Verify record still exists in DB with deleted_at
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(
-            "SELECT id, deleted_at FROM categories WHERE id = ?", categoryId);
+                "SELECT id, deleted_at FROM categories WHERE id = ?", categoryId);
         assertThat(rows).hasSize(1);
         assertThat(rows.get(0).get("deleted_at")).isNotNull();
     }
@@ -237,11 +239,11 @@ class CategoryE2ETest extends BaseE2ETest {
 
         // Tenant B should get 404, not 403 (prevents resource enumeration)
         given()
-            .header("Authorization", tenantBToken)
-        .when()
-            .get("/categories/{id}", categoryInTenantA)
-        .then()
-            .statusCode(404);
+                .header("Authorization", tenantBToken)
+                .when()
+                .get("/categories/{id}", categoryInTenantA)
+                .then()
+                .statusCode(404);
     }
 
     // -------------------------------------------------------------------------
@@ -260,14 +262,14 @@ class CategoryE2ETest extends BaseE2ETest {
         CategoryCreateRequest request = new CategoryCreateRequest("Snacks", null, null, null, null);
 
         given()
-            .header("Authorization", anotherOwnerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(201)
-            .body("data.id", notNullValue());
+                .header("Authorization", anotherOwnerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(201)
+                .body("data.id", notNullValue());
     }
 
     // -------------------------------------------------------------------------
@@ -280,17 +282,17 @@ class CategoryE2ETest extends BaseE2ETest {
         UUID categoryId = createCategoryViaApi("Bebidas Original");
 
         CategoryUpdateRequest updateRequest = new CategoryUpdateRequest(
-            "Bebidas Actualizado", null, null, null, null, null);
+                "Bebidas Actualizado", null, null, null, null, null);
 
         given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(updateRequest)
-        .when()
-            .put("/categories/{id}", categoryId)
-        .then()
-            .statusCode(200)
-            .body("data.name", is("Bebidas Actualizado"));
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(updateRequest)
+                .when()
+                .put("/categories/{id}", categoryId)
+                .then()
+                .statusCode(200)
+                .body("data.name", is("Bebidas Actualizado"));
     }
 
     // -------------------------------------------------------------------------
@@ -303,14 +305,14 @@ class CategoryE2ETest extends BaseE2ETest {
         UUID categoryId = createCategoryViaApi("Jugos");
 
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .get("/categories/{id}", categoryId)
-        .then()
-            .statusCode(200)
-            .body("data.id", is(categoryId.toString()))
-            .body("data.name", is("Jugos"))
-            .body("data.isActive", is(true));
+                .header("Authorization", ownerToken)
+                .when()
+                .get("/categories/{id}", categoryId)
+                .then()
+                .statusCode(200)
+                .body("data.id", is(categoryId.toString()))
+                .body("data.name", is("Jugos"))
+                .body("data.isActive", is(true));
     }
 
     // -------------------------------------------------------------------------
@@ -324,21 +326,21 @@ class CategoryE2ETest extends BaseE2ETest {
 
         // Delete it first
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .delete("/categories/{id}", categoryId)
-        .then()
-            .statusCode(204);
+                .header("Authorization", ownerToken)
+                .when()
+                .delete("/categories/{id}", categoryId)
+                .then()
+                .statusCode(204);
 
         // Restore it
         given()
-            .header("Authorization", ownerToken)
-        .when()
-            .post("/categories/{id}/restore", categoryId)
-        .then()
-            .statusCode(200)
-            .body("data.isActive", is(true))
-            .body("data.id", is(categoryId.toString()));
+                .header("Authorization", ownerToken)
+                .when()
+                .post("/categories/{id}/restore", categoryId)
+                .then()
+                .statusCode(200)
+                .body("data.isActive", is(true))
+                .body("data.id", is(categoryId.toString()));
     }
 
     // -------------------------------------------------------------------------
@@ -348,28 +350,25 @@ class CategoryE2ETest extends BaseE2ETest {
     private UUID createTenant() {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
-            id, "Test Tenant " + id, "test-tenant-" + id
-        );
+                "INSERT INTO tenants (id, name, slug, plan_id, created_at, updated_at) VALUES (?, ?, ?, '11111111-1111-1111-1111-111111111111', NOW(), NOW())",
+                id, "Test Tenant " + id, "test-tenant-" + id);
         return id;
     }
 
     private void createUser(UUID tenantId, UUID userId, UUID roleId, String email) {
         jdbcTemplate.update(
-            "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
-            userId, tenantId, roleId, email, "Test User"
-        );
+                "INSERT INTO users (id, tenant_id, role_id, email, full_name, password_hash, created_at, updated_at) " +
+                        "VALUES (?, ?, ?, ?, ?, 'hash', NOW(), NOW())",
+                userId, tenantId, roleId, email, "Test User");
     }
 
     private UUID createCategoryDirect(UUID forTenantId, String name, boolean isActive) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
-            INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
-            VALUES (?, ?, ?, ?, 0, NOW(), NOW())
-            """,
-            id, forTenantId, name, isActive
-        );
+                INSERT INTO categories (id, tenant_id, name, is_active, sort_order, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 0, NOW(), NOW())
+                """,
+                id, forTenantId, name, isActive);
         return id;
     }
 
@@ -377,27 +376,26 @@ class CategoryE2ETest extends BaseE2ETest {
         CategoryCreateRequest request = new CategoryCreateRequest(name, null, null, null, null);
 
         String id = given()
-            .header("Authorization", ownerToken)
-            .contentType(ContentType.JSON)
-            .body(request)
-        .when()
-            .post("/categories")
-        .then()
-            .statusCode(201)
-            .extract()
-            .jsonPath()
-            .getString("data.id");
+                .header("Authorization", ownerToken)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/categories")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath()
+                .getString("data.id");
 
         return UUID.fromString(id);
     }
 
     private void createProduct(UUID forTenantId, UUID categoryId, String name, String sku) {
         jdbcTemplate.update("""
-            INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
-                                  product_type, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', NOW(), NOW())
-            """,
-            UUID.randomUUID(), forTenantId, categoryId, name, sku
-        );
+                INSERT INTO products (id, tenant_id, category_id, name, sku, base_price,
+                                      product_type, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, 10.00, 'SIMPLE', NOW(), NOW())
+                """,
+                UUID.randomUUID(), forTenantId, categoryId, name, sku);
     }
 }

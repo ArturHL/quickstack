@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.mock.env.MockEnvironment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class JwtConfigTest {
 
     private JwtProperties properties;
-    private MockEnvironment environment;
 
     @TempDir
     Path tempDir;
@@ -41,7 +39,6 @@ class JwtConfigTest {
     @BeforeEach
     void setUp() throws NoSuchAlgorithmException {
         properties = new JwtProperties();
-        environment = new MockEnvironment();
 
         // Generate test keys
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
@@ -68,7 +65,7 @@ class JwtConfigTest {
             properties.setPrivateKeyBase64(privateKeyBase64);
             properties.setPublicKeyBase64(publicKeyBase64);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             RSAPrivateKey loadedKey = config.rsaPrivateKey();
@@ -90,7 +87,7 @@ class JwtConfigTest {
             properties.setPrivateKeyBase64(privateKeyBase64);
             properties.setPublicKeyBase64(publicKeyBase64);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             RSAPublicKey loadedKey = config.rsaPublicKey();
@@ -112,7 +109,7 @@ class JwtConfigTest {
             properties.setPrivateKeyBase64(privateKeyUrlSafe);
             properties.setPublicKeyBase64(publicKeyUrlSafe);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert - should not throw
             RSAPrivateKey privateKey = config.rsaPrivateKey();
@@ -137,7 +134,7 @@ class JwtConfigTest {
             properties.setPrivateKeyPath(privateKeyPath.toString());
             properties.setPublicKeyPath(publicKeyPath.toString());
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             RSAPrivateKey loadedKey = config.rsaPrivateKey();
@@ -157,7 +154,7 @@ class JwtConfigTest {
             properties.setPrivateKeyPath(privateKeyPath.toString());
             properties.setPublicKeyPath(publicKeyPath.toString());
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             RSAPublicKey loadedKey = config.rsaPublicKey();
@@ -172,7 +169,7 @@ class JwtConfigTest {
             // Arrange
             properties.setPrivateKeyPath("/nonexistent/path/private.pem");
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert
             assertThatThrownBy(config::rsaPrivateKey)
@@ -203,7 +200,7 @@ class JwtConfigTest {
         @DisplayName("fails if private key is not configured")
         void failsIfPrivateKeyNotConfigured() {
             // Arrange
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert
             assertThatThrownBy(config::rsaPrivateKey)
@@ -215,7 +212,7 @@ class JwtConfigTest {
         @DisplayName("fails if public key is not configured")
         void failsIfPublicKeyNotConfigured() {
             // Arrange
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert
             assertThatThrownBy(config::rsaPublicKey)
@@ -232,7 +229,7 @@ class JwtConfigTest {
 
             properties.setPrivateKeyBase64(weakPrivateKey);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert
             assertThatThrownBy(config::rsaPrivateKey)
@@ -247,7 +244,7 @@ class JwtConfigTest {
             // Arrange
             properties.setPrivateKeyBase64("not-valid-base64!!!");
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act & Assert
             assertThatThrownBy(config::rsaPrivateKey)
@@ -264,7 +261,7 @@ class JwtConfigTest {
         @DisplayName("returns empty list when no previous keys configured")
         void returnsEmptyListWhenNoPreviousKeys() {
             // Arrange
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             List<RSAPublicKey> previousKeys = config.previousPublicKeys();
@@ -286,7 +283,7 @@ class JwtConfigTest {
 
             properties.setPreviousPublicKeysBase64(previousKeyBase64);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             List<RSAPublicKey> previousKeys = config.previousPublicKeys();
@@ -311,7 +308,7 @@ class JwtConfigTest {
 
             properties.setPreviousPublicKeysBase64(key1Base64 + "," + key2Base64);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             List<RSAPublicKey> previousKeys = config.previousPublicKeys();
@@ -333,7 +330,7 @@ class JwtConfigTest {
 
             properties.setPreviousPublicKeysBase64(validKeyBase64 + ",invalid-key-data");
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             List<RSAPublicKey> previousKeys = config.previousPublicKeys();
@@ -355,7 +352,7 @@ class JwtConfigTest {
 
             properties.setPreviousPublicKeysBase64(previousKeyBase64);
 
-            JwtConfig config = new JwtConfig(properties, environment);
+            JwtConfig config = new JwtConfig(properties);
 
             // Act
             List<RSAPublicKey> previousKeys = config.previousPublicKeys();
