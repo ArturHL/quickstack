@@ -16,6 +16,7 @@ COPY mvnw pom.xml ./
 COPY quickstack-common/pom.xml quickstack-common/
 COPY quickstack-tenant/pom.xml quickstack-tenant/
 COPY quickstack-branch/pom.xml quickstack-branch/
+COPY quickstack-auth/pom.xml quickstack-auth/
 COPY quickstack-user/pom.xml quickstack-user/
 COPY quickstack-product/pom.xml quickstack-product/
 COPY quickstack-pos/pom.xml quickstack-pos/
@@ -28,6 +29,7 @@ RUN ./mvnw dependency:go-offline -B
 COPY quickstack-common/src quickstack-common/src
 COPY quickstack-tenant/src quickstack-tenant/src
 COPY quickstack-branch/src quickstack-branch/src
+COPY quickstack-auth/src quickstack-auth/src
 COPY quickstack-user/src quickstack-user/src
 COPY quickstack-product/src quickstack-product/src
 COPY quickstack-pos/src quickstack-pos/src
