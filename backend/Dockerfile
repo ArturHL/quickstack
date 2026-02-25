@@ -23,7 +23,7 @@ COPY quickstack-pos/pom.xml quickstack-pos/
 COPY quickstack-app/pom.xml quickstack-app/
 
 # Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline -B
+RUN MAVEN_OPTS="-Xmx256m -XX:MaxMetaspaceSize=128m" ./mvnw dependency:go-offline -B
 
 # Copy source code
 COPY quickstack-common/src quickstack-common/src
@@ -35,8 +35,8 @@ COPY quickstack-product/src quickstack-product/src
 COPY quickstack-pos/src quickstack-pos/src
 COPY quickstack-app/src quickstack-app/src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests -B
+# Build the application (memory-constrained for Render free tier)
+RUN MAVEN_OPTS="-Xmx400m -XX:MaxMetaspaceSize=128m" ./mvnw clean package -DskipTests -B
 
 # Extract layers for efficient Docker caching
 RUN java -Djarmode=layertools -jar quickstack-app/target/*.jar extract --destination extracted
