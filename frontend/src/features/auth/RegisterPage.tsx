@@ -78,10 +78,9 @@ const RegisterPage = () => {
     }
     setPasswordMismatch(false)
 
-    // TODO: Implement Phase 1 - Get tenantId from invitation link or tenant selection flow
-    // TODO: Get roleId from backend based on user type
-    const tenantId = '' // Will be provided by Phase 1 tenant management
-    const roleId = ''   // Will be provided by Phase 1 role assignment
+    // TEMP: hardcoded test tenant/role — remove before MVP launch
+    const tenantId = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+    const roleId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 
     register({
       fullName,
