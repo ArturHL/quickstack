@@ -1,9 +1,9 @@
 # Phase 1.3: Sistema de Pedidos y Pagos — Order Management Roadmap
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-19
-> **Status:** PENDIENTE - Sprint 0/6
-> **Modulo Maven:** `quickstack-order` (crear nuevo modulo)
+> **Version:** 1.2.0
+> **Fecha:** 2026-02-25
+> **Status:** EN PROGRESO - Sprint 2/6 ✅
+> **Modulo Maven:** `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Orders/Payments)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
 ---
@@ -12,7 +12,7 @@
 
 Este documento define el plan de implementacion de la **tercera sub-fase de Phase 1**: el sistema completo de pedidos, pagos y gestion operativa para QuickStack POS.
 
-**Importante:** Esta sub-fase crea el modulo `quickstack-order` desde cero e integra todos los modulos anteriores (product, tenant, auth) para completar el flujo de ventas end-to-end. Incluye areas/mesas, clientes, sucursales y el calculo completo de totales con impuestos.
+**Importante:** Esta sub-fase utiliza dos modulos Maven: `quickstack-branch` (infraestructura fisica: sucursales, areas, mesas) y `quickstack-pos` (transacciones comerciales: clientes, ordenes, pagos). Ambos integran los modulos anteriores (product, tenant, auth) para completar el flujo de ventas end-to-end.
 
 | Aspecto | Detalle |
 |---------|---------|
@@ -32,9 +32,11 @@ Este documento define el plan de implementacion de la **tercera sub-fase de Phas
 
 | Decision | Valor | Justificacion |
 |----------|-------|---------------|
-| Modulo | `quickstack-order` (NUEVO) | Separar domain de pedidos del catalogo de productos |
-| Dependencias del modulo | `quickstack-common`, `quickstack-tenant`, `quickstack-product` | Acceso a productos para validacion y calculo de precios |
-| Controladores | En `quickstack-app` | Patron establecido: controllers en app, domain en modulos |
+| Modulo infraestructura | `quickstack-branch` | Branch/Area/Table — ciclo de vida de configuracion fisica, actor: admin/gerente, soft delete |
+| Modulo transaccional | `quickstack-pos` | Customer/Order/Payment — ciclo de vida de ventas, actor: cajero/mesero, orders never delete |
+| Dependencias pos | `quickstack-common`, `quickstack-tenant`, `quickstack-branch`, `quickstack-product` | Acceso a productos y ubicaciones para validacion y calculo de precios |
+| Controladores | En cada modulo de feature | Patron establecido: controllers viven en el modulo de dominio |
+| **ADR-002** | No crear `quickstack-order` | Branch y Order tienen ciclos de cambio, actores y politicas de datos distintos — separar en dos modulos es mas limpio que uno monolitico |
 
 ### Base de Datos
 
@@ -168,92 +170,57 @@ Todas las operaciones filtran por `tenant_id` extraido del JWT. Ningun endpoint 
 
 ## Arquitectura de Componentes
 
-```
-quickstack-order/                              <- NUEVO MODULO
-├── src/main/java/com/quickstack/order/
-│   ├── dto/
-│   │   ├── request/
-│   │   │   ├── BranchCreateRequest.java
-│   │   │   ├── BranchUpdateRequest.java
-│   │   │   ├── AreaCreateRequest.java
-│   │   │   ├── TableCreateRequest.java
-│   │   │   ├── CustomerCreateRequest.java
-│   │   │   ├── OrderCreateRequest.java
-│   │   │   ├── OrderItemRequest.java
-│   │   │   ├── OrderItemModifierRequest.java
-│   │   │   ├── PaymentRequest.java
-│   │   │   └── OrderStatusUpdateRequest.java
-│   │   └── response/
-│   │       ├── BranchResponse.java
-│   │       ├── AreaResponse.java
-│   │       ├── TableResponse.java
-│   │       ├── CustomerResponse.java
-│   │       ├── OrderResponse.java
-│   │       ├── OrderItemResponse.java
-│   │       ├── PaymentResponse.java
-│   │       └── DailySummaryResponse.java
-│   ├── entity/
-│   │   ├── Branch.java
-│   │   ├── Area.java
-│   │   ├── Table.java
-│   │   ├── Customer.java
-│   │   ├── Order.java
-│   │   ├── OrderItem.java
-│   │   ├── OrderItemModifier.java
-│   │   ├── Payment.java
-│   │   └── OrderStatusHistory.java
-│   ├── repository/
-│   │   ├── BranchRepository.java
-│   │   ├── AreaRepository.java
-│   │   ├── TableRepository.java
-│   │   ├── CustomerRepository.java
-│   │   ├── OrderRepository.java
-│   │   └── PaymentRepository.java
-│   └── service/
-│       ├── BranchService.java
-│       ├── AreaService.java
-│       ├── TableService.java
-│       ├── CustomerService.java
-│       ├── OrderService.java
-│       ├── PaymentService.java
-│       └── OrderCalculationService.java        <- Calculo de totales
+> **ADR-002 (2026-02-25):** Se descarto `quickstack-order` como modulo unico. En su lugar se usan dos modulos con ciclos de vida y actores distintos: `quickstack-branch` (infraestructura fisica, soft delete) y `quickstack-pos` (transacciones, never delete). Los controllers viven en cada modulo de feature, no en `quickstack-app`.
 
-quickstack-app/
-├── src/main/java/com/quickstack/app/
-│   ├── controller/
-│   │   ├── BranchController.java               <- NUEVO
-│   │   ├── AreaController.java                 <- NUEVO
-│   │   ├── TableController.java                <- NUEVO
-│   │   ├── CustomerController.java             <- NUEVO
-│   │   ├── OrderController.java                <- NUEVO
-│   │   └── PaymentController.java              <- NUEVO
-│   └── security/
-│       └── OrderPermissionEvaluator.java       <- NUEVO
+```
+quickstack-branch/                             <- infraestructura fisica (Sprint 1) ✅
+├── src/main/java/com/quickstack/branch/
+│   ├── dto/request/   BranchCreateRequest, BranchUpdateRequest,
+│   │                  AreaCreateRequest, AreaUpdateRequest,
+│   │                  TableCreateRequest, TableUpdateRequest, TableStatusUpdateRequest
+│   ├── dto/response/  BranchResponse, AreaResponse, TableResponse
+│   ├── entity/        Branch, Area, RestaurantTable, TableStatus
+│   ├── repository/    BranchRepository, AreaRepository, TableRepository
+│   ├── service/       BranchService, AreaService, TableService
+│   ├── controller/    BranchController, AreaController, TableController
+│   └── security/      BranchPermissionEvaluator
+
+quickstack-pos/                                <- transacciones comerciales (Sprints 2-6)
+├── src/main/java/com/quickstack/pos/
+│   ├── dto/request/   CustomerCreateRequest, CustomerUpdateRequest,
+│   │                  OrderCreateRequest, OrderItemRequest, OrderItemModifierRequest,
+│   │                  PaymentRequest, OrderStatusUpdateRequest
+│   ├── dto/response/  CustomerResponse, OrderResponse, OrderItemResponse,
+│   │                  PaymentResponse, DailySummaryResponse
+│   ├── entity/        Customer (Sprint 2 ✅), Order, OrderItem,
+│   │                  OrderItemModifier, Payment, OrderStatusHistory
+│   ├── repository/    CustomerRepository (Sprint 2 ✅), OrderRepository, PaymentRepository
+│   ├── service/       CustomerService (Sprint 2 ✅), OrderService,
+│   │                  PaymentService, OrderCalculationService
+│   ├── controller/    CustomerController (Sprint 2 ✅), OrderController, PaymentController
+│   └── security/      PosPermissionEvaluator (Sprint 2 ✅)
 ```
 
 ---
 
-## Sprint 1: Infraestructura — Branches, Areas, Tables
+## Sprint 1: Infraestructura — Branches, Areas, Tables ✅ COMPLETADO
 
-**Duracion:** 2 dias | **Objetivo:** CRUD completo de entidades operativas
+**Duracion:** 2 dias | **Objetivo:** CRUD completo de entidades operativas | **Tests:** 60 unit + 14 integration = 74 tests
 
-### [BACKEND] Tarea 1.1: Crear Modulo quickstack-order
+### [BACKEND] Tarea 1.1: Activar modulo quickstack-branch ✅
 
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
-Crear estructura del nuevo modulo Maven.
+Modulo `quickstack-branch` ya existia como stub. Se activaron dependencias JPA, Validation y Testcontainers.
 
 **Criterios de Aceptacion:**
-- [ ] Crear `quickstack-order/pom.xml` con dependencias a `quickstack-common`, `quickstack-tenant`, `quickstack-product`
-- [ ] Agregar dependencias: Spring Data JPA, Lombok, Validation
-- [ ] Actualizar `quickstack-app/pom.xml` para incluir `quickstack-order` como dependencia
-- [ ] Crear estructura de paquetes: dto, entity, repository, service
-- [ ] `mvn compile` pasa sin errores
-- [ ] No requiere tests (solo estructura)
+- [x] `quickstack-branch/pom.xml` actualizado con JPA, Validation, Testcontainers
+- [x] `quickstack-pos/pom.xml` depende de `quickstack-branch`
+- [x] Estructura de paquetes: dto, entity, repository, service, controller, security
+- [x] `mvn compile` pasa sin errores
 
 **Archivos:**
-- `quickstack-order/pom.xml`
-- `quickstack-app/pom.xml` (modificar)
+- `quickstack-branch/pom.xml` (actualizado)
 
 ---
 
@@ -272,11 +239,11 @@ Entidades JPA mapeadas a tablas ya existentes en V5 y V4.
 - [ ] Tests unitarios: 8 tests (constructor, enum parsing, relationships)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Branch.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Area.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Table.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/TableStatus.java`
-- `quickstack-order/src/test/java/com/quickstack/order/entity/BranchEntityTest.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/entity/Branch.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/entity/Area.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/entity/Table.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/entity/TableStatus.java`
+- `quickstack-branch/src/test/java/com/quickstack/branch/entity/BranchEntityTest.java`
 
 ---
 
@@ -294,10 +261,10 @@ Repositorios JPA con queries tenant-safe.
 - [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 18 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/repository/BranchRepository.java`
-- `quickstack-order/src/main/java/com/quickstack/order/repository/AreaRepository.java`
-- `quickstack-order/src/main/java/com/quickstack/order/repository/TableRepository.java`
-- `quickstack-order/src/test/java/com/quickstack/order/repository/BranchRepositoryTest.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/repository/BranchRepository.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/repository/AreaRepository.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/repository/TableRepository.java`
+- `quickstack-branch/src/test/java/com/quickstack/branch/repository/BranchRepositoryTest.java`
 
 ---
 
@@ -317,11 +284,11 @@ DTOs, services y logica de negocio basica.
 - [ ] Tests unitarios con mocks: 36 tests (12 por servicio)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/dto/...` (6 request + 3 response DTOs)
-- `quickstack-order/src/main/java/com/quickstack/order/service/BranchService.java`
-- `quickstack-order/src/main/java/com/quickstack/order/service/AreaService.java`
-- `quickstack-order/src/main/java/com/quickstack/order/service/TableService.java`
-- `quickstack-order/src/test/java/com/quickstack/order/service/BranchServiceTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/...` (6 request + 3 response DTOs)
+- `quickstack-branch/src/main/java/com/quickstack/branch/service/BranchService.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/service/AreaService.java`
+- `quickstack-branch/src/main/java/com/quickstack/branch/service/TableService.java`
+- `quickstack-branch/src/test/java/com/quickstack/branch/service/BranchServiceTest.java`
 
 ---
 
@@ -383,8 +350,8 @@ Entidad JPA para clientes.
 - [ ] Tests unitarios: 5 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Customer.java`
-- `quickstack-order/src/test/java/com/quickstack/order/entity/CustomerTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/Customer.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/entity/CustomerTest.java`
 
 ---
 
@@ -403,8 +370,8 @@ Repositorio JPA para clientes.
 - [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 12 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/repository/CustomerRepository.java`
-- `quickstack-order/src/test/java/com/quickstack/order/repository/CustomerRepositoryTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/repository/CustomerRepository.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/repository/CustomerRepositoryTest.java`
 
 ---
 
@@ -423,11 +390,11 @@ DTOs y logica de negocio para clientes.
 - [ ] Tests unitarios con mocks: 18 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/CustomerCreateRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/CustomerUpdateRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/response/CustomerResponse.java`
-- `quickstack-order/src/main/java/com/quickstack/order/service/CustomerService.java`
-- `quickstack-order/src/test/java/com/quickstack/order/service/CustomerServiceTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/CustomerCreateRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/CustomerUpdateRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/response/CustomerResponse.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/CustomerService.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/CustomerServiceTest.java`
 
 ---
 
@@ -492,13 +459,13 @@ Entidades JPA para pedidos.
 - [ ] Tests unitarios: 12 tests (constructors, enums, relationships, computed lineTotal)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Order.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/OrderItem.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/OrderItemModifier.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/ServiceType.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/OrderSource.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/KdsStatus.java`
-- `quickstack-order/src/test/java/com/quickstack/order/entity/OrderEntityTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/Order.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/OrderItem.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/OrderItemModifier.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/ServiceType.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/OrderSource.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/KdsStatus.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/entity/OrderEntityTest.java`
 
 ---
 
@@ -518,8 +485,8 @@ Repositorio JPA para orders.
 - [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 14 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/repository/OrderRepository.java`
-- `quickstack-order/src/test/java/com/quickstack/order/repository/OrderRepositoryTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/repository/OrderRepository.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/repository/OrderRepositoryTest.java`
 
 ---
 
@@ -539,8 +506,8 @@ Servicio para calculo de totales de orden.
 - [ ] Tests unitarios: 12 tests (precision decimal, casos edge: subtotal=0, discount > subtotal, etc.)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/service/OrderCalculationService.java`
-- `quickstack-order/src/test/java/com/quickstack/order/service/OrderCalculationServiceTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderCalculationService.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/OrderCalculationServiceTest.java`
 
 ---
 
@@ -577,12 +544,12 @@ Objetos de transferencia para orders.
 - [ ] Tests unitarios: 14 tests (Bean Validation, cross-field validation)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/OrderCreateRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/OrderItemRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/OrderItemModifierRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/response/OrderResponse.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/response/OrderItemResponse.java`
-- `quickstack-order/src/test/java/com/quickstack/order/dto/OrderDtoTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/OrderCreateRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/OrderItemRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/OrderItemModifierRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/response/OrderResponse.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/response/OrderItemResponse.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/dto/OrderDtoTest.java`
 
 ---
 
@@ -608,8 +575,8 @@ Logica de negocio para crear ordenes.
 - [ ] Tests unitarios con mocks: 20 tests (happy paths para cada service type, producto no disponible, mesa ocupada, etc.)
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/service/OrderService.java`
-- `quickstack-order/src/test/java/com/quickstack/order/service/OrderServiceTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderService.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/OrderServiceTest.java`
 
 ---
 
@@ -646,8 +613,8 @@ Metodos adicionales de OrderService.
 - [ ] Tests unitarios con mocks: 22 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/service/OrderService.java` (expandir)
-- `quickstack-order/src/test/java/com/quickstack/order/service/OrderServiceTest.java` (expandir)
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderService.java` (expandir)
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/OrderServiceTest.java` (expandir)
 
 ---
 
@@ -714,9 +681,9 @@ Entidad JPA para pagos.
 - [ ] Tests unitarios: 5 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/entity/Payment.java`
-- `quickstack-order/src/main/java/com/quickstack/order/entity/PaymentMethod.java`
-- `quickstack-order/src/test/java/com/quickstack/order/entity/PaymentTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/Payment.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/PaymentMethod.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/entity/PaymentTest.java`
 
 ---
 
@@ -732,8 +699,8 @@ Repositorio JPA para pagos.
 - [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 8 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/repository/PaymentRepository.java`
-- `quickstack-order/src/test/java/com/quickstack/order/repository/PaymentRepositoryTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/repository/PaymentRepository.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/repository/PaymentRepositoryTest.java`
 
 ---
 
@@ -760,10 +727,10 @@ DTOs y logica de negocio para pagos.
 - [ ] Tests unitarios con mocks: 16 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/dto/request/PaymentRequest.java`
-- `quickstack-order/src/main/java/com/quickstack/order/dto/response/PaymentResponse.java`
-- `quickstack-order/src/main/java/com/quickstack/order/service/PaymentService.java`
-- `quickstack-order/src/test/java/com/quickstack/order/service/PaymentServiceTest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/PaymentRequest.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/response/PaymentResponse.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/PaymentService.java`
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/PaymentServiceTest.java`
 
 ---
 
@@ -836,9 +803,9 @@ Endpoint de resumen de ventas del dia.
 - [ ] Tests unitarios: 8 tests
 
 **Archivos:**
-- `quickstack-order/src/main/java/com/quickstack/order/dto/response/DailySummaryResponse.java`
-- `quickstack-order/src/main/java/com/quickstack/order/service/OrderService.java` (agregar metodo)
-- `quickstack-order/src/test/java/com/quickstack/order/service/OrderServiceTest.java` (expandir)
+- `quickstack-pos/src/main/java/com/quickstack/pos/dto/response/DailySummaryResponse.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderService.java` (agregar metodo)
+- `quickstack-pos/src/test/java/com/quickstack/pos/service/OrderServiceTest.java` (expandir)
 
 ---
 

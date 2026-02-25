@@ -86,6 +86,13 @@ public class SecurityConfig {
                                 "/api/v1/modifier-groups/**", "/api/v1/modifiers/**",
                                 "/api/v1/combos/**").authenticated()
 
+                        // Branch management requires JWT
+                        .requestMatchers("/api/v1/branches/**", "/api/v1/areas/**",
+                                "/api/v1/tables/**").authenticated()
+
+                        // POS customer management requires JWT
+                        .requestMatchers("/api/v1/customers/**").authenticated()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
 

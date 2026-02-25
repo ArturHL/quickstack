@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-24
-> **Estado:** Phase 1.2 ✅ COMPLETADA (4/4 sprints) | Modifiers ✅ | Combos ✅ | Menu integration ✅ | Próximo: Phase 1.3 Pedidos + Pagos
+> **Última actualización:** 2026-02-25
+> **Estado:** Phase 1.3 ⏳ EN PROGRESO (2/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.2 completada, iniciando Phase 1.3
+**Status**: En progreso — Phase 1.3 Sprint 2/6 completado
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -247,7 +247,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
-| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
+| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ En progreso (2/6 sprints) |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
 ### Scope de Phase 1
@@ -698,6 +698,28 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-25 (Phase 1.3 Sprint 1 + Sprint 2)
+
+- **Phase 1.3 Sprint 1/6 COMPLETADO — Branch, Area, Table:**
+  - Módulo `quickstack-branch` activado (Branch, Area, RestaurantTable + TableStatus enum)
+  - 3 repositorios tenant-safe con soft delete filtering
+  - 3 servicios CRUD con validaciones de unicidad y IDOR protection
+  - `BranchPermissionEvaluator` (canManageBranch=OWNER, canManageArea/canManageTable=MANAGER+)
+  - 3 controllers REST: `/api/v1/branches`, `/api/v1/branches/{id}/areas`, `/api/v1/areas/{id}/tables`
+  - `PATCH /api/v1/tables/{id}/status` para cambio de estado de mesa
+  - 60 tests en `quickstack-branch` + 14 integration tests
+  - **ADR-002:** Descartado `quickstack-order` — se usa `quickstack-branch` + `quickstack-pos` con ciclos de cambio y políticas de datos distintas
+
+- **Phase 1.3 Sprint 2/6 COMPLETADO — Customer CRUD:**
+  - Módulo `quickstack-pos` activado con entidad `Customer`
+  - `CustomerRepository` con búsqueda ILIKE por nombre/phone/email
+  - `CustomerService` con CRUD completo + `incrementOrderStats()` para uso futuro desde OrderService
+  - `PosPermissionEvaluator` (canCreateCustomer=OWNER/MANAGER/CASHIER, canDeleteCustomer=MANAGER+)
+  - `CustomerController` en `/api/v1/customers` (5 endpoints)
+  - Validación cross-field: al menos uno de phone/email/whatsapp requerido
+  - 36 tests en `quickstack-pos` + 10 integration tests
+  - **Acumulado total: ~993 tests backend**
 
 ### 2026-02-24 (Phase 1.2 Sprint 4)
 - **Phase 1.2 COMPLETADA — Sprint 4/4: Menu Integration:**
