@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,4 +68,17 @@ public interface ModifierGroupRepository extends JpaRepository<ModifierGroup, UU
      * @return true if another modifier group with that name already exists
      */
     boolean existsByNameAndProductIdAndTenantIdAndIdNot(String name, UUID productId, UUID tenantId, UUID excludeId);
+
+    /**
+     * Batch-loads all non-deleted modifier groups for a set of product IDs.
+     * Used by MenuService to avoid N+1 queries when building the full menu.
+     *
+     * @param productIds the set of product IDs
+     * @param tenantId   the tenant ID
+     * @return list of modifier groups ordered by sort_order ascending
+     */
+    @Query("SELECT mg FROM ModifierGroup mg WHERE mg.productId IN :productIds AND mg.tenantId = :tenantId AND mg.deletedAt IS NULL ORDER BY mg.sortOrder ASC")
+    List<ModifierGroup> findAllByProductIdInAndTenantId(
+            @Param("productIds") Collection<UUID> productIds,
+            @Param("tenantId") UUID tenantId);
 }

@@ -62,4 +62,14 @@ public interface ComboRepository extends JpaRepository<Combo, UUID> {
      * @return true if another combo with that name already exists
      */
     boolean existsByNameAndTenantIdAndIdNot(String name, UUID tenantId, UUID excludeId);
+
+    /**
+     * Finds all active (is_active=true), non-deleted combos for a tenant, ordered by sort_order.
+     * Used by MenuService to build the public menu view.
+     *
+     * @param tenantId the tenant ID
+     * @return list of active combos ordered by sort_order ascending
+     */
+    @Query("SELECT c FROM Combo c WHERE c.tenantId = :tenantId AND c.isActive = true AND c.deletedAt IS NULL ORDER BY c.sortOrder ASC")
+    List<Combo> findAllActiveForMenuByTenantId(@Param("tenantId") UUID tenantId);
 }

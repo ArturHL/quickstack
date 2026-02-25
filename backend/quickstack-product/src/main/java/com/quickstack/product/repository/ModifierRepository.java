@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,5 +81,18 @@ public interface ModifierRepository extends JpaRepository<Modifier, UUID> {
     @Query("SELECT COUNT(m) FROM Modifier m WHERE m.modifierGroupId = :modifierGroupId AND m.tenantId = :tenantId AND m.isActive = true AND m.deletedAt IS NULL")
     long countActiveByModifierGroupId(
             @Param("modifierGroupId") UUID modifierGroupId,
+            @Param("tenantId") UUID tenantId);
+
+    /**
+     * Batch-loads all active, non-deleted modifiers for a set of modifier group IDs.
+     * Used by MenuService to avoid N+1 queries when building the full menu.
+     *
+     * @param groupIds the set of modifier group IDs
+     * @param tenantId the tenant ID
+     * @return list of active modifiers ordered by sort_order ascending
+     */
+    @Query("SELECT m FROM Modifier m WHERE m.modifierGroupId IN :groupIds AND m.tenantId = :tenantId AND m.isActive = true AND m.deletedAt IS NULL ORDER BY m.sortOrder ASC")
+    List<Modifier> findAllByModifierGroupIdInAndTenantId(
+            @Param("groupIds") Collection<UUID> groupIds,
             @Param("tenantId") UUID tenantId);
 }

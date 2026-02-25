@@ -13,9 +13,12 @@ public record MenuProductItem(
     String imageUrl,
     boolean isAvailable,
     ProductType productType,
-    List<MenuVariantItem> variants
+    List<MenuVariantItem> variants,
+    List<MenuModifierGroupItem> modifierGroups
 ) {
-    public static MenuProductItem from(Product product, List<MenuVariantItem> variants) {
+    public static MenuProductItem from(Product product,
+                                       List<MenuVariantItem> variants,
+                                       List<MenuModifierGroupItem> modifierGroups) {
         return new MenuProductItem(
             product.getId(),
             product.getName(),
@@ -23,7 +26,8 @@ public record MenuProductItem(
             product.getImageUrl(),
             product.isAvailable(),
             product.getProductType(),
-            variants
+            variants,
+            modifierGroups
         );
     }
 }

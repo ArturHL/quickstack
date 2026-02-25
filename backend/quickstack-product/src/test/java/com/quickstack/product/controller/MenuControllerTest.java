@@ -50,12 +50,12 @@ class MenuControllerTest {
     void getMenuReturns200WithFullMenu() {
         MenuProductItem product = new MenuProductItem(
             UUID.randomUUID(), "Taco", new BigDecimal("25.00"),
-            null, true, ProductType.SIMPLE, List.of()
+            null, true, ProductType.SIMPLE, List.of(), List.of()
         );
         MenuCategoryItem category = new MenuCategoryItem(
             UUID.randomUUID(), "Tacos", 0, null, List.of(product)
         );
-        MenuResponse expectedMenu = MenuResponse.of(List.of(category));
+        MenuResponse expectedMenu = MenuResponse.of(List.of(category), List.of());
         when(menuService.getMenu(TENANT_ID)).thenReturn(expectedMenu);
 
         ResponseEntity<ApiResponse<MenuResponse>> response = menuController.getMenu(principal);
@@ -102,6 +102,7 @@ class MenuControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().data().categories()).isEmpty();
+        assertThat(response.getBody().data().combos()).isEmpty();
     }
 
     @Test
@@ -126,12 +127,12 @@ class MenuControllerTest {
             );
         MenuProductItem variantProduct = new MenuProductItem(
             UUID.randomUUID(), "Café", new BigDecimal("50.00"),
-            null, true, ProductType.VARIANT, List.of(variant)
+            null, true, ProductType.VARIANT, List.of(variant), List.of()
         );
         MenuCategoryItem category = new MenuCategoryItem(
             UUID.randomUUID(), "Bebidas", 0, null, List.of(variantProduct)
         );
-        when(menuService.getMenu(TENANT_ID)).thenReturn(MenuResponse.of(List.of(category)));
+        when(menuService.getMenu(TENANT_ID)).thenReturn(MenuResponse.of(List.of(category), List.of()));
 
         ResponseEntity<ApiResponse<MenuResponse>> response = menuController.getMenu(principal);
 
