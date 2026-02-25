@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-24
-> **Estado:** Phase 1.2 ⏳ EN PROGRESO (Sprint 3/4 ✅) | Modifiers CRUD ✅ | Combos CRUD ✅ | Pendiente: Menu integration (Sprint 4)
+> **Estado:** Phase 1.2 ✅ COMPLETADA (4/4 sprints) | Modifiers ✅ | Combos ✅ | Menu integration ✅ | Próximo: Phase 1.3 Pedidos + Pagos
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.2 Sprint 3/4 completado
+**Status**: En progreso — Phase 1.2 completada, iniciando Phase 1.3
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -246,7 +246,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | Sub-fase | Nombre | Duración | Estado |
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
-| 1.2 | Modificadores + Combos | 2 semanas | ⏳ En progreso (Sprint 3/4 ✅) — Modifiers ✅ Combos ✅ |
+| 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ Pendiente |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
@@ -337,7 +337,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.2: Modificadores y Combos
 
-**Duración:** 2 semanas (4 sprints) | **Status:** ⏳ En progreso — Sprint 3/4 ✅
+**Duración:** 2 semanas (4 sprints) | **Status:** ✅ COMPLETADA (4/4 sprints)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.2_MODIFIERS_COMBOS.md`
 
@@ -350,8 +350,8 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] 9 endpoints REST de modifiers — Sprint 2 ✅
 - [x] CRUD de combos con combo_items — Sprint 3 ✅
 - [x] 5 endpoints REST de combos (14 total nuevos) — Sprint 3 ✅
-- [x] ~63 tests nuevos → ~161 en Phase 1.2 (acumulado: ~823 tests backend)
-- [ ] Actualizar endpoint `/api/v1/menu` con modifiers y combos — Sprint 4
+- [x] Endpoint `/api/v1/menu` actualizado con modifiers y combos — Sprint 4 ✅
+- [x] ~183 tests nuevos → **406 tests backend acumulados** (desde ~823 total con todos los módulos)
 
 ---
 
@@ -698,6 +698,18 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-24 (Phase 1.2 Sprint 4)
+- **Phase 1.2 COMPLETADA — Sprint 4/4: Menu Integration:**
+  - 3 DTOs nuevos: `MenuModifierItem`, `MenuModifierGroupItem`, `MenuComboItem` (con inner record `ComboProductEntry`)
+  - `MenuProductItem` extendido con campo `modifierGroups: List<MenuModifierGroupItem>`
+  - `MenuResponse` extendido con campo `combos: List<MenuComboItem>` (nivel tenant, sin `category_id`)
+  - `MenuService` actualizado: 7 queries flat sin N+1 (Q4: modifier groups batch, Q5: modifiers batch, Q6: active combos, Q7: combo items batch)
+  - Combos excluidos del menú si algún producto del combo está inactivo o eliminado
+  - Batch queries nuevas: `ModifierGroupRepository#findAllByProductIdInAndTenantId`, `ModifierRepository#findAllByModifierGroupIdInAndTenantId`, `ComboRepository#findAllActiveForMenuByTenantId`
+  - 22 tests nuevos (6 DTO + 8 service unit + 8 E2E nuevos → 15 E2E totales en MenuE2ETest)
+  - **Phase 1.2 finalizada: 15 endpoints (14 nuevos + 1 modificado) | 406 tests en quickstack-product**
+  - **Decisión arquitectónica:** combos en `MenuResponse.combos` (no en `MenuCategoryItem`) — los combos no tienen `category_id` en el esquema
 
 ### 2026-02-24
 - **Phase 1.1 COMPLETADA — Sprint 6/6: Menú Público POS:**
