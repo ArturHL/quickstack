@@ -60,12 +60,12 @@ public class SessionService {
      *
      * @param userId    the authenticated user ID
      * @param sessionId the session (refresh token) ID to revoke
-     * @throws SessionNotFoundException if session does not exist
+     * @throws SessionNotFoundException     if session does not exist
      * @throws SessionAccessDeniedException if session belongs to another user
      */
     @Transactional
     public void revokeSession(UUID userId, UUID sessionId) {
-        RefreshToken token = refreshTokenRepository.findById(sessionId)
+        RefreshToken token = refreshTokenRepository.findById(java.util.Objects.requireNonNull(sessionId))
                 .orElseThrow(() -> new SessionNotFoundException(sessionId));
 
         if (!token.getUserId().equals(userId)) {
@@ -85,7 +85,8 @@ public class SessionService {
      * Revokes all sessions for a user, optionally excluding the current session.
      *
      * @param userId          the user ID
-     * @param exceptSessionId session to preserve (e.g., current session), or null to revoke all
+     * @param exceptSessionId session to preserve (e.g., current session), or null
+     *                        to revoke all
      */
     @Transactional
     public void revokeAllSessions(UUID userId, UUID exceptSessionId) {
@@ -116,16 +117,14 @@ public class SessionService {
             String ipAddress,
             String userAgent,
             Instant createdAt,
-            Instant expiresAt
-    ) {
+            Instant expiresAt) {
         public static SessionInfo from(RefreshToken token) {
             return new SessionInfo(
                     token.getId(),
                     token.getIpAddress(),
                     token.getUserAgent(),
                     token.getCreatedAt(),
-                    token.getExpiresAt()
-            );
+                    token.getExpiresAt());
         }
     }
 

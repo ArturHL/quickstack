@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.util.Objects;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +31,9 @@ import java.time.Duration;
  * <p>
  * ASVS V2.1.7: Check passwords against known breaches.
  *
- * @see <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange">HIBP API Documentation</a>
+ * @see <a href=
+ *      "https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange">HIBP
+ *      API Documentation</a>
  */
 @Component
 public class HibpClient implements PasswordBreachChecker {
@@ -48,7 +51,7 @@ public class HibpClient implements PasswordBreachChecker {
         this.restClient = createRestClient();
 
         log.info("HibpClient initialized: apiUrl={}, enabled={}, blockOnFailure={}",
-            config.getApiUrl(), config.isEnabled(), config.isBlockOnFailure());
+                config.getApiUrl(), config.isEnabled(), config.isBlockOnFailure());
     }
 
     /**
@@ -58,7 +61,8 @@ public class HibpClient implements PasswordBreachChecker {
      *
      * @param password the password to check (never logged or sent in full)
      * @throws PasswordCompromisedException if password found in breach database
-     * @throws PasswordValidationException if breach check fails and blockOnFailure is true
+     * @throws PasswordValidationException  if breach check fails and blockOnFailure
+     *                                      is true
      */
     @Override
     public void checkPassword(String password) {
@@ -115,15 +119,15 @@ public class HibpClient implements PasswordBreachChecker {
 
     private RestClient createRestClient() {
         var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofMillis(config.getTimeoutMillis()));
-        factory.setReadTimeout(Duration.ofMillis(config.getTimeoutMillis()));
+        factory.setConnectTimeout(Objects.requireNonNull(Duration.ofMillis(config.getTimeoutMillis())));
+        factory.setReadTimeout(Objects.requireNonNull(Duration.ofMillis(config.getTimeoutMillis())));
 
         return RestClient.builder()
-            .baseUrl(config.getApiUrl())
-            .requestFactory(factory)
-            .defaultHeader("User-Agent", USER_AGENT)
-            .defaultHeader("Add-Padding", "true") // Prevents response size analysis
-            .build();
+                .baseUrl(Objects.requireNonNull(config.getApiUrl()))
+                .requestFactory(factory)
+                .defaultHeader("User-Agent", USER_AGENT)
+                .defaultHeader("Add-Padding", "true") // Prevents response size analysis
+                .build();
     }
 
     private String fetchHashSuffixes(String hashPrefix) {
@@ -137,16 +141,16 @@ public class HibpClient implements PasswordBreachChecker {
 
             try {
                 String response = restClient.get()
-                    .uri(hashPrefix)
-                    .retrieve()
-                    .body(String.class);
+                        .uri(Objects.requireNonNull(hashPrefix))
+                        .retrieve()
+                        .body(String.class);
 
                 // Empty string is a valid response (no matches for this prefix)
                 return response != null ? response : "";
             } catch (RestClientException e) {
                 lastException = e;
                 log.warn("HIBP API request failed (attempt {}/{}): {}",
-                    attempt + 1, maxRetries + 1, e.getMessage());
+                        attempt + 1, maxRetries + 1, e.getMessage());
             }
         }
 
@@ -159,7 +163,8 @@ public class HibpClient implements PasswordBreachChecker {
         String upperSuffix = hashSuffix.toUpperCase();
 
         for (String line : response.split("\r?\n")) {
-            if (line.isEmpty()) continue;
+            if (line.isEmpty())
+                continue;
 
             int colonIndex = line.indexOf(':');
             if (colonIndex > 0) {
@@ -201,7 +206,8 @@ public class HibpClient implements PasswordBreachChecker {
 
     private String sha1Hash(String input) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1"); // nosemgrep: java.lang.security.audit.crypto.use-of-sha1.use-of-sha1
+            MessageDigest digest = MessageDigest.getInstance("SHA-1"); // nosemgrep:
+                                                                       // java.lang.security.audit.crypto.use-of-sha1.use-of-sha1
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(hash);
         } catch (NoSuchAlgorithmException e) {

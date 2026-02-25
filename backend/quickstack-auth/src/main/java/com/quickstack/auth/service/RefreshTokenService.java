@@ -47,8 +47,7 @@ public class RefreshTokenService {
     public RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
             JwtProperties jwtProperties,
-            Clock clock
-    ) {
+            Clock clock) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtProperties = jwtProperties;
         this.clock = clock;
@@ -60,7 +59,7 @@ public class RefreshTokenService {
      * A new family ID is generated for initial token creation.
      * Subsequent rotations maintain the same family ID.
      *
-     * @param userId the user ID
+     * @param userId    the user ID
      * @param ipAddress client IP address
      * @param userAgent client user agent
      * @return the generated plain-text refresh token (store securely!)
@@ -81,10 +80,9 @@ public class RefreshTokenService {
         Instant expiresAt = clock.instant().plus(jwtProperties.getRefreshTokenExpiration());
 
         RefreshToken refreshToken = RefreshToken.create(
-                userId, tokenHash, familyId, expiresAt, ipAddress, userAgent
-        );
+                userId, tokenHash, familyId, expiresAt, ipAddress, userAgent);
 
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(java.util.Objects.requireNonNull(refreshToken));
 
         log.debug("Created refresh token for user {} with family {}", userId, familyId);
         return plainToken;
@@ -134,12 +132,13 @@ public class RefreshTokenService {
     /**
      * Rotates a refresh token.
      * <p>
-     * The old token is revoked and a new token is generated with the same family ID.
+     * The old token is revoked and a new token is generated with the same family
+     * ID.
      * This implements ASVS V3.5.1 refresh token rotation.
      *
      * @param plainToken the current plain-text refresh token
-     * @param ipAddress new client IP address
-     * @param userAgent new client user agent
+     * @param ipAddress  new client IP address
+     * @param userAgent  new client user agent
      * @return result containing the new token and user ID
      * @throws InvalidTokenException if the token is invalid
      */
@@ -156,8 +155,7 @@ public class RefreshTokenService {
                 currentToken.getUserId(),
                 currentToken.getFamilyId(),
                 ipAddress,
-                userAgent
-        );
+                userAgent);
 
         log.debug("Rotated refresh token for user {} in family {}",
                 currentToken.getUserId(), currentToken.getFamilyId());
@@ -169,7 +167,7 @@ public class RefreshTokenService {
      * Revokes a specific refresh token (e.g., on logout).
      *
      * @param plainToken the plain-text token to revoke
-     * @param reason the revocation reason
+     * @param reason     the revocation reason
      */
     @Transactional
     public void revokeToken(String plainToken, String reason) {
@@ -189,7 +187,7 @@ public class RefreshTokenService {
      * Used when detecting token reuse attacks or on password change.
      *
      * @param familyId the family ID to revoke
-     * @param reason the revocation reason
+     * @param reason   the revocation reason
      */
     @Transactional
     public void revokeFamily(UUID familyId, String reason) {
@@ -271,5 +269,6 @@ public class RefreshTokenService {
     /**
      * Result of a token rotation operation.
      */
-    public record RotationResult(String newToken, UUID userId) {}
+    public record RotationResult(String newToken, UUID userId) {
+    }
 }

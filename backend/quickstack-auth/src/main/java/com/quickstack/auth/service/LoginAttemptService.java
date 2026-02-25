@@ -39,8 +39,7 @@ public class LoginAttemptService {
     public LoginAttemptService(
             LoginAttemptRepository loginAttemptRepository,
             RateLimitProperties rateLimitProperties,
-            Clock clock
-    ) {
+            Clock clock) {
         this.loginAttemptRepository = loginAttemptRepository;
         this.rateLimitProperties = rateLimitProperties;
         this.clock = clock;
@@ -49,7 +48,7 @@ public class LoginAttemptService {
     /**
      * Check if the account is locked due to too many failed attempts.
      *
-     * @param email the email being authenticated
+     * @param email    the email being authenticated
      * @param tenantId the tenant context
      * @throws AccountLockedException if the account is currently locked
      */
@@ -62,8 +61,7 @@ public class LoginAttemptService {
         Instant windowStart = clock.instant().minus(lockoutConfig.getAttemptWindow());
 
         long failedAttempts = loginAttemptRepository.countFailedAttemptsByEmailSince(
-                email, tenantId, windowStart
-        );
+                email, tenantId, windowStart);
 
         if (failedAttempts >= lockoutConfig.getMaxAttempts()) {
             // Check if there was a successful login since the failed attempts
@@ -89,9 +87,9 @@ public class LoginAttemptService {
     /**
      * Record a successful login attempt and reset failed counter.
      *
-     * @param email the email that logged in
-     * @param userId the user ID
-     * @param tenantId the tenant context
+     * @param email     the email that logged in
+     * @param userId    the user ID
+     * @param tenantId  the tenant context
      * @param ipAddress the client IP address
      * @param userAgent the client user agent
      */
@@ -101,10 +99,9 @@ public class LoginAttemptService {
             UUID userId,
             UUID tenantId,
             String ipAddress,
-            String userAgent
-    ) {
+            String userAgent) {
         LoginAttempt attempt = LoginAttempt.successful(email, userId, tenantId, ipAddress, userAgent);
-        loginAttemptRepository.save(attempt);
+        loginAttemptRepository.save(java.util.Objects.requireNonNull(attempt));
 
         log.info("Successful login for user {} from IP {}", userId, ipAddress);
     }
@@ -112,11 +109,11 @@ public class LoginAttemptService {
     /**
      * Record a failed login attempt.
      *
-     * @param email the email that failed
-     * @param userId the user ID (may be null if user not found)
-     * @param tenantId the tenant context (may be null)
-     * @param ipAddress the client IP address
-     * @param userAgent the client user agent
+     * @param email         the email that failed
+     * @param userId        the user ID (may be null if user not found)
+     * @param tenantId      the tenant context (may be null)
+     * @param ipAddress     the client IP address
+     * @param userAgent     the client user agent
      * @param failureReason the reason for failure
      * @return the number of failed attempts in the current window
      */
@@ -127,20 +124,18 @@ public class LoginAttemptService {
             UUID tenantId,
             String ipAddress,
             String userAgent,
-            String failureReason
-    ) {
+            String failureReason) {
         LoginAttempt attempt = LoginAttempt.failed(
-                email, userId, tenantId, ipAddress, userAgent, failureReason
-        );
-        loginAttemptRepository.save(attempt);
+                email, userId, tenantId, ipAddress, userAgent, failureReason);
+        loginAttemptRepository.save(java.util.Objects.requireNonNull(attempt));
 
         // Count failed attempts in window
         RateLimitProperties.LockoutConfig lockoutConfig = rateLimitProperties.getLockout();
         Instant windowStart = clock.instant().minus(lockoutConfig.getAttemptWindow());
 
         long failedAttempts = tenantId != null
-            ? loginAttemptRepository.countFailedAttemptsByEmailSince(email, tenantId, windowStart)
-            : 0;
+                ? loginAttemptRepository.countFailedAttemptsByEmailSince(email, tenantId, windowStart)
+                : 0;
 
         log.warn("Failed login attempt for {} from IP {} - reason: {} - attempts in window: {}",
                 maskEmail(email), ipAddress, failureReason, failedAttempts);
@@ -168,7 +163,7 @@ public class LoginAttemptService {
     /**
      * Get the number of remaining login attempts before lockout.
      *
-     * @param email the email to check
+     * @param email    the email to check
      * @param tenantId the tenant context
      * @return remaining attempts, or -1 if lockout is disabled
      */
@@ -181,8 +176,7 @@ public class LoginAttemptService {
         Instant windowStart = clock.instant().minus(lockoutConfig.getAttemptWindow());
 
         long failedAttempts = loginAttemptRepository.countFailedAttemptsByEmailSince(
-                email, tenantId, windowStart
-        );
+                email, tenantId, windowStart);
 
         return Math.max(0, lockoutConfig.getMaxAttempts() - (int) failedAttempts);
     }

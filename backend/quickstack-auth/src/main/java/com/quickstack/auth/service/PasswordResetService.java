@@ -66,8 +66,7 @@ public class PasswordResetService {
             PasswordService passwordService,
             PasswordBreachChecker breachChecker,
             RefreshTokenService refreshTokenService,
-            Clock clock
-    ) {
+            Clock clock) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.passwordService = passwordService;
@@ -80,9 +79,10 @@ public class PasswordResetService {
      * Initiates a password reset for a user.
      * <p>
      * IMPORTANT: This method is timing-safe. It takes the same amount of time
-     * regardless of whether the email exists or not. This prevents enumeration attacks.
+     * regardless of whether the email exists or not. This prevents enumeration
+     * attacks.
      *
-     * @param email the user's email address
+     * @param email    the user's email address
      * @param tenantId the tenant ID
      * @param clientIp the client's IP address
      * @return the result containing the token if email exists, or empty if not
@@ -124,10 +124,9 @@ public class PasswordResetService {
                 user.getId(),
                 tokenHash,
                 expiresAt,
-                clientIp
-        );
+                clientIp);
 
-        tokenRepository.save(resetToken);
+        tokenRepository.save(java.util.Objects.requireNonNull(resetToken));
 
         log.info("Password reset token created for user {} (expires at {})", user.getId(), expiresAt);
 
@@ -179,7 +178,7 @@ public class PasswordResetService {
      * 4. Marks the token as used
      * 5. Revokes all user's refresh tokens (force re-login)
      *
-     * @param plainToken the plain-text reset token
+     * @param plainToken  the plain-text reset token
      * @param newPassword the new password
      * @throws InvalidTokenException if the token is invalid
      */
@@ -195,7 +194,7 @@ public class PasswordResetService {
         breachChecker.checkPassword(newPassword);
 
         // Get the user
-        User user = userRepository.findById(resetToken.getUserId())
+        User user = userRepository.findById(java.util.Objects.requireNonNull(resetToken.getUserId()))
                 .orElseThrow(() -> {
                     log.error("User not found for valid reset token - user may have been deleted");
                     return new InvalidTokenException(TokenType.PASSWORD_RESET_TOKEN, InvalidationReason.NOT_FOUND);
@@ -277,8 +276,7 @@ public class PasswordResetService {
             boolean success,
             String token,
             UUID userId,
-            String email
-    ) {
+            String email) {
         /**
          * Create a successful result.
          */

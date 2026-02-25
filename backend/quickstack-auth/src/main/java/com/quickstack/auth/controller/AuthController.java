@@ -250,7 +250,7 @@ public class AuthController {
                 refreshToken, ipAddress, userAgent);
 
         // Get user
-        User user = userRepository.findById(rotation.userId())
+        User user = userRepository.findById(java.util.Objects.requireNonNull(rotation.userId()))
                 .orElseThrow(AuthenticationException::new);
 
         if (!user.canLogin()) {
