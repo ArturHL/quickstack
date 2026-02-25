@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -39,13 +38,20 @@ import static org.mockito.Mockito.*;
 @DisplayName("MenuService Unit Tests")
 class MenuServiceTest {
 
-    @Mock private CategoryRepository categoryRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private VariantRepository variantRepository;
-    @Mock private ModifierGroupRepository modifierGroupRepository;
-    @Mock private ModifierRepository modifierRepository;
-    @Mock private ComboRepository comboRepository;
-    @Mock private ComboItemRepository comboItemRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private VariantRepository variantRepository;
+    @Mock
+    private ModifierGroupRepository modifierGroupRepository;
+    @Mock
+    private ModifierRepository modifierRepository;
+    @Mock
+    private ComboRepository comboRepository;
+    @Mock
+    private ComboItemRepository comboItemRepository;
 
     @InjectMocks
     private MenuService menuService;
@@ -73,7 +79,8 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat1, cat2));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(prod1, prod2));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -120,10 +127,12 @@ class MenuServiceTest {
 
         Product prod = simpleProduct(UUID.randomUUID(), "Taco", catWithProducts.getId(), true, 0);
 
-        when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(catWithProducts, catEmpty));
+        when(categoryRepository.findAllActiveForMenuByTenantId(tenantId))
+                .thenReturn(List.of(catWithProducts, catEmpty));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(prod));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -142,7 +151,8 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(available, agotado));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -169,9 +179,11 @@ class MenuServiceTest {
         ProductVariant grande = variant(UUID.randomUUID(), variantProductId, "Grande", new BigDecimal("10.00"), 1);
 
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
-        when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(variantProduct, simpleProduct));
+        when(productRepository.findAllActiveForMenuByTenantId(tenantId))
+                .thenReturn(List.of(variantProduct, simpleProduct));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of(chico, grande));
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -206,8 +218,10 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of(group));
-        when(modifierRepository.findAllByModifierGroupIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of(modifier));
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of(group));
+        when(modifierRepository.findAllByModifierGroupIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of(modifier));
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -217,7 +231,8 @@ class MenuServiceTest {
         assertThat(menuProduct.modifierGroups().get(0).name()).isEqualTo("Extras");
         assertThat(menuProduct.modifierGroups().get(0).modifiers()).hasSize(1);
         assertThat(menuProduct.modifierGroups().get(0).modifiers().get(0).name()).isEqualTo("Extra Queso");
-        assertThat(menuProduct.modifierGroups().get(0).modifiers().get(0).priceAdjustment()).isEqualByComparingTo("15.00");
+        assertThat(menuProduct.modifierGroups().get(0).modifiers().get(0).priceAdjustment())
+                .isEqualByComparingTo("15.00");
     }
 
     @Test
@@ -229,7 +244,8 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -253,8 +269,10 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of(group));
-        when(modifierRepository.findAllByModifierGroupIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of(group));
+        when(modifierRepository.findAllByModifierGroupIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -280,9 +298,11 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(combo));
-        when(comboItemRepository.findAllByTenantIdAndComboIdIn(eq(tenantId), anyCollection())).thenReturn(List.of(comboItem));
+        when(comboItemRepository.findAllByTenantIdAndComboIdIn(eq(tenantId), anyCollection()))
+                .thenReturn(List.of(comboItem));
 
         MenuResponse response = menuService.getMenu(tenantId);
 
@@ -309,9 +329,11 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(activeProduct));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(combo));
-        when(comboItemRepository.findAllByTenantIdAndComboIdIn(eq(tenantId), anyCollection())).thenReturn(List.of(item1, item2));
+        when(comboItemRepository.findAllByTenantIdAndComboIdIn(eq(tenantId), anyCollection()))
+                .thenReturn(List.of(item1, item2));
 
         MenuResponse response = menuService.getMenu(tenantId);
 
@@ -327,7 +349,8 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of());
 
         MenuResponse response = menuService.getMenu(tenantId);
@@ -348,7 +371,8 @@ class MenuServiceTest {
         when(categoryRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(cat));
         when(productRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(product));
         when(variantRepository.findAllActiveByTenantId(tenantId)).thenReturn(List.of());
-        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId))).thenReturn(List.of());
+        when(modifierGroupRepository.findAllByProductIdInAndTenantId(anyCollection(), eq(tenantId)))
+                .thenReturn(List.of());
         when(comboRepository.findAllActiveForMenuByTenantId(tenantId)).thenReturn(List.of(combo));
         when(comboItemRepository.findAllByTenantIdAndComboIdIn(eq(tenantId), anyCollection())).thenReturn(List.of());
 
@@ -411,7 +435,7 @@ class MenuServiceTest {
     }
 
     private ModifierGroup modifierGroup(UUID id, UUID productId, String name,
-                                         int minSel, Integer maxSel, boolean isRequired) {
+            int minSel, Integer maxSel, boolean isRequired) {
         ModifierGroup g = new ModifierGroup();
         g.setId(id);
         g.setTenantId(tenantId);
