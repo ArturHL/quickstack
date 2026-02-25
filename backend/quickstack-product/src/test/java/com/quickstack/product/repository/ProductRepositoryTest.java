@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Product Repository")
 class ProductRepositoryTest {
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("quickstack_test")
@@ -155,7 +156,6 @@ class ProductRepositoryTest {
     }
 
     @DisplayName("Should find product by ID and tenant ID")
-    @SuppressWarnings("resource")
     @Test
     void canSaveAndFindProduct() {
         // Given

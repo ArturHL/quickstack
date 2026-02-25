@@ -18,7 +18,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -36,295 +35,302 @@ import static org.mockito.Mockito.*;
 @DisplayName("ModifierGroupService")
 class ModifierGroupServiceTest {
 
-    @Mock private ModifierGroupRepository modifierGroupRepository;
-    @Mock private ModifierRepository modifierRepository;
-    @Mock private ProductRepository productRepository;
+        @Mock
+        private ModifierGroupRepository modifierGroupRepository;
+        @Mock
+        private ModifierRepository modifierRepository;
+        @Mock
+        private ProductRepository productRepository;
 
-    private ModifierGroupService service;
+        private ModifierGroupService service;
 
-    private static final UUID TENANT_ID = UUID.randomUUID();
-    private static final UUID USER_ID = UUID.randomUUID();
-    private static final UUID PRODUCT_ID = UUID.randomUUID();
-    private static final UUID GROUP_ID = UUID.randomUUID();
+        private static final UUID TENANT_ID = UUID.randomUUID();
+        private static final UUID USER_ID = UUID.randomUUID();
+        private static final UUID PRODUCT_ID = UUID.randomUUID();
+        private static final UUID GROUP_ID = UUID.randomUUID();
 
-    @BeforeEach
-    void setUp() {
-        service = new ModifierGroupService(modifierGroupRepository, modifierRepository, productRepository);
-    }
-
-    // -------------------------------------------------------------------------
-    // createModifierGroup
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("createModifierGroup")
-    class CreateTests {
-
-        @Test
-        @DisplayName("Should create modifier group when valid")
-        void shouldCreateWhenValid() {
-            when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(Optional.of(buildProduct()));
-            when(modifierGroupRepository.existsByNameAndProductIdAndTenantId("Extras", PRODUCT_ID, TENANT_ID))
-                    .thenReturn(false);
-            when(modifierGroupRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-            ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
-                    PRODUCT_ID, "Extras", null, 0, null, false, null);
-
-            ModifierGroupResponse response = service.createModifierGroup(TENANT_ID, USER_ID, request);
-
-            assertThat(response.name()).isEqualTo("Extras");
-            assertThat(response.isRequired()).isFalse();
-            verify(modifierGroupRepository).save(any(ModifierGroup.class));
+        @BeforeEach
+        void setUp() {
+                service = new ModifierGroupService(modifierGroupRepository, modifierRepository, productRepository);
         }
 
-        @Test
-        @DisplayName("Should throw ResourceNotFoundException when product not found")
-        void shouldThrowWhenProductNotFound() {
-            when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(Optional.empty());
+        // -------------------------------------------------------------------------
+        // createModifierGroup
+        // -------------------------------------------------------------------------
 
-            ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
-                    PRODUCT_ID, "Extras", null, 0, null, false, null);
+        @Nested
+        @DisplayName("createModifierGroup")
+        class CreateTests {
 
-            assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
-                    .isInstanceOf(ResourceNotFoundException.class);
+                @Test
+                @DisplayName("Should create modifier group when valid")
+                void shouldCreateWhenValid() {
+                        when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(buildProduct()));
+                        when(modifierGroupRepository.existsByNameAndProductIdAndTenantId("Extras", PRODUCT_ID,
+                                        TENANT_ID))
+                                        .thenReturn(false);
+                        when(modifierGroupRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+                        ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
+                                        PRODUCT_ID, "Extras", null, 0, null, false, null);
+
+                        ModifierGroupResponse response = service.createModifierGroup(TENANT_ID, USER_ID, request);
+
+                        assertThat(response.name()).isEqualTo("Extras");
+                        assertThat(response.isRequired()).isFalse();
+                        verify(modifierGroupRepository).save(any(ModifierGroup.class));
+                }
+
+                @Test
+                @DisplayName("Should throw ResourceNotFoundException when product not found")
+                void shouldThrowWhenProductNotFound() {
+                        when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
+
+                        ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
+                                        PRODUCT_ID, "Extras", null, 0, null, false, null);
+
+                        assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
+
+                @Test
+                @DisplayName("Should throw DuplicateResourceException when name already exists")
+                void shouldThrowWhenNameDuplicate() {
+                        when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(buildProduct()));
+                        when(modifierGroupRepository.existsByNameAndProductIdAndTenantId("Extras", PRODUCT_ID,
+                                        TENANT_ID))
+                                        .thenReturn(true);
+
+                        ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
+                                        PRODUCT_ID, "Extras", null, 0, null, false, null);
+
+                        assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
+                                        .isInstanceOf(DuplicateResourceException.class);
+                }
+
+                @Test
+                @DisplayName("Should throw BusinessRuleException when isRequired=true and minSelections=0")
+                void shouldThrowWhenRequiredConfigInvalid() {
+                        when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(buildProduct()));
+
+                        ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
+                                        PRODUCT_ID, "Tamaño", null, 0, null, true, null);
+
+                        assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
+                                        .isInstanceOf(BusinessRuleException.class)
+                                        .hasMessageContaining("minSelections");
+                }
+
+                @Test
+                @DisplayName("Should throw BusinessRuleException when maxSelections < minSelections")
+                void shouldThrowWhenSelectionRangeInvalid() {
+                        when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(buildProduct()));
+
+                        ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
+                                        PRODUCT_ID, "Extras", null, 5, 2, false, null);
+
+                        assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
+                                        .isInstanceOf(BusinessRuleException.class)
+                                        .hasMessageContaining("maxSelections");
+                }
         }
 
-        @Test
-        @DisplayName("Should throw DuplicateResourceException when name already exists")
-        void shouldThrowWhenNameDuplicate() {
-            when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(Optional.of(buildProduct()));
-            when(modifierGroupRepository.existsByNameAndProductIdAndTenantId("Extras", PRODUCT_ID, TENANT_ID))
-                    .thenReturn(true);
+        // -------------------------------------------------------------------------
+        // updateModifierGroup
+        // -------------------------------------------------------------------------
 
-            ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
-                    PRODUCT_ID, "Extras", null, 0, null, false, null);
+        @Nested
+        @DisplayName("updateModifierGroup")
+        class UpdateTests {
 
-            assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
-                    .isInstanceOf(DuplicateResourceException.class);
+                @Test
+                @DisplayName("Should update name when valid")
+                void shouldUpdateNameWhenValid() {
+                        ModifierGroup group = buildGroup("Extras", 0, null, false);
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(group));
+                        when(modifierGroupRepository.existsByNameAndProductIdAndTenantIdAndIdNot(
+                                        "Sin ingredientes", PRODUCT_ID, TENANT_ID, GROUP_ID)).thenReturn(false);
+                        when(modifierGroupRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+                        when(modifierRepository.findAllByModifierGroupIdAndTenantId(any(), any()))
+                                        .thenReturn(List.of());
+
+                        ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
+                                        "Sin ingredientes", null, null, null, null, null);
+
+                        ModifierGroupResponse response = service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID,
+                                        request);
+
+                        assertThat(response.name()).isEqualTo("Sin ingredientes");
+                }
+
+                @Test
+                @DisplayName("Should throw ResourceNotFoundException when group not found")
+                void shouldThrowWhenGroupNotFound() {
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
+
+                        ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
+                                        "Nuevo nombre", null, null, null, null, null);
+
+                        assertThatThrownBy(() -> service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID, request))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
+
+                @Test
+                @DisplayName("Should throw BusinessRuleException when update results in invalid required config")
+                void shouldThrowWhenUpdateResultsInInvalidConfig() {
+                        ModifierGroup group = buildGroup("Tamaño", 0, null, false);
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(group));
+
+                        // Update: set isRequired=true without changing minSelections (still 0)
+                        ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
+                                        null, null, null, null, true, null);
+
+                        assertThatThrownBy(() -> service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID, request))
+                                        .isInstanceOf(BusinessRuleException.class)
+                                        .hasMessageContaining("minSelections");
+                }
         }
 
-        @Test
-        @DisplayName("Should throw BusinessRuleException when isRequired=true and minSelections=0")
-        void shouldThrowWhenRequiredConfigInvalid() {
-            when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(Optional.of(buildProduct()));
+        // -------------------------------------------------------------------------
+        // deleteModifierGroup
+        // -------------------------------------------------------------------------
 
-            ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
-                    PRODUCT_ID, "Tamaño", null, 0, null, true, null);
+        @Nested
+        @DisplayName("deleteModifierGroup")
+        class DeleteTests {
 
-            assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
-                    .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("minSelections");
+                @Test
+                @DisplayName("Should soft-delete group and cascade to modifiers")
+                void shouldSoftDeleteGroupAndCascade() {
+                        ModifierGroup group = buildGroup("Extras", 0, null, false);
+                        Modifier modifier = buildModifier(GROUP_ID);
+
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(group));
+                        when(modifierRepository.findAllNonDeletedByModifierGroupIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(List.of(modifier));
+
+                        service.deleteModifierGroup(TENANT_ID, USER_ID, GROUP_ID);
+
+                        assertThat(group.getDeletedAt()).isNotNull();
+                        assertThat(modifier.getDeletedAt()).isNotNull();
+                        verify(modifierGroupRepository).save(group);
+                        verify(modifierRepository).saveAll(anyList());
+                }
+
+                @Test
+                @DisplayName("Should throw ResourceNotFoundException when group not found")
+                void shouldThrowWhenGroupNotFound() {
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
+
+                        assertThatThrownBy(() -> service.deleteModifierGroup(TENANT_ID, USER_ID, GROUP_ID))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
         }
 
-        @Test
-        @DisplayName("Should throw BusinessRuleException when maxSelections < minSelections")
-        void shouldThrowWhenSelectionRangeInvalid() {
-            when(productRepository.findByIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(Optional.of(buildProduct()));
+        // -------------------------------------------------------------------------
+        // getModifierGroup and listModifierGroupsByProduct
+        // -------------------------------------------------------------------------
 
-            ModifierGroupCreateRequest request = new ModifierGroupCreateRequest(
-                    PRODUCT_ID, "Extras", null, 5, 2, false, null);
+        @Nested
+        @DisplayName("getModifierGroup")
+        class GetTests {
 
-            assertThatThrownBy(() -> service.createModifierGroup(TENANT_ID, USER_ID, request))
-                    .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("maxSelections");
-        }
-    }
+                @Test
+                @DisplayName("Should return group with its modifiers")
+                void shouldReturnGroupWithModifiers() {
+                        ModifierGroup group = buildGroup("Extras", 0, null, false);
+                        group.setId(GROUP_ID);
 
-    // -------------------------------------------------------------------------
-    // updateModifierGroup
-    // -------------------------------------------------------------------------
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(group));
+                        when(modifierRepository.findAllByModifierGroupIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(List.of(buildModifier(GROUP_ID)));
 
-    @Nested
-    @DisplayName("updateModifierGroup")
-    class UpdateTests {
+                        ModifierGroupResponse response = service.getModifierGroup(TENANT_ID, GROUP_ID);
 
-        @Test
-        @DisplayName("Should update name when valid")
-        void shouldUpdateNameWhenValid() {
-            ModifierGroup group = buildGroup("Extras", 0, null, false);
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.of(group));
-            when(modifierGroupRepository.existsByNameAndProductIdAndTenantIdAndIdNot(
-                    "Sin ingredientes", PRODUCT_ID, TENANT_ID, GROUP_ID)).thenReturn(false);
-            when(modifierGroupRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-            when(modifierRepository.findAllByModifierGroupIdAndTenantId(any(), any()))
-                    .thenReturn(List.of());
+                        assertThat(response.name()).isEqualTo("Extras");
+                        assertThat(response.modifiers()).hasSize(1);
+                }
 
-            ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
-                    "Sin ingredientes", null, null, null, null, null);
+                @Test
+                @DisplayName("Should throw ResourceNotFoundException when group not found")
+                void shouldThrowWhenNotFound() {
+                        when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
 
-            ModifierGroupResponse response = service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID, request);
-
-            assertThat(response.name()).isEqualTo("Sin ingredientes");
+                        assertThatThrownBy(() -> service.getModifierGroup(TENANT_ID, GROUP_ID))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
         }
 
-        @Test
-        @DisplayName("Should throw ResourceNotFoundException when group not found")
-        void shouldThrowWhenGroupNotFound() {
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.empty());
+        @Nested
+        @DisplayName("listModifierGroupsByProduct")
+        class ListTests {
 
-            ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
-                    "Nuevo nombre", null, null, null, null, null);
+                @Test
+                @DisplayName("Should return all groups for product")
+                void shouldReturnAllGroupsForProduct() {
+                        ModifierGroup g1 = buildGroup("Extras", 0, null, false);
+                        g1.setId(UUID.randomUUID());
+                        ModifierGroup g2 = buildGroup("Tamaño", 1, 1, true);
+                        g2.setId(UUID.randomUUID());
 
-            assertThatThrownBy(() -> service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID, request))
-                    .isInstanceOf(ResourceNotFoundException.class);
+                        when(modifierGroupRepository.findAllByProductIdAndTenantId(PRODUCT_ID, TENANT_ID))
+                                        .thenReturn(List.of(g1, g2));
+                        when(modifierRepository.findAllByModifierGroupIdAndTenantId(any(), any()))
+                                        .thenReturn(List.of());
+
+                        List<ModifierGroupResponse> responses = service.listModifierGroupsByProduct(TENANT_ID,
+                                        PRODUCT_ID);
+
+                        assertThat(responses).hasSize(2);
+                }
         }
 
-        @Test
-        @DisplayName("Should throw BusinessRuleException when update results in invalid required config")
-        void shouldThrowWhenUpdateResultsInInvalidConfig() {
-            ModifierGroup group = buildGroup("Tamaño", 0, null, false);
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.of(group));
+        // -------------------------------------------------------------------------
+        // Helpers
+        // -------------------------------------------------------------------------
 
-            // Update: set isRequired=true without changing minSelections (still 0)
-            ModifierGroupUpdateRequest request = new ModifierGroupUpdateRequest(
-                    null, null, null, null, true, null);
-
-            assertThatThrownBy(() -> service.updateModifierGroup(TENANT_ID, USER_ID, GROUP_ID, request))
-                    .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("minSelections");
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // deleteModifierGroup
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("deleteModifierGroup")
-    class DeleteTests {
-
-        @Test
-        @DisplayName("Should soft-delete group and cascade to modifiers")
-        void shouldSoftDeleteGroupAndCascade() {
-            ModifierGroup group = buildGroup("Extras", 0, null, false);
-            Modifier modifier = buildModifier(GROUP_ID);
-
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.of(group));
-            when(modifierRepository.findAllNonDeletedByModifierGroupIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(List.of(modifier));
-
-            service.deleteModifierGroup(TENANT_ID, USER_ID, GROUP_ID);
-
-            assertThat(group.getDeletedAt()).isNotNull();
-            assertThat(modifier.getDeletedAt()).isNotNull();
-            verify(modifierGroupRepository).save(group);
-            verify(modifierRepository).saveAll(anyList());
+        private Product buildProduct() {
+                Product product = new Product();
+                product.setId(PRODUCT_ID);
+                product.setTenantId(TENANT_ID);
+                product.setName("Hamburguesa");
+                product.setBasePrice(new BigDecimal("50.00"));
+                product.setProductType(ProductType.SIMPLE);
+                return product;
         }
 
-        @Test
-        @DisplayName("Should throw ResourceNotFoundException when group not found")
-        void shouldThrowWhenGroupNotFound() {
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> service.deleteModifierGroup(TENANT_ID, USER_ID, GROUP_ID))
-                    .isInstanceOf(ResourceNotFoundException.class);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // getModifierGroup and listModifierGroupsByProduct
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("getModifierGroup")
-    class GetTests {
-
-        @Test
-        @DisplayName("Should return group with its modifiers")
-        void shouldReturnGroupWithModifiers() {
-            ModifierGroup group = buildGroup("Extras", 0, null, false);
-            group.setId(GROUP_ID);
-
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.of(group));
-            when(modifierRepository.findAllByModifierGroupIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(List.of(buildModifier(GROUP_ID)));
-
-            ModifierGroupResponse response = service.getModifierGroup(TENANT_ID, GROUP_ID);
-
-            assertThat(response.name()).isEqualTo("Extras");
-            assertThat(response.modifiers()).hasSize(1);
+        private ModifierGroup buildGroup(String name, int minSelections, Integer maxSelections, boolean isRequired) {
+                ModifierGroup group = new ModifierGroup();
+                group.setId(GROUP_ID);
+                group.setTenantId(TENANT_ID);
+                group.setProductId(PRODUCT_ID);
+                group.setName(name);
+                group.setMinSelections(minSelections);
+                group.setMaxSelections(maxSelections);
+                group.setRequired(isRequired);
+                return group;
         }
 
-        @Test
-        @DisplayName("Should throw ResourceNotFoundException when group not found")
-        void shouldThrowWhenNotFound() {
-            when(modifierGroupRepository.findByIdAndTenantId(GROUP_ID, TENANT_ID))
-                    .thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> service.getModifierGroup(TENANT_ID, GROUP_ID))
-                    .isInstanceOf(ResourceNotFoundException.class);
+        private Modifier buildModifier(UUID groupId) {
+                Modifier modifier = new Modifier();
+                modifier.setId(UUID.randomUUID());
+                modifier.setTenantId(TENANT_ID);
+                modifier.setModifierGroupId(groupId);
+                modifier.setName("Extra Queso");
+                modifier.setPriceAdjustment(new BigDecimal("15.00"));
+                modifier.setActive(true);
+                return modifier;
         }
-    }
-
-    @Nested
-    @DisplayName("listModifierGroupsByProduct")
-    class ListTests {
-
-        @Test
-        @DisplayName("Should return all groups for product")
-        void shouldReturnAllGroupsForProduct() {
-            ModifierGroup g1 = buildGroup("Extras", 0, null, false);
-            g1.setId(UUID.randomUUID());
-            ModifierGroup g2 = buildGroup("Tamaño", 1, 1, true);
-            g2.setId(UUID.randomUUID());
-
-            when(modifierGroupRepository.findAllByProductIdAndTenantId(PRODUCT_ID, TENANT_ID))
-                    .thenReturn(List.of(g1, g2));
-            when(modifierRepository.findAllByModifierGroupIdAndTenantId(any(), any()))
-                    .thenReturn(List.of());
-
-            List<ModifierGroupResponse> responses = service.listModifierGroupsByProduct(TENANT_ID, PRODUCT_ID);
-
-            assertThat(responses).hasSize(2);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private Product buildProduct() {
-        Product product = new Product();
-        product.setId(PRODUCT_ID);
-        product.setTenantId(TENANT_ID);
-        product.setName("Hamburguesa");
-        product.setBasePrice(new BigDecimal("50.00"));
-        product.setProductType(ProductType.SIMPLE);
-        return product;
-    }
-
-    private ModifierGroup buildGroup(String name, int minSelections, Integer maxSelections, boolean isRequired) {
-        ModifierGroup group = new ModifierGroup();
-        group.setId(GROUP_ID);
-        group.setTenantId(TENANT_ID);
-        group.setProductId(PRODUCT_ID);
-        group.setName(name);
-        group.setMinSelections(minSelections);
-        group.setMaxSelections(maxSelections);
-        group.setRequired(isRequired);
-        return group;
-    }
-
-    private Modifier buildModifier(UUID groupId) {
-        Modifier modifier = new Modifier();
-        modifier.setId(UUID.randomUUID());
-        modifier.setTenantId(TENANT_ID);
-        modifier.setModifierGroupId(groupId);
-        modifier.setName("Extra Queso");
-        modifier.setPriceAdjustment(new BigDecimal("15.00"));
-        modifier.setActive(true);
-        return modifier;
-    }
 }

@@ -9,7 +9,6 @@ import com.quickstack.product.dto.request.ModifierGroupUpdateRequest;
 import com.quickstack.product.dto.request.ModifierUpdateRequest;
 import com.quickstack.product.dto.response.ModifierGroupResponse;
 import com.quickstack.product.dto.response.ModifierResponse;
-import com.quickstack.product.security.CatalogPermissionEvaluator;
 import com.quickstack.product.service.ModifierGroupService;
 import com.quickstack.product.service.ModifierService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -40,15 +37,18 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for ModifierGroupController.
- * Tests controller logic in isolation: tenant extraction, delegation, response mapping.
+ * Tests controller logic in isolation: tenant extraction, delegation, response
+ * mapping.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ModifierGroupController")
 class ModifierGroupControllerTest {
 
-    @Mock private ModifierGroupService modifierGroupService;
-    @Mock private ModifierService modifierService;
-    @Mock private CatalogPermissionEvaluator permissionEvaluator;
+    @Mock
+    private ModifierGroupService modifierGroupService;
+    @Mock
+    private ModifierService modifierService;
+    @Mock
 
     private ModifierGroupController controller;
 
@@ -63,7 +63,7 @@ class ModifierGroupControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new ModifierGroupController(modifierGroupService, modifierService, permissionEvaluator);
+        controller = new ModifierGroupController(modifierGroupService, modifierService);
         ownerPrincipal = new JwtAuthenticationPrincipal(USER_ID, TENANT_ID, ROLE_ID, null, "owner@test.com");
         mockServletContext();
     }

@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Variant Repository")
 class VariantRepositoryTest {
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("quickstack_test")
@@ -126,7 +127,6 @@ class VariantRepositoryTest {
         assertThat(found.get().getName()).isEqualTo("Unica");
     }
 
-    @SuppressWarnings("resource")
     @Test
     void canSaveAndFindVariant() {
         createVariant("V1", "SKU-1", 1, true);

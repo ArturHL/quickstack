@@ -8,7 +8,6 @@ import com.quickstack.product.dto.request.ComboItemRequest;
 import com.quickstack.product.dto.request.ComboUpdateRequest;
 import com.quickstack.product.dto.response.ComboItemResponse;
 import com.quickstack.product.dto.response.ComboResponse;
-import com.quickstack.product.security.CatalogPermissionEvaluator;
 import com.quickstack.product.service.ComboService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,14 +35,15 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for ComboController.
- * Tests controller logic in isolation: tenant extraction, delegation, response mapping.
+ * Tests controller logic in isolation: tenant extraction, delegation, response
+ * mapping.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ComboController")
 class ComboControllerTest {
 
-    @Mock private ComboService comboService;
-    @Mock private CatalogPermissionEvaluator permissionEvaluator;
+    @Mock
+    private ComboService comboService;
 
     private ComboController controller;
 
@@ -58,7 +58,7 @@ class ComboControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new ComboController(comboService, permissionEvaluator);
+        controller = new ComboController(comboService);
         ownerPrincipal = new JwtAuthenticationPrincipal(USER_ID, TENANT_ID, ROLE_ID, null, "owner@test.com");
         mockServletContext();
     }
@@ -265,15 +265,14 @@ class ComboControllerTest {
                 "Combo 1", null, null, new BigDecimal("99.00"),
                 List.of(
                         new ComboItemRequest(PRODUCT_A_ID, 1, null, null, null),
-                        new ComboItemRequest(PRODUCT_B_ID, 1, null, null, null)
-                ), null);
+                        new ComboItemRequest(PRODUCT_B_ID, 1, null, null, null)),
+                null);
     }
 
     private ComboResponse buildComboResponse() {
         List<ComboItemResponse> items = List.of(
                 new ComboItemResponse(UUID.randomUUID(), PRODUCT_A_ID, "Hamburguesa", 1, false, null, 0),
-                new ComboItemResponse(UUID.randomUUID(), PRODUCT_B_ID, "Refresco", 1, false, null, 1)
-        );
+                new ComboItemResponse(UUID.randomUUID(), PRODUCT_B_ID, "Refresco", 1, false, null, 1));
         return new ComboResponse(
                 COMBO_ID, TENANT_ID, "Combo 1", null, null,
                 new BigDecimal("99.00"), true, 0, Instant.now(), Instant.now(), items);

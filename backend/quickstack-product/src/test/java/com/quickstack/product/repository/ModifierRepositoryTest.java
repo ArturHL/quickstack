@@ -43,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Modifier Repository")
 class ModifierRepositoryTest {
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("quickstack_test")
@@ -73,7 +74,8 @@ class ModifierRepositoryTest {
     void setUp() {
         UUID planId = UUID.randomUUID();
         entityManager.getEntityManager().createNativeQuery(
-                "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) " +
+                "INSERT INTO subscription_plans (id, name, code, price_monthly_mxn, max_branches, max_users_per_branch) "
+                        +
                         "VALUES (?, 'Test Plan', 'TEST', 0, 1, 5)")
                 .setParameter(1, planId).executeUpdate();
 

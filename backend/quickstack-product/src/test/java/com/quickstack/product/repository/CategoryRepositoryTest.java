@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Category Repository")
 class CategoryRepositoryTest {
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("quickstack_test")
@@ -136,7 +137,6 @@ class CategoryRepositoryTest {
         assertThat(tenantBResults.getContent().get(0).getName()).isEqualTo("Comidas");
     }
 
-    @SuppressWarnings("resource")
     @Test
     void canSaveAndFindCategory() {
         // Given
