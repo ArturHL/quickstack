@@ -93,6 +93,9 @@ public class SecurityConfig {
                         // POS customer management requires JWT
                         .requestMatchers("/api/v1/customers/**").authenticated()
 
+                        // Order management requires JWT
+                        .requestMatchers("/api/v1/orders/**").authenticated()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
 

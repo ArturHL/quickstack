@@ -62,6 +62,8 @@ The project is managed as a monorepo. Key commands should be run within their re
   - `quickstack-auth`: Security infrastructure, JWT, and session management.
   - `quickstack-user`: Identity management and user CRUD.
   - `quickstack-product`: Catalog and product management.
+  - `quickstack-branch`: Branch, Area, and Table management.
+  - `quickstack-pos`: Customer, Order, and Payment management.
   - `quickstack-common`: Shared utilities, security base, and exceptions.
 - `/frontend`: React application using Vite.
   - `src/features`: Business logic modules (auth, dashboard, pos).
@@ -75,4 +77,7 @@ The project is managed as a monorepo. Key commands should be run within their re
 ## Project Status
 Currently in **Phase 1 (Core POS)**.
 - **Phase 0 (Foundation):** 100% Completed (Auth, Infrastructure, CI/CD).
-- **Phase 1.1 (Catalog Base):** In Progress (Sprint 5/6: Security Hardening & Ordering completed).
+- **Phase 1.1 (Catalog Base):** Completed (6/6 sprints).
+- **Phase 1.2 (Modifiers + Combos):** Completed (4/4 sprints).
+- **Phase 1.3 (Orders + Payments):** In Progress (Sprint 4/6: Order Management API completed). Next: Sprint 5 — Payments.
+- **Backend Tests:** 643 total (0 failures).

@@ -71,4 +71,28 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * Used to detect collisions before persisting.
      */
     boolean existsByOrderNumberAndTenantId(String orderNumber, UUID tenantId);
+
+    /**
+     * Returns orders for a tenant with optional filters for branch, status, and creator.
+     * <p>
+     * All filter parameters are optional — null means "no filter".
+     * When createdBy is provided, only orders created by that user are returned
+     * (used to restrict cashiers to their own orders).
+     *
+     * @param tenantId  the tenant scope (required)
+     * @param branchId  optional branch filter
+     * @param statusId  optional status filter
+     * @param createdBy optional creator filter (for cashier-scoped access)
+     * @param pageable  pagination parameters
+     * @return page of orders matching the criteria
+     */
+    @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId " +
+           "AND (:branchId IS NULL OR o.branchId = :branchId) " +
+           "AND (:statusId IS NULL OR o.statusId = :statusId) " +
+           "AND (:createdBy IS NULL OR o.createdBy = :createdBy)")
+    Page<Order> findAllWithFilters(@Param("tenantId") UUID tenantId,
+                                   @Param("branchId") UUID branchId,
+                                   @Param("statusId") UUID statusId,
+                                   @Param("createdBy") UUID createdBy,
+                                   Pageable pageable);
 }

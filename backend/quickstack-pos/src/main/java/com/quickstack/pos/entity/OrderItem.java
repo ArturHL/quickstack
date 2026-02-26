@@ -20,8 +20,10 @@ import java.util.UUID;
  * must NOT affect existing order items.
  * <p>
  * Business Rules:
- * - Must reference either a product_id OR a combo_id, never both (DB constraint)
- * - line_total is a DB-generated column: quantity * (unit_price + modifiers_total)
+ * - Must reference either a product_id OR a combo_id, never both (DB
+ * constraint)
+ * - line_total is a DB-generated column: quantity * (unit_price +
+ * modifiers_total)
  * - kds_status tracks kitchen preparation lifecycle independently per item
  * - Records are NEVER deleted — part of the financial audit trail
  * <p>
@@ -39,11 +41,12 @@ public class OrderItem {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
-    // Write path: plain column. Read path: @ManyToOne below (insertable=false, updatable=false)
-    @Column(name = "order_id", nullable = false)
+    // Read-only shortcut — the actual FK is managed by the @ManyToOne below
+    @Column(name = "order_id", insertable = false, updatable = false)
     private UUID orderId;
 
-    // Optional references — for linking to catalog; null is valid if catalog item was deleted
+    // Optional references — for linking to catalog; null is valid if catalog item
+    // was deleted
     @Column(name = "product_id")
     private UUID productId;
 
@@ -101,13 +104,15 @@ public class OrderItem {
     // Relationships
     // -------------------------------------------------------------------------
 
-    /** Bidirectional read-side — write path is via orderId column above. */
+    /**
+     * Owning side of the bidirectional relationship — manages the order_id FK
+     * column.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @OneToMany(mappedBy = "orderItem", fetch = FetchType.LAZY,
-               cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orderItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemModifier> modifiers = new HashSet<>();
 
     // -------------------------------------------------------------------------

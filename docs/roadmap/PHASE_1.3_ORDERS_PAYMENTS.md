@@ -2,7 +2,7 @@
 
 > **Version:** 1.2.0
 > **Fecha:** 2026-02-25
-> **Status:** EN PROGRESO - Sprint 3/6 ✅
+> **Status:** EN PROGRESO - Sprint 4/6 ✅
 > **Modulo Maven:** `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Orders/Payments)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -87,7 +87,7 @@ discount = aplicado manualmente (opcional, fase futura)
 total = subtotal + tax - discount
 ```
 
-**Tax Rate:** Copiado de `tenants.default_tax_rate` al crear orden (desnormalizacion intencional para preservar historico).
+**Tax Rate:** Copiado de `tenants.tax_rate` al crear orden (desnormalizacion intencional para preservar historico).
 
 ### Precios Desnormalizados (ADR-001)
 
@@ -185,7 +185,7 @@ quickstack-branch/                             <- infraestructura fisica (Sprint
 │   ├── controller/    BranchController, AreaController, TableController
 │   └── security/      BranchPermissionEvaluator
 
-quickstack-pos/                                <- transacciones comerciales (Sprints 2-6)
+quickstack-pos/                                <- transacciones comerciales (Sprints 2-6) Sprint 4 ✅
 ├── src/main/java/com/quickstack/pos/
 │   ├── dto/request/   CustomerCreateRequest, CustomerUpdateRequest,
 │   │                  OrderCreateRequest, OrderItemRequest, OrderItemModifierRequest,
@@ -527,24 +527,24 @@ Servicio para calculo de totales de orden.
 
 ---
 
-## Sprint 4: Order Management — Crear, Modificar, Enviar a Cocina
+## Sprint 4: Order Management — Crear, Modificar, Enviar a Cocina ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** API completa para crear y gestionar ordenes
+**Duracion:** 2.5 dias | **Objetivo:** API completa para crear y gestionar ordenes | **Tests:** 145 unit + 16 integration = 161 tests
 
-### [BACKEND] Tarea 4.1: DTOs de Order
+### [BACKEND] Tarea 4.1: DTOs de Order ✅
 
 **Prioridad:** Alta | **Dependencias:** 3.1, 3.3
 
 Objetos de transferencia para orders.
 
 **Criterios de Aceptacion:**
-- [ ] `OrderItemModifierRequest`: `modifierId` (NotNull UUID), `modifierName` (NotBlank), `priceAdjustment` (NotNull)
-- [ ] `OrderItemRequest`: `productId` (UUID, condicional), `variantId` (UUID, nullable), `comboId` (UUID, condicional), `productName` (NotBlank), `variantName` (nullable), `quantity` (NotNull, min 1), `unitPrice` (NotNull, min 0), `modifiers` (lista de OrderItemModifierRequest), `notes` (nullable)
-- [ ] Validacion: `productId XOR comboId` (exactamente uno debe estar presente)
-- [ ] `OrderCreateRequest`: `branchId` (NotNull), `serviceType` (NotNull enum), `tableId` (condicional: requerido si DINE_IN), `customerId` (condicional: requerido si DELIVERY), `items` (NotEmpty lista), `notes` (nullable), `kitchenNotes` (nullable)
-- [ ] `OrderResponse`: todos los campos de Order + lista de `OrderItemResponse` + lista de `PaymentResponse`
-- [ ] `OrderItemResponse`: todos los campos de OrderItem + lista de modifiers
-- [ ] Tests unitarios: 14 tests (Bean Validation, cross-field validation)
+- [x] `OrderItemModifierRequest`: `modifierId` (NotNull UUID), `modifierName` (NotBlank), `priceAdjustment` (NotNull)
+- [x] `OrderItemRequest`: `productId` (UUID, condicional), `variantId` (UUID, nullable), `comboId` (UUID, condicional), `productName` (NotBlank), `variantName` (nullable), `quantity` (NotNull, min 1), `unitPrice` (NotNull, min 0), `modifiers` (lista de OrderItemModifierRequest), `notes` (nullable)
+- [x] Validacion: `productId XOR comboId` (exactamente uno debe estar presente)
+- [x] `OrderCreateRequest`: `branchId` (NotNull), `serviceType` (NotNull enum), `tableId` (condicional: requerido si DINE_IN), `customerId` (condicional: requerido si DELIVERY), `items` (NotEmpty lista), `notes` (nullable), `kitchenNotes` (nullable)
+- [x] `OrderResponse`: todos los campos de Order + lista de `OrderItemResponse` + lista de `PaymentResponse`
+- [x] `OrderItemResponse`: todos los campos de OrderItem + lista de modifiers
+- [x] Tests unitarios: 14 tests (Bean Validation, cross-field validation)
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/dto/request/OrderCreateRequest.java`
@@ -556,26 +556,26 @@ Objetos de transferencia para orders.
 
 ---
 
-### [BACKEND] Tarea 4.2: OrderService — Crear Orden
+### [BACKEND] Tarea 4.2: OrderService — Crear Orden ✅
 
 **Prioridad:** Alta | **Dependencias:** 3.2, 3.3, 4.1
 
 Logica de negocio para crear ordenes.
 
 **Criterios de Aceptacion:**
-- [ ] `createOrder(UUID tenantId, UUID userId, OrderCreateRequest request)`:
+- [x] `createOrder(UUID tenantId, UUID userId, OrderCreateRequest request)`:
   - Valida que `branchId` pertenece al tenant
   - Si `serviceType == DINE_IN`, valida que `tableId` pertenece al branch y esta AVAILABLE, la marca como OCCUPIED
   - Si `serviceType == DELIVERY`, valida que `customerId` pertenece al tenant
   - Valida que todos los `productId`/`comboId` en items pertenecen al tenant y estan activos y disponibles (lanza `BusinessRuleException` con 409 si no)
   - Genera `orderNumber` (formato `ORD-YYYYMMDD-XXX`)
   - Genera `dailySequence` usando `getNextDailySequence()`
-  - Obtiene `taxRate` de `tenants.default_tax_rate` y lo copia a la orden
+  - Obtiene `taxRate` de `tenants.tax_rate` y lo copia a la orden
   - Persiste orden con status=OPEN
   - Calcula totales usando `OrderCalculationService`
   - Retorna `OrderResponse`
-- [ ] Toda la operacion es `@Transactional`
-- [ ] Tests unitarios con mocks: 20 tests (happy paths para cada service type, producto no disponible, mesa ocupada, etc.)
+- [x] Toda la operacion es `@Transactional`
+- [x] Tests unitarios con mocks: 20 tests (happy paths para cada service type, producto no disponible, mesa ocupada, etc.)
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderService.java`
@@ -583,37 +583,37 @@ Logica de negocio para crear ordenes.
 
 ---
 
-### [BACKEND] Tarea 4.3: OrderService — Modificar y Enviar Orden
+### [BACKEND] Tarea 4.3: OrderService — Modificar y Enviar Orden ✅
 
 **Prioridad:** Alta | **Dependencias:** 4.2
 
 Metodos adicionales de OrderService.
 
 **Criterios de Aceptacion:**
-- [ ] `addItemToOrder(UUID tenantId, UUID orderId, OrderItemRequest item)`:
+- [x] `addItemToOrder(UUID tenantId, UUID orderId, OrderItemRequest item)`:
   - Solo permite modificar ordenes con status=OPEN (lanza `BusinessRuleException` con 409 si no)
   - Valida producto disponible
   - Agrega item a la orden
   - Recalcula totales
   - Retorna `OrderResponse`
-- [ ] `removeItemFromOrder(UUID tenantId, UUID orderId, UUID itemId)`:
+- [x] `removeItemFromOrder(UUID tenantId, UUID orderId, UUID itemId)`:
   - Solo si status=OPEN
   - Remueve item (soft delete o hard delete? — DECISION: hard delete ya que order no se ha enviado a cocina)
   - Recalcula totales
   - Retorna `OrderResponse`
-- [ ] `submitOrder(UUID tenantId, UUID orderId)`:
+- [x] `submitOrder(UUID tenantId, UUID orderId)`:
   - Cambia status de OPEN → SUBMITTED
   - Marca `kdsStatus` de todos los items como PENDING
   - Setea `kdsSentAt` timestamp
   - Registra cambio en `order_status_history`
   - Retorna `OrderResponse`
-- [ ] `cancelOrder(UUID tenantId, UUID userId, UUID orderId)`:
+- [x] `cancelOrder(UUID tenantId, UUID userId, UUID orderId)`:
   - Solo MANAGER+ puede cancelar
   - Cambia status a CANCELLED
   - Si tiene `tableId`, libera la mesa (status=AVAILABLE)
   - Registra en `order_status_history`
   - Retorna void
-- [ ] Tests unitarios con mocks: 22 tests
+- [x] Tests unitarios con mocks: 22 tests
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderService.java` (expandir)
@@ -621,21 +621,21 @@ Metodos adicionales de OrderService.
 
 ---
 
-### [BACKEND] Tarea 4.4: OrderController
+### [BACKEND] Tarea 4.4: OrderController ✅
 
 **Prioridad:** Alta | **Dependencias:** 4.3
 
 Controller REST para orders.
 
 **Criterios de Aceptacion:**
-- [ ] `POST /api/v1/orders` — CASHIER+. Retorna `OrderResponse` HTTP 201 + `Location` header
-- [ ] `GET /api/v1/orders/{id}` — CASHIER+. CASHIER solo ve propias ordenes (validar `createdBy == userId`). Retorna `OrderResponse` HTTP 200
-- [ ] `POST /api/v1/orders/{id}/items` — CASHIER+ (solo si orden es propia y status=OPEN). Retorna `OrderResponse` HTTP 200
-- [ ] `DELETE /api/v1/orders/{orderId}/items/{itemId}` — CASHIER+ (solo propias, status=OPEN). HTTP 204
-- [ ] `POST /api/v1/orders/{id}/submit` — CASHIER+ (solo propias, status=OPEN). Retorna `OrderResponse` HTTP 200
-- [ ] `POST /api/v1/orders/{id}/cancel` — MANAGER+. HTTP 204
-- [ ] `GET /api/v1/orders` — MANAGER+ ve todas, CASHIER solo propias. Params: `branchId`, `status`, `startDate`, `endDate`. Retorna `Page<OrderResponse>` HTTP 200
-- [ ] Tests unitarios con `@WebMvcTest`: 20 tests
+- [x] `POST /api/v1/orders` — CASHIER+. Retorna `OrderResponse` HTTP 201 + `Location` header
+- [x] `GET /api/v1/orders/{id}` — CASHIER+. CASHIER solo ve propias ordenes (validar `createdBy == userId`). Retorna `OrderResponse` HTTP 200
+- [x] `POST /api/v1/orders/{id}/items` — CASHIER+ (solo si orden es propia y status=OPEN). Retorna `OrderResponse` HTTP 200
+- [x] `DELETE /api/v1/orders/{orderId}/items/{itemId}` — CASHIER+ (solo propias, status=OPEN). HTTP 204
+- [x] `POST /api/v1/orders/{id}/submit` — CASHIER+ (solo propias, status=OPEN). Retorna `OrderResponse` HTTP 200
+- [x] `POST /api/v1/orders/{id}/cancel` — MANAGER+. HTTP 204
+- [x] `GET /api/v1/orders` — MANAGER+ ve todas, CASHIER solo propias. Params: `branchId`, `status`, `startDate`, `endDate`. Retorna `Page<OrderResponse>` HTTP 200
+- [x] Tests unitarios con `@WebMvcTest`: 20 tests
 
 **Archivos:**
 - `quickstack-app/src/main/java/com/quickstack/app/controller/OrderController.java`
@@ -644,21 +644,21 @@ Controller REST para orders.
 
 ---
 
-### [QA] Tarea 4.5: Tests de Integracion — Orders
+### [QA] Tarea 4.5: Tests de Integracion — Orders ✅
 
 **Prioridad:** Alta | **Dependencias:** 4.4
 
 Tests end-to-end.
 
 **Criterios de Aceptacion:**
-- [ ] `POST /api/v1/orders` con DINE_IN y mesa disponible: retorna 201, mesa queda OCCUPIED
-- [ ] `POST` con DINE_IN y mesa ocupada: retorna 409
-- [ ] `POST` con producto no disponible: retorna 409
-- [ ] `POST /api/v1/orders/{id}/submit` cambia status a SUBMITTED en BD
-- [ ] `POST /api/v1/orders/{id}/items` en orden SUBMITTED: retorna 409
-- [ ] `GET /api/v1/orders` con CASHIER retorna solo ordenes creadas por el (verifica `created_by`)
-- [ ] Cross-tenant: orden de tenant A con JWT de tenant B retorna 404
-- [ ] 16 tests de integracion pasando
+- [x] `POST /api/v1/orders` con DINE_IN y mesa disponible: retorna 201, mesa queda OCCUPIED
+- [x] `POST` con DINE_IN y mesa ocupada: retorna 409
+- [x] `POST` con producto no disponible: retorna 409
+- [x] `POST /api/v1/orders/{id}/submit` cambia status a SUBMITTED en BD
+- [x] `POST /api/v1/orders/{id}/items` en orden SUBMITTED: retorna 409
+- [x] `GET /api/v1/orders` con CASHIER retorna solo ordenes creadas por el (verifica `created_by`)
+- [x] Cross-tenant: orden de tenant A con JWT de tenant B retorna 404
+- [x] 16 tests de integracion pasando
 
 **Archivos:**
 - `quickstack-app/src/test/java/com/quickstack/app/order/OrderIntegrationTest.java`

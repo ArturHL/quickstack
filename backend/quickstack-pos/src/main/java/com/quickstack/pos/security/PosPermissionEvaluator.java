@@ -63,6 +63,27 @@ public class PosPermissionEvaluator {
         return ROLE_OWNER.equals(roleCode) || ROLE_MANAGER.equals(roleCode);
     }
 
+    /**
+     * Returns true if the authenticated user can create or modify orders.
+     * Allowed roles: OWNER, MANAGER, CASHIER.
+     * Cashiers need this to create and manage their own orders at the POS terminal.
+     */
+    public boolean canCreateOrder(Authentication auth) {
+        String roleCode = resolveRoleCode(auth);
+        return ROLE_OWNER.equals(roleCode)
+                || ROLE_MANAGER.equals(roleCode)
+                || ROLE_CASHIER.equals(roleCode);
+    }
+
+    /**
+     * Returns true if the authenticated user is a MANAGER or above (OWNER).
+     * Used for operations that require elevated permissions, such as cancelling orders.
+     */
+    public boolean isManagerOrAbove(Authentication auth) {
+        String roleCode = resolveRoleCode(auth);
+        return ROLE_OWNER.equals(roleCode) || ROLE_MANAGER.equals(roleCode);
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

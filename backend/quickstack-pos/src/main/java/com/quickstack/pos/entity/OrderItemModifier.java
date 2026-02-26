@@ -10,11 +10,14 @@ import java.util.UUID;
 /**
  * Modifier applied to a specific order item.
  * <p>
- * Modifier names and prices are copied at order time to preserve historical accuracy.
- * Once created, modifier records are NEVER modified or deleted (part of the financial record).
+ * Modifier names and prices are copied at order time to preserve historical
+ * accuracy.
+ * Once created, modifier records are NEVER modified or deleted (part of the
+ * financial record).
  * <p>
  * Business Rules:
- * - modifier_name is the historical snapshot — not linked to live modifier catalog for display
+ * - modifier_name is the historical snapshot — not linked to live modifier
+ * catalog for display
  * - price_adjustment can be negative (discount) or zero (free add-on)
  * - quantity allows for doubled/tripled modifiers (e.g., "double cheese")
  */
@@ -29,10 +32,12 @@ public class OrderItemModifier {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
-    @Column(name = "order_item_id", nullable = false)
+    // Read-only shortcut — the actual FK is managed by the @ManyToOne below
+    @Column(name = "order_item_id", insertable = false, updatable = false)
     private UUID orderItemId;
 
-    // Optional reference to the original modifier — may be null if modifier was deleted
+    // Optional reference to the original modifier — may be null if modifier was
+    // deleted
     @Column(name = "modifier_id")
     private UUID modifierId;
 
@@ -50,9 +55,10 @@ public class OrderItemModifier {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    // Bidirectional read-side — the write path is via orderItemId column
+    // Owning side of the bidirectional relationship — manages the order_item_id FK
+    // column
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_item_id", insertable = false, updatable = false)
+    @JoinColumn(name = "order_item_id", nullable = false)
     private OrderItem orderItem;
 
     // -------------------------------------------------------------------------
