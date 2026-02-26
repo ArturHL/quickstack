@@ -2,7 +2,7 @@
 
 > **Version:** 1.2.0
 > **Fecha:** 2026-02-25
-> **Status:** EN PROGRESO - Sprint 2/6 ✅
+> **Status:** EN PROGRESO - Sprint 3/6 ✅
 > **Modulo Maven:** `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Orders/Payments)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -436,27 +436,29 @@ Tests end-to-end.
 
 ---
 
-## Sprint 3: Order Core — Entidades y Calculo de Totales
+## Sprint 3: Order Core — Entidades y Calculo de Totales ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** Entidades de Order + logica de calculo de precios
+**Duracion:** 2.5 dias | **Objetivo:** Entidades de Order + logica de calculo de precios | **Tests:** 38 (12 entity + 12 service + 14 repository)
 
-### [BACKEND] Tarea 3.1: Entidades Order, OrderItem, OrderItemModifier
+### [BACKEND] Tarea 3.1: Entidades Order, OrderItem, OrderItemModifier ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.2, 2.1
 
 Entidades JPA para pedidos.
 
 **Criterios de Aceptacion:**
-- [ ] `Order.java` con campos: `id`, `tenantId`, `branchId`, `tableId`, `customerId`, `orderNumber`, `dailySequence`, `serviceType` (enum), `statusId`, `subtotal`, `taxRate`, `tax`, `discount`, `total`, `source` (enum: POS, WHATSAPP, WEB, PHONE), `notes`, `kitchenNotes`, `openedAt`, `closedAt`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`
-- [ ] Enum `ServiceType`: DINE_IN, COUNTER, DELIVERY, TAKEOUT
-- [ ] Enum `OrderSource`: POS, WHATSAPP, WEB, PHONE
-- [ ] `@OneToMany` a `OrderItem` (fetch LAZY, cascade ALL)
-- [ ] `@OneToMany` a `Payment` (fetch LAZY)
-- [ ] `OrderItem.java` con campos: `id`, `tenantId`, `orderId`, `productId`, `variantId`, `comboId`, `productName`, `variantName`, `quantity`, `unitPrice`, `modifiersTotal`, `lineTotal` (GENERATED ALWAYS AS computed column), `kdsStatus` (enum), `kdsSentAt`, `kdsReadyAt`, `notes`, `sortOrder`, `createdAt`, `updatedAt`
-- [ ] Enum `KdsStatus`: PENDING, PREPARING, READY, DELIVERED
-- [ ] `@OneToMany` a `OrderItemModifier` (fetch LAZY, cascade ALL)
-- [ ] `OrderItemModifier.java` con campos: `id`, `tenantId`, `orderItemId`, `modifierId`, `modifierName`, `priceAdjustment`
-- [ ] Tests unitarios: 12 tests (constructors, enums, relationships, computed lineTotal)
+- [x] `Order.java` con campos: `id`, `tenantId`, `branchId`, `tableId`, `customerId`, `orderNumber`, `dailySequence`, `serviceType` (enum), `statusId`, `subtotal`, `taxRate`, `tax`, `discount`, `total`, `source` (enum: POS, WHATSAPP, WEB, PHONE), `notes`, `kitchenNotes`, `openedAt`, `closedAt`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`
+- [x] Enum `ServiceType`: DINE_IN, COUNTER, DELIVERY, TAKEOUT
+- [x] Enum `OrderSource`: POS, WHATSAPP, WEB, PHONE
+- [x] `@OneToMany` a `OrderItem` (fetch LAZY, cascade ALL)
+- [ ] `@OneToMany` a `Payment` (fetch LAZY) — diferido a Sprint 5
+- [x] `OrderItem.java` con campos: `id`, `tenantId`, `orderId`, `productId`, `variantId`, `comboId`, `productName`, `variantName`, `quantity`, `unitPrice`, `modifiersTotal`, `lineTotal` (GENERATED ALWAYS AS computed column), `kdsStatus` (enum), `kdsSentAt`, `kdsReadyAt`, `notes`, `sortOrder`, `createdAt`, `updatedAt`
+- [x] Enum `KdsStatus`: PENDING, PREPARING, READY, DELIVERED
+- [x] `@OneToMany` a `OrderItemModifier` (fetch LAZY, cascade ALL)
+- [x] `OrderItemModifier.java` con campos: `id`, `tenantId`, `orderItemId`, `modifierId`, `modifierName`, `priceAdjustment`, `quantity`
+- [x] Tests unitarios: 12 tests (constructors, enums, relationships, computed lineTotal)
+
+**ADR Sprint 3:** `OrderItem.modifiers` mapeado como `Set<OrderItemModifier>` (no List) para evitar `MultipleBagFetchException` al hacer `@EntityGraph` simultáneo con `Order.items`.
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/entity/Order.java`
@@ -465,24 +467,25 @@ Entidades JPA para pedidos.
 - `quickstack-pos/src/main/java/com/quickstack/pos/entity/ServiceType.java`
 - `quickstack-pos/src/main/java/com/quickstack/pos/entity/OrderSource.java`
 - `quickstack-pos/src/main/java/com/quickstack/pos/entity/KdsStatus.java`
+- `quickstack-pos/src/main/java/com/quickstack/pos/entity/OrderStatusConstants.java`
 - `quickstack-pos/src/test/java/com/quickstack/pos/entity/OrderEntityTest.java`
 
 ---
 
-### [BACKEND] Tarea 3.2: OrderRepository
+### [BACKEND] Tarea 3.2: OrderRepository ✅
 
 **Prioridad:** Alta | **Dependencias:** 3.1
 
 Repositorio JPA para orders.
 
 **Criterios de Aceptacion:**
-- [ ] `findByIdAndTenantId(UUID id, UUID tenantId)` con `@EntityGraph` que incluye `orderItems` y `orderItems.modifiers` (evitar N+1)
-- [ ] `findAllByBranchIdAndTenantId(UUID branchId, UUID tenantId, Pageable pageable)` para listar ordenes
-- [ ] `findOrdersByDateRange(UUID tenantId, UUID branchId, LocalDate startDate, LocalDate endDate, Pageable pageable)` para reportes
-- [ ] `findOpenOrdersByTable(UUID tableId, UUID tenantId)` retorna ordenes con status != COMPLETED y != CANCELLED para una mesa
-- [ ] `getNextDailySequence(UUID tenantId, UUID branchId, LocalDate date)` — query nativa para obtener MAX(daily_sequence) + 1 del dia
-- [ ] `existsByOrderNumberAndTenantId(String orderNumber, UUID tenantId)` para unicidad
-- [ ] Tests de repositorio con `@DataJpaTest` + Testcontainers: 14 tests
+- [x] `findByIdAndTenantId(UUID id, UUID tenantId)` con `@EntityGraph` que incluye `items` y `items.modifiers` (evitar N+1)
+- [x] `findAllByBranchIdAndTenantId(UUID branchId, UUID tenantId, Pageable pageable)` para listar ordenes
+- [x] `findOrdersByDateRange(UUID tenantId, UUID branchId, LocalDate startDate, LocalDate endDate, Pageable pageable)` para reportes (native query con DATE(opened_at))
+- [x] `findOpenOrdersByTable(UUID tableId, UUID tenantId, List<UUID> terminalStatusIds)` retorna ordenes con status != COMPLETED y != CANCELLED para una mesa
+- [x] `getNextDailySequence(UUID tenantId, UUID branchId, LocalDate date)` — query nativa para obtener MAX(daily_sequence) + 1 del dia
+- [x] `existsByOrderNumberAndTenantId(String orderNumber, UUID tenantId)` para unicidad
+- [x] Tests de repositorio con `@DataJpaTest` + Testcontainers: 14 tests
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/repository/OrderRepository.java`
@@ -490,20 +493,20 @@ Repositorio JPA para orders.
 
 ---
 
-### [BACKEND] Tarea 3.3: OrderCalculationService
+### [BACKEND] Tarea 3.3: OrderCalculationService ✅
 
 **Prioridad:** Alta | **Dependencias:** 3.1
 
 Servicio para calculo de totales de orden.
 
 **Criterios de Aceptacion:**
-- [ ] `calculateItemTotal(OrderItem item)`: retorna `quantity * (unit_price + modifiers_total)`
-- [ ] `calculateSubtotal(List<OrderItem> items)`: suma de todos los line totals
-- [ ] `calculateTax(BigDecimal subtotal, BigDecimal taxRate)`: `subtotal * taxRate`
-- [ ] `calculateTotal(BigDecimal subtotal, BigDecimal tax, BigDecimal discount)`: `subtotal + tax - discount`
-- [ ] Metodo `recalculateOrder(Order order)`: recalcula subtotal, tax, total de la orden completa y actualiza los campos
-- [ ] Todos los calculos usan `BigDecimal` con `RoundingMode.HALF_UP` a 2 decimales
-- [ ] Tests unitarios: 12 tests (precision decimal, casos edge: subtotal=0, discount > subtotal, etc.)
+- [x] `calculateItemTotal(OrderItem item)`: retorna `quantity * (unit_price + modifiers_total)`
+- [x] `calculateSubtotal(List<OrderItem> items)`: suma de todos los line totals
+- [x] `calculateTax(BigDecimal subtotal, BigDecimal taxRate)`: `subtotal * taxRate`
+- [x] `calculateTotal(BigDecimal subtotal, BigDecimal tax, BigDecimal discount)`: `subtotal + tax - discount`
+- [x] Metodo `recalculateOrder(Order order)`: recalcula subtotal, tax, total de la orden completa y actualiza los campos
+- [x] Todos los calculos usan `BigDecimal` con `RoundingMode.HALF_UP` a 2 decimales
+- [x] Tests unitarios: 12 tests (precision decimal, casos edge: subtotal=0, discount > subtotal, etc.)
 
 **Archivos:**
 - `quickstack-pos/src/main/java/com/quickstack/pos/service/OrderCalculationService.java`
