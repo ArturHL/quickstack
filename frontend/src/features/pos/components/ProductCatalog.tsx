@@ -2,15 +2,13 @@ import { useState } from 'react'
 import { Box, Tab, Tabs, Grid, Alert, CircularProgress } from '@mui/material'
 import { useMenuQuery } from '../hooks/useMenuQuery'
 import ProductCard from './ProductCard'
+import ProductDetailModal from './ProductDetailModal'
 import type { MenuProductItem } from '../types/Menu'
 
-interface ProductCatalogProps {
-  onProductClick?: (product: MenuProductItem) => void
-}
-
-export default function ProductCatalog({ onProductClick }: ProductCatalogProps) {
+export default function ProductCatalog() {
   const { data, isLoading, isError } = useMenuQuery()
   const [activeTab, setActiveTab] = useState(0)
+  const [selectedProduct, setSelectedProduct] = useState<MenuProductItem | null>(null)
 
   if (isLoading) {
     return (
@@ -52,12 +50,18 @@ export default function ProductCatalog({ onProductClick }: ProductCatalogProps) 
             <Grid item key={product.id} xs={12} sm={6} md={3}>
               <ProductCard
                 product={product}
-                onClick={() => onProductClick?.(product)}
+                onClick={() => setSelectedProduct(product)}
               />
             </Grid>
           ))}
         </Grid>
       )}
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </Box>
   )
 }

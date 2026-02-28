@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-28
-> **Status:** EN PROGRESO - Sprint 1/6 completado
+> **Status:** EN PROGRESO - Sprint 2/6 completado
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -431,43 +431,44 @@ Crear ruta y pantalla de catalogo.
 
 ---
 
-## Sprint 2: Producto Detail + Cart Store
+## Sprint 2: Producto Detail + Cart Store ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** Modal de producto con variantes/modifiers + carrito funcional
+**Duracion:** 2.5 dias | **Objetivo:** Modal de producto con variantes/modifiers + carrito funcional | **Tests:** 37 (11 cartStore + 5 VariantSelector + 9 ModifierGroup + 10 ProductDetailModal + 2 ProductCatalog nuevos)
 
-### [FRONTEND] Tarea 2.1: Cart Store (Zustand)
+### [FRONTEND] Tarea 2.1: Cart Store (Zustand) ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Store para manejar items en carrito.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/stores/cartStore.ts`: Zustand store con estado `items: CartItem[]`, `serviceType`, `tableId`, `customerId`
-- [ ] Tipo `CartItem`: `productId`, `variantId?`, `comboId?`, `productName`, `variantName?`, `quantity`, `unitPrice`, `selectedModifiers: SelectedModifier[]`, `lineTotal`
-- [ ] Tipo `SelectedModifier`: `modifierId`, `modifierName`, `priceAdjustment`
-- [ ] Actions: `addItem(item)`, `removeItem(index)`, `updateQuantity(index, qty)`, `clearCart()`, `setServiceDetails(type, tableId?, customerId?)`
-- [ ] Computed: `subtotal`, `tax`, `total` (usando taxRate de tenant — obtener de authStore)
-- [ ] Persist en sessionStorage (recuperar si refresh)
-- [ ] Tests unitarios: 10 tests (add, remove, update qty, totals, persist)
+- [x] `features/pos/types/Cart.ts`: tipos `CartItem`, `SelectedModifier`, `ServiceType`
+- [x] `features/pos/stores/cartStore.ts`: Zustand store con estado `items: CartItem[]`, `serviceType`, `tableId`, `customerId`
+- [x] `lineTotal` calculado internamente en `addItem` y `updateQuantity` — no expuesto como campo mutable
+- [x] Actions: `addItem(input)`, `removeItem(index)`, `updateQuantity(index, qty)`, `clearCart()`, `setServiceDetails(type, tableId?, customerId?)`
+- [x] Selectors: `selectSubtotal`, `selectTax` (TAX_RATE = 0.16, hardcoded IVA México), `selectTotal`
+- [x] Persist en sessionStorage via `zustand/middleware` persist
+- [x] Tests unitarios: 11 tests
 
 **Archivos:**
+- `frontend/src/features/pos/types/Cart.ts`
 - `frontend/src/features/pos/stores/cartStore.ts`
 - `frontend/src/features/pos/stores/__tests__/cartStore.test.ts`
 
 ---
 
-### [FRONTEND] Tarea 2.2: VariantSelector Component
+### [FRONTEND] Tarea 2.2: VariantSelector Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Radio buttons para seleccionar variante de producto.
 
 **Criterios de Aceptacion:**
-- [ ] `VariantSelector.tsx`: MUI RadioGroup para seleccionar variante
-- [ ] Props: `variants: MenuVariantItem[]`, `selectedId: string | null`, `onChange: (id: string) => void`
-- [ ] Mostrar nombre de variante + precio efectivo (base + adjustment)
-- [ ] Pre-seleccionar variante default (`isDefault == true`)
-- [ ] Tests con RTL: 5 tests (render, default selected, onChange, precio display)
+- [x] `VariantSelector.tsx`: MUI RadioGroup para seleccionar variante
+- [x] Props: `variants: MenuVariantItem[]`, `selectedId: string | null`, `onChange: (id: string) => void`
+- [x] Mostrar nombre de variante + precio efectivo (`nombre — $XX.XX`)
+- [x] Pre-seleccionar variante con `isDefault == true` (sólo si hay una marcada como default)
+- [x] Tests con RTL: 5 tests
 
 **Archivos:**
 - `frontend/src/features/pos/components/VariantSelector.tsx`
@@ -475,19 +476,19 @@ Radio buttons para seleccionar variante de producto.
 
 ---
 
-### [FRONTEND] Tarea 2.3: ModifierGroup Component
+### [FRONTEND] Tarea 2.3: ModifierGroup Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Checkbox/Radio para modifiers de un grupo.
 
 **Criterios de Aceptacion:**
-- [ ] `ModifierGroup.tsx`: renderiza lista de modifiers con Checkbox (si max > 1) o Radio (si max == 1)
-- [ ] Props: `group: MenuModifierGroupItem`, `selectedIds: string[]`, `onChange: (ids: string[]) => void`
-- [ ] Validar `minSelections` y `maxSelections` (deshabilitar checkboxes si max alcanzado)
-- [ ] Mostrar `isRequired` badge si aplica
-- [ ] Mostrar precio de cada modifier (`+$10`, `-$5`, etc.)
-- [ ] Tests con RTL: 8 tests (render, select, max limit, required badge)
+- [x] `ModifierGroup.tsx`: renderiza lista de modifiers con Checkbox (si maxSelections > 1 o null) o Radio (si maxSelections == 1)
+- [x] Props: `group: MenuModifierGroupItem`, `selectedIds: string[]`, `onChange: (ids: string[]) => void`
+- [x] Deshabilitar checkboxes no seleccionados cuando maxSelections se alcanza
+- [x] Mostrar chip "Requerido" cuando `isRequired == true`
+- [x] Mostrar precio de cada modifier (`(+$10.00)`, `(-$2.00)`, etc.)
+- [x] Tests con RTL: 9 tests
 
 **Archivos:**
 - `frontend/src/features/pos/components/ModifierGroup.tsx`
@@ -495,23 +496,23 @@ Checkbox/Radio para modifiers de un grupo.
 
 ---
 
-### [FRONTEND] Tarea 2.4: ProductDetailModal Component
+### [FRONTEND] Tarea 2.4: ProductDetailModal Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.1, 2.2, 2.3
 
 Modal completo de producto con variantes y modifiers.
 
 **Criterios de Aceptacion:**
-- [ ] `ProductDetailModal.tsx`: MUI Dialog fullWidth maxWidth="md"
-- [ ] Props: `product: MenuProductItem | null`, `open: boolean`, `onClose: () => void`
-- [ ] Renderizar imagen, nombre, descripcion
-- [ ] Si `productType == VARIANT`, renderizar `VariantSelector`
-- [ ] Renderizar lista de `ModifierGroup` components (map sobre `modifierGroups`)
-- [ ] Input de cantidad (NumberInput con +/- buttons)
-- [ ] Calcular `lineTotal` en tiempo real (base/variant price + modifiers * qty)
-- [ ] Boton "Agregar al Carrito": valida selecciones, llama `cartStore.addItem()`, cierra modal
-- [ ] Validaciones: variante requerida si VARIANT, modifiers required cumplen minSelections
-- [ ] Tests con RTL: 10 tests (render, variant selection, modifier selection, add to cart, validation errors)
+- [x] `ProductDetailModal.tsx`: MUI Dialog fullWidth maxWidth="md"
+- [x] Props: `product: MenuProductItem | null`, `open: boolean`, `onClose: () => void`
+- [x] Renderizar imagen (o placeholder), nombre
+- [x] Si `productType == VARIANT`, renderizar `VariantSelector`
+- [x] Renderizar lista de `ModifierGroup` components
+- [x] Contador de cantidad con botones +/- (mínimo 1)
+- [x] `lineTotal` calculado en tiempo real (unitPrice + modifiers × quantity)
+- [x] "Agregar al Carrito": valida, llama `cartStore.addItem()`, cierra modal
+- [x] Validaciones: variante requerida si VARIANT sin default, modifier groups con minSelections > 0
+- [x] Tests con RTL: 10 tests
 
 **Archivos:**
 - `frontend/src/features/pos/components/ProductDetailModal.tsx`
@@ -519,21 +520,22 @@ Modal completo de producto con variantes y modifiers.
 
 ---
 
-### [FRONTEND] Tarea 2.5: Integrar Modal en ProductCatalog
+### [FRONTEND] Tarea 2.5: Integrar Modal en ProductCatalog ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.4
 
 Abrir modal al hacer click en ProductCard.
 
 **Criterios de Aceptacion:**
-- [ ] `ProductCatalog.tsx`: agregar estado `selectedProduct: MenuProductItem | null`
-- [ ] Click en ProductCard setea `selectedProduct`
-- [ ] Renderizar `<ProductDetailModal product={selectedProduct} open={!!selectedProduct} onClose={() => setSelectedProduct(null)} />`
-- [ ] Tests actualizados: 2 tests nuevos (click abre modal, cerrar modal)
+- [x] `ProductCatalog.tsx`: estado interno `selectedProduct: MenuProductItem | null`
+- [x] Click en ProductCard → `setSelectedProduct(product)`
+- [x] `<ProductDetailModal product={selectedProduct} open={!!selectedProduct} onClose={() => setSelectedProduct(null)} />`
+- [x] `onProductClick` prop eliminado (modal integrado internamente)
+- [x] Tests: 2 nuevos (click abre modal, cerrar modal) — total ProductCatalog: 8 tests
 
 **Archivos:**
-- `frontend/src/features/pos/components/ProductCatalog.tsx` (modificar)
-- `frontend/src/features/pos/components/__tests__/ProductCatalog.test.tsx` (expandir)
+- `frontend/src/features/pos/components/ProductCatalog.tsx` (modificado)
+- `frontend/src/features/pos/components/__tests__/ProductCatalog.test.tsx` (expandido)
 
 ---
 
