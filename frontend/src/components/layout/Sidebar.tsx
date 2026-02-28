@@ -83,11 +83,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton disabled>
+          <ListItemButton
+            selected={location.pathname.startsWith('/orders')}
+            onClick={() => handleNavigate('/orders')}
+          >
             <ListItemIcon>
               <ReceiptIcon />
             </ListItemIcon>
-            <ListItemText primary="Pedidos" secondary="Próximamente" />
+            <ListItemText primary="Pedidos" />
           </ListItemButton>
         </ListItem>
 

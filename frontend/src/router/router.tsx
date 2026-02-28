@@ -8,6 +8,7 @@ import ProtectedRoute from '../components/common/ProtectedRoute'
 import AppLayout from '../components/layout/AppLayout'
 import { posRoutes } from './posRoutes'
 import { adminRoutes } from './adminRoutes'
+import { orderRoutes } from './orderRoutes'
 
 export const router = createBrowserRouter(
   [
@@ -43,6 +44,7 @@ export const router = createBrowserRouter(
             },
             ...posRoutes,
             ...adminRoutes,
+            ...orderRoutes,
           ],
         },
       ],

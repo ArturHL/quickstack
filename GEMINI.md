@@ -75,11 +75,12 @@ The project is managed as a monorepo. Key commands should be run within their re
 ---
 
 ## Project Status
-Currently in **Phase 1 (Core POS)**.
+Currently **Phase 1 (Core POS) COMPLETED**.
 - **Phase 0 (Foundation):** 100% Completed (Auth, Infrastructure, CI/CD).
 - **Phase 1.1 (Catalog Base):** Completed (6/6 sprints).
 - **Phase 1.2 (Modifiers + Combos):** Completed (4/4 sprints).
 - **Phase 1.3 (Orders + Payments):** Completed (6/6 sprints). ~1,060 backend tests.
-- **Phase 1.4 (Frontend POS):** In Progress (Sprint 5/6 completed). Next: Sprint 6 — Order Management + Polish.
-- **Frontend Tests:** 226 total (0 failures).
+- **Phase 1.4 (Frontend POS):** Completed (6/6 sprints). 244 frontend tests.
+  - Sprint 6: Order Management — OrderList, OrderDetail, routes, sidebar.
+- **Frontend Tests:** 244 total (0 failures).
 - **Backend Tests:** ~1,060 total (0 failures).

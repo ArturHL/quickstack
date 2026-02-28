@@ -115,3 +115,21 @@ export interface PaymentResponse {
   createdAt: string
   createdBy: string
 }
+
+// ─── Query Params ──────────────────────────────────────────────────────────────
+
+export interface OrdersQueryParams {
+  branchId?: string
+  date?: string // YYYY-MM-DD
+  status?: OrderStatus
+  page?: number
+  size?: number
+}
+
+export interface OrdersPageResponse {
+  content: OrderResponse[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}
