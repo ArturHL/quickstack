@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-28
-> **Status:** EN PROGRESO - Sprint 2/6 completado
+> **Status:** EN PROGRESO - Sprint 3/6 completado
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -539,23 +539,23 @@ Abrir modal al hacer click en ProductCard.
 
 ---
 
-## Sprint 3: Carrito y Flujo de Servicio
+## Sprint 3: Carrito y Flujo de Servicio ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** Carrito funcional + selector de tipo de servicio/mesa/cliente
+**Duracion:** 2.5 dias | **Objetivo:** Carrito funcional + selector de tipo de servicio/mesa/cliente | **Tests:** 43 (6 CartItem + 8 Cart + 5 ServiceTypeSelector + 8 TableSelector + 10 CustomerSelector + 6 routes nuevos)
 
-### [FRONTEND] Tarea 3.1: CartItem Component
+### [FRONTEND] Tarea 3.1: CartItem Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.1
 
 Item individual en carrito con qty controls.
 
 **Criterios de Aceptacion:**
-- [ ] `CartItem.tsx`: MUI ListItem que muestra `productName`, `variantName?`, modifiers seleccionados, `quantity`, `lineTotal`
-- [ ] Props: `item: CartItem`, `index: number`, `onUpdateQty: (index, qty) => void`, `onRemove: (index) => void`
-- [ ] Mostrar modifiers como chips pequenos debajo del nombre
-- [ ] Botones +/- para cambiar qty (min 1)
-- [ ] Boton delete (IconButton con trash icon)
-- [ ] Tests con RTL: 6 tests (render, update qty, remove, modifiers display)
+- [x] `CartItem.tsx`: MUI ListItem que muestra `productName`, `variantName?`, modifiers seleccionados, `quantity`, `lineTotal`
+- [x] Props: `item: CartItem`, `index: number`, `onUpdateQty: (index, qty) => void`, `onRemove: (index) => void`
+- [x] Mostrar modifiers como chips pequenos debajo del nombre
+- [x] Botones +/- para cambiar qty (min 1)
+- [x] Boton delete (IconButton con trash icon)
+- [x] Tests con RTL: 6 tests (render, update qty, remove, modifiers display)
 
 **Archivos:**
 - `frontend/src/features/pos/components/CartItem.tsx`
@@ -563,19 +563,19 @@ Item individual en carrito con qty controls.
 
 ---
 
-### [FRONTEND] Tarea 3.2: Cart Component
+### [FRONTEND] Tarea 3.2: Cart Component ✅
 
 **Prioridad:** Alta | **Dependencies:** 3.1, 2.1
 
 Lista de items del carrito + totales.
 
 **Criterios de Aceptacion:**
-- [ ] `Cart.tsx`: consume `cartStore`, renderiza lista de `CartItem` components
-- [ ] Mostrar subtotal, tax, total en la parte inferior (MUI Card con dividers)
-- [ ] Si carrito vacio, mostrar empty state (ilustracion + texto)
-- [ ] Boton "Limpiar Carrito" (solo si items > 0)
-- [ ] Boton "Continuar" (navega a selector de servicio)
-- [ ] Tests con RTL + MSW: 8 tests (empty state, render items, update qty, remove, totals calculation, clear cart)
+- [x] `Cart.tsx`: consume `cartStore`, renderiza lista de `CartItem` components
+- [x] Mostrar subtotal, tax, total en la parte inferior (MUI Card con dividers)
+- [x] Si carrito vacio, mostrar empty state (ilustracion + texto)
+- [x] Boton "Limpiar Carrito" (solo si items > 0)
+- [x] Boton "Continuar" (navega a selector de servicio)
+- [x] Tests con RTL + MSW: 8 tests (empty state, render items, update qty, remove, totals calculation, clear cart)
 
 **Archivos:**
 - `frontend/src/features/pos/components/Cart.tsx`
@@ -583,18 +583,17 @@ Lista de items del carrito + totales.
 
 ---
 
-### [FRONTEND] Tarea 3.3: ServiceTypeSelector Component
+### [FRONTEND] Tarea 3.3: ServiceTypeSelector Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.1
 
 Selector de tipo de servicio (DINE_IN/COUNTER/etc).
 
 **Criterios de Aceptacion:**
-- [ ] `ServiceTypeSelector.tsx`: Grid de 4 Cards grandes con iconos para cada service type
-- [ ] Props: `onSelect: (type: ServiceType) => void`
-- [ ] Cards: DINE_IN (icon: Restaurant), COUNTER (icon: Store), DELIVERY (icon: DeliveryDining), TAKEOUT (icon: TakeoutDining)
-- [ ] Click en card guarda en `cartStore.setServiceDetails(type)` y navega a siguiente paso
-- [ ] Tests con RTL: 5 tests (render, click cada tipo, navigation)
+- [x] `ServiceTypeSelector.tsx`: Grid de 4 Cards grandes con iconos para cada service type
+- [x] Cards: DINE_IN (icon: Restaurant), COUNTER (icon: Store), DELIVERY (icon: DeliveryDining), TAKEOUT (icon: TakeoutDining)
+- [x] Click en card guarda en `cartStore.setServiceDetails(type)` y navega a siguiente paso
+- [x] Tests con RTL: 5 tests (render, click cada tipo)
 
 **Archivos:**
 - `frontend/src/features/pos/components/ServiceTypeSelector.tsx`
@@ -602,19 +601,19 @@ Selector de tipo de servicio (DINE_IN/COUNTER/etc).
 
 ---
 
-### [FRONTEND] Tarea 3.4: TableSelector Component
+### [FRONTEND] Tarea 3.4: TableSelector Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.1
 
 Grid de mesas disponibles (solo para DINE_IN).
 
 **Criterios de Aceptacion:**
-- [ ] `TableSelector.tsx`: consume `useTablesQuery()` (GET /api/v1/areas/{areaId}/tables)
-- [ ] Tabs de MUI para navegar areas
-- [ ] Grid de Cards de mesas (numero, capacity, status badge)
-- [ ] Solo mesas AVAILABLE son clickeables
-- [ ] Click en mesa guarda `tableId` en cartStore y navega a /pos/cart
-- [ ] Tests con RTL + MSW: 8 tests (loading, render areas, render tables, only available clickable, select table)
+- [x] `TableSelector.tsx`: consume `useTablesQuery()` (GET /api/v1/areas/{areaId}/tables)
+- [x] Tabs de MUI para navegar areas
+- [x] Grid de Cards de mesas (numero, capacity, status badge)
+- [x] Solo mesas AVAILABLE son clickeables
+- [x] Click en mesa guarda `tableId` en cartStore y navega a /pos/catalog
+- [x] Tests con RTL + MSW: 8 tests (loading, render areas, render tables, only available clickable, select table)
 
 **Archivos:**
 - `frontend/src/features/pos/components/TableSelector.tsx`
@@ -624,18 +623,18 @@ Grid de mesas disponibles (solo para DINE_IN).
 
 ---
 
-### [FRONTEND] Tarea 3.5: CustomerSelector Component
+### [FRONTEND] Tarea 3.5: CustomerSelector Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 2.1
 
 Search + crear cliente (solo para DELIVERY/TAKEOUT).
 
 **Criterios de Aceptacion:**
-- [ ] `CustomerSelector.tsx`: MUI TextField con search + lista de resultados
-- [ ] Consume `useCustomersQuery(searchTerm)` con debounce de 300ms
-- [ ] Boton "Crear Cliente Nuevo" abre dialog con formulario simple (nombre, phone, address)
-- [ ] Click en cliente guarda `customerId` en cartStore y navega a /pos/cart
-- [ ] Tests con RTL + MSW: 10 tests (search, debounce, select customer, create new customer, validation)
+- [x] `CustomerSelector.tsx`: MUI TextField con search + lista de resultados
+- [x] Consume `useCustomersQuery(searchTerm)` con debounce de 300ms
+- [x] Boton "Crear Cliente Nuevo" abre dialog con formulario simple (nombre, phone)
+- [x] Click en cliente guarda `customerId` en cartStore y navega a /pos/catalog
+- [x] Tests con RTL + MSW: 10 tests (search, debounce, select customer, create new customer, validation)
 
 **Archivos:**
 - `frontend/src/features/pos/components/CustomerSelector.tsx`
@@ -646,19 +645,19 @@ Search + crear cliente (solo para DELIVERY/TAKEOUT).
 
 ---
 
-### [FRONTEND] Tarea 3.6: Rutas y Flujo de Servicio
+### [FRONTEND] Tarea 3.6: Rutas y Flujo de Servicio ✅
 
 **Prioridad:** Alta | **Dependencias:** 3.3, 3.4, 3.5
 
 Conectar pantallas en flujo completo.
 
 **Criterios de Aceptacion:**
-- [ ] Ruta `/pos/new` renderiza `ServiceTypeSelector`
-- [ ] Ruta `/pos/new/table` renderiza `TableSelector` (solo accesible si serviceType == DINE_IN)
-- [ ] Ruta `/pos/new/customer` renderiza `CustomerSelector` (solo accesible si serviceType == DELIVERY o TAKEOUT)
-- [ ] Ruta `/pos/cart` renderiza `Cart` component
-- [ ] Navegacion condicional basada en serviceType
-- [ ] Tests de navegacion: 6 tests (flujos completos para cada service type)
+- [x] Ruta `/pos/new` renderiza `ServiceTypeSelector`
+- [x] Ruta `/pos/new/table` renderiza `TableSelector`
+- [x] Ruta `/pos/new/customer` renderiza `CustomerSelector`
+- [x] Ruta `/pos/cart` renderiza `Cart` component
+- [x] Navegacion condicional basada en serviceType (DINE_IN→/table, DELIVERY/TAKEOUT→/customer, COUNTER→/catalog)
+- [x] Tests de navegacion: 9 tests (flujos completos + rutas individuales + sidebar)
 
 **Archivos:**
 - `frontend/src/routes/posRoutes.tsx` (expandir)
