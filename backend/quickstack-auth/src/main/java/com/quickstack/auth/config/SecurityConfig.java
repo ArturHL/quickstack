@@ -96,6 +96,9 @@ public class SecurityConfig {
                         // Order management requires JWT
                         .requestMatchers("/api/v1/orders/**").authenticated()
 
+                        // Payment management requires JWT
+                        .requestMatchers("/api/v1/payments/**").authenticated()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
 

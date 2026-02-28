@@ -29,10 +29,10 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 
 - **1.1**: Catálogo Base — Categorías + Productos + Variantes + Menú POS | ✅ COMPLETADA (6/6 sprints) | 20 endpoints | ~650 tests backend
 - **1.2**: Modifiers + Combos (2 sem) — Personalización avanzada | ✅ COMPLETADA (4/4 sprints) | 15 endpoints (9 modifiers + 5 combos + 1 menu actualizado) | ~183 tests nuevos
-- **1.3**: Pedidos + Pagos (3 sem) — Sistema completo de órdenes | ⏳ EN PROGRESO (4/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Módulos: `quickstack-branch` + `quickstack-pos` | 643 tests total
+- **1.3**: Pedidos + Pagos (3 sem) — Sistema completo de órdenes | ⏳ EN PROGRESO (5/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Sprint 5: Payments ✅ | Módulos: `quickstack-branch` + `quickstack-pos` | ~1,040 tests total
 - **1.4**: Frontend POS (3 sem) — UI completa del punto de venta | 15 pantallas | ~120 tests
 
-**Próximo sprint**: Phase 1.3 Sprint 5 — Payments (PaymentService, PaymentController, cerrar órdenes)
+**Próximo sprint**: Phase 1.3 Sprint 6 — Reporting (Daily Summary endpoint)
 
 Ver: `docs/ROADMAP.md` | `docs/roadmap/PHASE_1.3_ORDERS_PAYMENTS.md`
 

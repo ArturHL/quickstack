@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-25
-> **Estado:** Phase 1.3 ⏳ EN PROGRESO (2/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅
+> **Última actualización:** 2026-02-27
+> **Estado:** Phase 1.3 ⏳ EN PROGRESO (5/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Sprint 5: Payments ✅
 
 ## Vision Summary
 
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.3 Sprint 2/6 completado
+**Status**: En progreso — Phase 1.3 Sprint 5/6 completado
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -247,7 +247,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
-| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ En progreso (2/6 sprints) |
+| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ En progreso (5/6 sprints) |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
 ### Scope de Phase 1
@@ -357,28 +357,23 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.3: Sistema de Pedidos y Pagos
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ Pendiente
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En progreso (5/6 sprints)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.3_ORDERS_PAYMENTS.md`
 
 **Dependencies:** Phase 1.2 completada
 
 **Scope Backend:**
-- [ ] Nuevo módulo: `quickstack-order`
-- [ ] CRUD de sucursales (branches) con selector activo
-- [ ] CRUD de áreas y mesas por sucursal
-- [ ] CRUD de clientes (para delivery)
-- [ ] Entidades: Order, OrderItem, OrderItemModifier, Payment
-- [ ] API: crear pedido (4 tipos de servicio: DINE_IN/COUNTER/DELIVERY/TAKEOUT)
-- [ ] API: agregar/modificar items al pedido
-- [ ] API: calcular totales (base + variants + modifiers + tax)
-- [ ] API: cerrar pedido con cambio de estado
-- [ ] API: registrar pago en efectivo
-- [ ] API: listar pedidos del día (filtros por estado, tipo servicio, sucursal)
-- [ ] Order number format: `ORD-YYYYMMDD-XXX` (daily sequence)
-- [ ] Validaciones de negocio (producto disponible, mesa ocupada, etc.)
-- [ ] 28 endpoints REST nuevos
-- [ ] ~150 tests nuevos (acumulado: ~1157 tests backend)
+- [x] Módulos: `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Order/Payment)
+- [x] CRUD de sucursales, áreas y mesas — Sprint 1 ✅
+- [x] CRUD de clientes (para delivery) — Sprint 2 ✅
+- [x] Entidades: Order, OrderItem, OrderItemModifier — Sprint 3 ✅
+- [x] API: crear pedido, agregar/quitar items, submit, cancel — Sprint 4 ✅
+- [x] API: registrar pago en efectivo (CASH only), cerrar orden — Sprint 5 ✅
+- [x] API: liberar mesa (DINE_IN) + actualizar stats de cliente al pagar — Sprint 5 ✅
+- [ ] API: Daily Summary endpoint (resumen de ventas del día) — Sprint 6 ⏳
+- [x] 30 endpoints REST implementados (27 + `/payments`, `/orders/{id}/payments`)
+- [x] ~1,040 tests backend pasando (quickstack-pos: 182, quickstack-app: 129)
 
 ---
 
@@ -698,6 +693,41 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-27 (Phase 1.3 Sprint 5)
+
+- **Phase 1.3 Sprint 5/6 COMPLETADO — Payments:**
+  - `Payment.java` — entidad sin `deleted_at` (NEVER DELETE, audit financiero)
+  - `PaymentMethod` enum: CASH, CARD, TRANSFER, OTHER — solo CASH aceptado en MVP
+  - `PaymentRepository`: `findAllByOrderIdAndTenantId` + `sumPaymentsByOrder` (@Query JPQL)
+  - `PaymentService.registerPayment()`: valida orden READY → solo CASH → amount >= total → cierra orden al alcanzar total (status COMPLETED + closedAt + libera mesa DINE_IN + actualiza stats de cliente)
+  - `PaymentService.listPaymentsForOrder()`: IDOR protection — valida orden antes de listar
+  - `PaymentController`: `POST /api/v1/payments` (201) + `GET /api/v1/orders/{orderId}/payments` (200) — sin @RequestMapping a nivel clase
+  - `SecurityConfig` actualizado: `/api/v1/payments/**` registrado
+  - `INSUFFICIENT_PAYMENT` lanza `ApiException(HttpStatus.BAD_REQUEST, ...)` — 400, no 409
+  - 37 tests nuevos: 5 entity + 8 repository (@DataJpaTest) + 16 service (Mockito) + 8 controller — total 182 en quickstack-pos
+  - 10 integration tests (`PaymentIntegrationTest`) — total 129 en quickstack-app
+  - **Acumulado total: ~1,040 tests backend**
+  - Checkpoint de Seguridad Post-Sprint 5: IDOR cross-tenant → 404 confirmado en tests 7 y 10
+
+### 2026-02-25 (Phase 1.3 Sprint 3 + Sprint 4)
+
+- **Phase 1.3 Sprint 4/6 COMPLETADO — Order Management API:**
+  - `OrderService`: create, addItem, removeItem, submit (OPEN→SUBMITTED), cancel (MANAGER+), get, list
+  - `OrderController` en `quickstack-pos`: 8 endpoints (POST /orders, GET /orders, GET /orders/{id}, POST /orders/{id}/items, DELETE /orders/{orderId}/items/{itemId}, POST /orders/{id}/submit, POST /orders/{id}/cancel, PATCH tabla liberada)
+  - `OrderStatusUpdateRequest`, `OrderItemRequest` DTOs
+  - `PosPermissionEvaluator` expandido con `canViewOrder`, `canCancelOrder`, `canSubmitOrder`
+  - 16 integration tests en `OrderIntegrationTest`
+  - **Acumulado: 643 tests backend**
+
+- **Phase 1.3 Sprint 3/6 COMPLETADO — Order Core:**
+  - `Order.java`, `OrderItem.java`, `OrderItemModifier.java` — entidades JPA, NEVER DELETE
+  - `OrderStatusConstants` con UUIDs del seed V7 (PENDING=d111..., READY=d333..., COMPLETED=d555...)
+  - `OrderItem.modifiers` es `Set<OrderItemModifier>` — evita `MultipleBagFetchException` con EntityGraph
+  - `line_total` columna generada en DB (`GENERATED ALWAYS AS`): `insertable=false, updatable=false`
+  - `OrderRepository` con JPQL: `findByIdAndTenantId`, `findOpenOrdersByTable`, listado paginado con filtros
+  - `OrderCalculationService`: calcula subtotal, tax, total a partir de items
+  - ADR Sprint 3: `Order.addItem(item)` helper setea orderId/tenantId antes de agregar al Set
 
 ### 2026-02-25 (Phase 1.3 Sprint 1 + Sprint 2)
 
