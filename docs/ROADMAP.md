@@ -31,7 +31,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
 | 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
-| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ Pendiente |
+| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (3/4 sub-fases completadas) |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
 | 4 | Basic Reporting | Dashboard de ventas día/semana/mes | ⏳ Pendiente |

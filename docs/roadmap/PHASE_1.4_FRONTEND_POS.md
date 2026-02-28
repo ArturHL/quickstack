@@ -1,8 +1,8 @@
 # Phase 1.4: Frontend POS — Complete Point of Sale UI
 
-> **Version:** 1.0.0
-> **Fecha:** 2026-02-19
-> **Status:** PENDIENTE - Sprint 0/6
+> **Version:** 1.1.0
+> **Fecha:** 2026-02-28
+> **Status:** PENDIENTE - Sprint 0/6 (revisado post-análisis de coherencia)
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -17,12 +17,12 @@ Este documento define el plan de implementacion de la **cuarta y ultima sub-fase
 | Aspecto | Detalle |
 |---------|---------|
 | **Timeline** | 6 sprints (~3 semanas) |
-| **Tareas Frontend** | 28 tareas (~80 horas) |
-| **Tareas Backend** | 0 (backend ya completado en Phases 1.1-1.3) |
+| **Tareas Frontend** | ~33 tareas (~95 horas) |
+| **Tareas Backend** | 1 (POST /api/v1/orders/{id}/ready — prerequisito Sprint 4) |
 | **Tareas QA** | 6 tareas (~18 horas) |
 | **Pantallas nuevas** | 15 pantallas/componentes principales |
 | **Tests nuevos** | ~120 tests frontend |
-| **Integracion con backend** | 28 endpoints REST ya disponibles |
+| **Integracion con backend** | 29+ endpoints REST disponibles |
 
 ---
 
@@ -157,6 +157,39 @@ export const useMenuQuery = () => {
 
 ---
 
+## Decisiones de Diseno (ADR — 2026-02-28)
+
+### ADR-003: Flujo de transicion de estados de orden en MVP
+
+**Contexto:** `PaymentService` requiere que la orden este en estado `READY` para aceptar pago.
+El estado `READY` estaba pensado para ser asignado por el KDS (Phase 3). En Phase 1.4 no
+hay KDS, por lo que el flujo de pago quedaba bloqueado.
+
+**Decision:** Agregar `POST /api/v1/orders/{id}/ready` como endpoint explicito de transicion.
+
+**Flujo resultante:**
+```
+PENDING → IN_PROGRESS (via POST /orders/{id}/submit)
+IN_PROGRESS → READY    (via POST /orders/{id}/ready)  ← nuevo
+READY       → COMPLETED (via POST /payments)
+```
+
+**Comportamiento en Phase 1.4 MVP (sin KDS):**
+- **COUNTER / TAKEOUT:** frontend llama `/submit` y `/ready` en secuencia automaticamente al
+  hacer clic en "Enviar Orden". El cashier va directamente a la pantalla de pago.
+- **DINE_IN / DELIVERY:** frontend llama `/submit`. La orden queda en `IN_PROGRESS`. El cashier
+  la marca como lista manualmente desde la pantalla de detalle de orden (boton "Marcar como
+  Listo", MANAGER+), luego procede al pago.
+
+**Reutilizacion en Phase 3:** El KDS llamara a `/ready` automaticamente cuando cocina confirme.
+El endpoint no cambia, solo quien lo invoca.
+
+**Implementacion requerida antes de Sprint 4:**
+- Backend: `POST /api/v1/orders/{id}/ready` en `OrderController` + logica en `OrderService`
+- Frontend hook: `useMarkReadyMutation.ts` en `features/pos/hooks/`
+
+---
+
 ## Deuda Tecnica Aceptada
 
 | Item | Justificacion | Phase sugerida |
@@ -270,6 +303,26 @@ features/branches/
 └── stores/
     └── branchStore.ts                    <- Sucursal activa
 ```
+
+---
+
+## Pre-requisito Backend (antes de Sprint 4)
+
+### [BACKEND] Tarea B.1: POST /api/v1/orders/{id}/ready
+
+**Prioridad:** Alta | **Modulo:** quickstack-pos | **Debe completarse antes de:** Sprint 4
+
+Agregar endpoint que transiciona una orden de `IN_PROGRESS` a `READY`.
+Requerido para que el frontend pueda completar el flujo de pago (ver ADR-003).
+
+**Criterios de Aceptacion:**
+- [ ] `OrderController`: `POST /api/v1/orders/{id}/ready` (requiere CASHIER+)
+- [ ] `OrderService.markOrderReady(tenantId, orderId)`: valida estado `IN_PROGRESS`, transiciona a `READY`
+- [ ] Si orden no es `IN_PROGRESS` → 409 (`BusinessRuleException`)
+- [ ] Si orden no pertenece al tenant → 404 (`ResourceNotFoundException`)
+- [ ] Inserta registro en `order_status_history`
+- [ ] `SecurityConfig`: `/api/v1/orders/**` ya esta registrado (sin cambio adicional)
+- [ ] Tests: 4 unit (success, not-found, wrong-status, business-rule) + 2 integration (happy path, wrong status)
 
 ---
 
@@ -639,17 +692,19 @@ Definir tipos para ordenes y pagos.
 Funciones de API y hooks de TanStack Query para ordenes.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/api/orderApi.ts`: funciones `createOrder(request)`, `submitOrder(orderId)`, `getOrder(orderId)`
+- [ ] `features/pos/api/orderApi.ts`: funciones `createOrder(request)`, `submitOrder(orderId)`, `markOrderReady(orderId)`, `getOrder(orderId)`
 - [ ] `features/pos/hooks/useCreateOrderMutation.ts`: hook usando `useMutation`
-- [ ] `features/pos/hooks/useSubmitOrderMutation.ts`: hook para enviar orden a cocina
+- [ ] `features/pos/hooks/useSubmitOrderMutation.ts`: hook para POST /orders/{id}/submit (PENDING → IN_PROGRESS)
+- [ ] `features/pos/hooks/useMarkReadyMutation.ts`: hook para POST /orders/{id}/ready (IN_PROGRESS → READY)
 - [ ] `features/pos/hooks/useRegisterPaymentMutation.ts`: hook para POST /api/v1/payments
 - [ ] Invalidar query cache de orders al crear/pagar
-- [ ] Tests con Vitest + MSW: 8 tests (create success, create error, submit, payment success)
+- [ ] Tests con Vitest + MSW: 10 tests (create success, create error, submit, markReady, payment success)
 
 **Archivos:**
 - `frontend/src/features/pos/api/orderApi.ts`
 - `frontend/src/features/pos/hooks/useCreateOrderMutation.ts`
 - `frontend/src/features/pos/hooks/useSubmitOrderMutation.ts`
+- `frontend/src/features/pos/hooks/useMarkReadyMutation.ts`
 - `frontend/src/features/pos/hooks/useRegisterPaymentMutation.ts`
 - `frontend/src/features/pos/hooks/__tests__/orderMutations.test.ts`
 
@@ -701,20 +756,22 @@ Formulario de pago en efectivo.
 Integrar creacion de orden y pago.
 
 **Criterios de Aceptacion:**
-- [ ] Boton "Enviar Orden" en Cart.tsx:
-  - Llama `useCreateOrderMutation` con `buildOrderRequest(cartStore)`
-  - Si success, guarda `orderId` en posStore y navega a `/pos/payment`
-  - Si error, muestra Snackbar con mensaje de error
+- [ ] Boton "Enviar Orden" en Cart.tsx (flujo varia por serviceType — ver ADR-003):
+  - Llama `useCreateOrderMutation` con `buildOrderRequest(cartStore)` → orderId
+  - Llama `useSubmitOrderMutation(orderId)` → orden pasa a IN_PROGRESS
+  - Si serviceType == COUNTER o TAKEOUT: llama `useMarkReadyMutation(orderId)` → READY, navega a `/pos/payment`
+  - Si serviceType == DINE_IN o DELIVERY: navega a `/orders` (orden queda IN_PROGRESS esperando cocina)
+  - Si cualquier step falla, muestra Snackbar con mensaje de error
 - [ ] Pantalla `PaymentPage.tsx`:
   - Consume `orderId` de posStore
-  - Llama `useOrderQuery(orderId)` para obtener detalles de orden
+  - Llama `useOrderQuery(orderId)` para obtener detalles (orden debe estar en READY)
   - Renderiza resumen de orden + `PaymentForm`
   - Submit de PaymentForm llama `useRegisterPaymentMutation`
   - Si payment success, navega a `/pos/confirmation`
 - [ ] Pantalla `OrderConfirmationPage.tsx`:
   - Muestra "Pedido Completado" con numero de orden
   - Boton "Nueva Venta" limpia cartStore y navega a `/pos/new`
-- [ ] Tests end-to-end con MSW: 6 tests (flujo completo desde cart hasta confirmation)
+- [ ] Tests end-to-end con MSW: 8 tests (flujo COUNTER completo, flujo DINE_IN hasta IN_PROGRESS, error en submit, error en markReady)
 
 **Archivos:**
 - `frontend/src/features/pos/components/Cart.tsx` (modificar)
@@ -818,9 +875,77 @@ Selector de sucursal activa en TopBar.
 
 ---
 
-### [FRONTEND] Tarea 5.5: Rutas Admin + Proteccion de Rol
+### [FRONTEND] Tarea 5.5: AreaList y AreaForm Components
 
-**Prioridad:** Alta | **Dependencias:** 5.1, 5.2, 5.3
+**Prioridad:** Media | **Dependencias:** 5.3
+
+CRUD de areas (MANAGER+). Las areas son contenedores logicos de mesas dentro de una sucursal.
+
+**Criterios de Aceptacion:**
+- [ ] `features/branches/components/AreaList.tsx`: lista de areas de una sucursal, botones editar/eliminar
+- [ ] `features/branches/components/AreaForm.tsx`: formulario con campos nombre, descripcion
+- [ ] Consume `useAreasQuery(branchId)` — `GET /api/v1/branches/{branchId}/areas`
+- [ ] Mutations: `useCreateAreaMutation`, `useUpdateAreaMutation`, `useDeleteAreaMutation`
+- [ ] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
+
+**Archivos:**
+- `frontend/src/features/branches/components/AreaList.tsx`
+- `frontend/src/features/branches/components/AreaForm.tsx`
+- `frontend/src/features/branches/hooks/useAreasQuery.ts`
+- `frontend/src/features/branches/hooks/useAreaMutations.ts`
+- `frontend/src/features/branches/api/branchApi.ts` (expandir)
+- Tests
+
+---
+
+### [FRONTEND] Tarea 5.6: TableList y TableForm Components
+
+**Prioridad:** Media | **Dependencias:** 5.5
+
+CRUD de mesas dentro de un area (MANAGER+).
+
+**Criterios de Aceptacion:**
+- [ ] `features/branches/components/TableList.tsx`: lista de mesas de un area, muestra numero, capacidad, status badge
+- [ ] `features/branches/components/TableForm.tsx`: formulario con campos tableNumber, capacity, description
+- [ ] Consume `useTablesAdminQuery(areaId)` — `GET /api/v1/areas/{areaId}/tables`
+- [ ] Mutations: `useCreateTableMutation`, `useUpdateTableMutation`, `useDeleteTableMutation`
+- [ ] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
+
+**Archivos:**
+- `frontend/src/features/branches/components/TableList.tsx`
+- `frontend/src/features/branches/components/TableForm.tsx`
+- `frontend/src/features/branches/hooks/useTablesAdminQuery.ts`
+- `frontend/src/features/branches/hooks/useTableMutations.ts`
+- Tests
+
+---
+
+### [FRONTEND] Tarea 5.7: CustomerList Component (Admin)
+
+**Prioridad:** Baja | **Dependencias:** Ninguna
+
+Vista de gestion de clientes para CASHIER+ (busqueda y edicion, no eliminacion).
+Distinto de `CustomerSelector` (inline en flujo POS) — esta es la pantalla de administracion.
+
+**Criterios de Aceptacion:**
+- [ ] `features/customers/components/CustomerList.tsx`: lista con busqueda por nombre/telefono
+- [ ] Paginacion server-side (GET /api/v1/customers?search=...)
+- [ ] Click en cliente abre dialog de edicion (nombre, telefono, email, direccion)
+- [ ] No permite eliminar clientes desde esta pantalla (soft delete solo via API directa)
+- [ ] Tests con RTL + MSW: 6 tests (render, search, edit)
+
+**Archivos:**
+- `frontend/src/features/customers/components/CustomerList.tsx`
+- `frontend/src/features/customers/hooks/useCustomersAdminQuery.ts`
+- `frontend/src/features/customers/hooks/useUpdateCustomerMutation.ts`
+- `frontend/src/features/customers/api/customerApi.ts`
+- Tests
+
+---
+
+### [FRONTEND] Tarea 5.8: Rutas Admin + Proteccion de Rol
+
+**Prioridad:** Alta | **Dependencias:** 5.1, 5.2, 5.3, 5.5, 5.6, 5.7
 
 Crear rutas de admin protegidas por rol.
 
@@ -829,14 +954,18 @@ Crear rutas de admin protegidas por rol.
 - [ ] Ruta `/admin/products/new` renderiza `ProductFormPage` (requiere MANAGER+)
 - [ ] Ruta `/admin/products/:id/edit` renderiza `ProductFormPage` con productId (requiere MANAGER+)
 - [ ] Ruta `/admin/branches` renderiza `BranchListPage` (requiere OWNER)
+- [ ] Ruta `/admin/areas` renderiza `AreaListPage` con selector de sucursal (requiere MANAGER+)
+- [ ] Ruta `/admin/customers` renderiza `CustomerListPage` (requiere CASHIER+)
 - [ ] Actualizar Sidebar con links de admin (solo visibles para roles apropiados)
-- [ ] Tests de navegacion: 6 tests (acceso con roles correctos, 403 si rol insuficiente)
+- [ ] Tests de navegacion: 8 tests (acceso con roles correctos, redireccion si rol insuficiente)
 
 **Archivos:**
 - `frontend/src/routes/adminRoutes.tsx`
 - `frontend/src/features/products/pages/ProductListPage.tsx`
 - `frontend/src/features/products/pages/ProductFormPage.tsx`
 - `frontend/src/features/branches/pages/BranchListPage.tsx`
+- `frontend/src/features/branches/pages/AreaListPage.tsx`
+- `frontend/src/features/customers/pages/CustomerListPage.tsx`
 - `frontend/src/components/layout/Sidebar.tsx` (modificar)
 
 ---
@@ -853,7 +982,7 @@ Lista de pedidos del dia.
 
 **Criterios de Aceptacion:**
 - [ ] `features/orders/components/OrderList.tsx`: consume `useOrdersQuery()` (GET /api/v1/orders)
-- [ ] Filtros: fecha (default=hoy), estado (OPEN/SUBMITTED/etc.), branch
+- [ ] Filtros: fecha (default=hoy), estado (`PENDING`/`IN_PROGRESS`/`READY`/`COMPLETED`/`CANCELLED`), branch
 - [ ] MUI Cards de ordenes con: orderNumber, dailySequence, serviceType, status badge, total, timestamp
 - [ ] Click en orden navega a `/orders/{id}`
 - [ ] Auto-refresh cada 30 segundos (refetch interval)
@@ -876,9 +1005,10 @@ Detalle completo de orden.
 **Criterios de Aceptacion:**
 - [ ] `features/orders/components/OrderDetail.tsx`: consume `useOrderQuery(orderId)`
 - [ ] Mostrar todos los campos: orderNumber, serviceType, status, items con modifiers, totales, pagos
-- [ ] Si status == OPEN, mostrar boton "Cancelar Orden" (solo MANAGER+)
-- [ ] Si status == SUBMITTED, mostrar estado de KDS de cada item
-- [ ] Tests con RTL + MSW: 6 tests (render, cancel order, payments display)
+- [ ] Si status == `PENDING`, mostrar boton "Cancelar Orden" (solo MANAGER+)
+- [ ] Si status == `IN_PROGRESS`, mostrar estado de KDS de cada item + boton "Marcar como Listo" (MANAGER+) que llama `useMarkReadyMutation`
+- [ ] Si status == `READY`, mostrar boton "Cobrar" que navega a `/pos/payment` con orderId en posStore
+- [ ] Tests con RTL + MSW: 8 tests (render, cancel order, mark as ready, cobrar, payments display)
 
 **Archivos:**
 - `frontend/src/features/orders/components/OrderDetail.tsx`
@@ -972,14 +1102,17 @@ Asegurar performance aceptable.
 | Metodo | Endpoint | Usado en |
 |--------|----------|----------|
 | `GET` | `/api/v1/menu` | ProductCatalog |
-| `GET` | `/api/v1/areas/{id}/tables` | TableSelector |
-| `GET` | `/api/v1/customers?search=...` | CustomerSelector |
+| `GET` | `/api/v1/areas/{id}/tables` | TableSelector, TableList (admin) |
+| `GET` | `/api/v1/branches/{branchId}/areas` | TableSelector (tabs), AreaList (admin) |
+| `GET` | `/api/v1/customers?search=...` | CustomerSelector, CustomerList (admin) |
 | `POST` | `/api/v1/customers` | CustomerSelector (crear) |
-| `POST` | `/api/v1/orders` | Cart (crear orden) |
+| `PUT` | `/api/v1/customers/{id}` | CustomerList (editar) |
+| `POST` | `/api/v1/orders` | Cart (crear orden con items) |
 | `GET` | `/api/v1/orders/{id}` | PaymentPage, OrderDetail |
 | `GET` | `/api/v1/orders` | OrderList |
-| `POST` | `/api/v1/orders/{id}/submit` | Cart (enviar a cocina) |
-| `POST` | `/api/v1/orders/{id}/cancel` | OrderDetail (MANAGER) |
+| `POST` | `/api/v1/orders/{id}/submit` | Cart (PENDING → IN_PROGRESS) |
+| `POST` | `/api/v1/orders/{id}/ready` | Cart COUNTER/TAKEOUT auto, OrderDetail DINE_IN/DELIVERY manual (IN_PROGRESS → READY) — **requiere Tarea B.1** |
+| `POST` | `/api/v1/orders/{id}/cancel` | OrderDetail (MANAGER+) |
 | `POST` | `/api/v1/payments` | PaymentForm |
 | `GET` | `/api/v1/orders/{id}/payments` | OrderDetail |
 | `GET` | `/api/v1/products` | ProductList (admin) |
@@ -990,8 +1123,21 @@ Asegurar performance aceptable.
 | `POST` | `/api/v1/branches` | BranchForm (crear) |
 | `PUT` | `/api/v1/branches/{id}` | BranchForm (editar) |
 | `DELETE` | `/api/v1/branches/{id}` | BranchList (eliminar) |
+| `POST` | `/api/v1/branches/{branchId}/areas` | AreaForm (crear) |
+| `PUT` | `/api/v1/areas/{id}` | AreaForm (editar) |
+| `DELETE` | `/api/v1/areas/{id}` | AreaList (eliminar) |
+| `POST` | `/api/v1/areas/{areaId}/tables` | TableForm (crear) |
+| `PUT` | `/api/v1/tables/{id}` | TableForm (editar) |
+| `DELETE` | `/api/v1/tables/{id}` | TableList (eliminar) |
 
-**Total: 18 endpoints consumidos** (de 28 disponibles — algunos quedan para futuras phases)
+**Total: 28 endpoints consumidos** (de 30+ disponibles — algunos quedan para futuras phases)
+
+> **Nota:** `POST /api/v1/orders/{id}/items` y `DELETE /api/v1/orders/{orderId}/items/{itemId}` existen en el backend
+> pero no se consumen en el flujo MVP de Phase 1.4 (los items se envian en el body de `POST /orders` al crear).
+> Quedaran disponibles para flujos de edicion de orden en progreso (Phase 2+).
+>
+> **Nota:** `GET /api/v1/reports/daily-summary` existe en el backend (implementado en Phase 1.3 Sprint 6)
+> pero el frontend de reportes corresponde a **Phase 4 — Basic Reporting**.
 
 ---
 
@@ -999,14 +1145,15 @@ Asegurar performance aceptable.
 
 | Sprint | Tipo | Tests Nuevos | Tests Acumulados (Frontend) |
 |--------|------|-------------|------------------------------|
+| Pre-req B.1 | Unit + Integration (backend) | ~6 | — |
 | Sprint 1 | Unit + RTL | ~23 | ~61 |
 | Sprint 2 | Unit + RTL | ~33 | ~94 |
 | Sprint 3 | Unit + RTL | ~37 | ~131 |
-| Sprint 4 | Unit + RTL | ~28 | ~159 |
-| Sprint 5 | Unit + RTL | ~32 | ~191 |
-| Sprint 6 | Unit + E2E | ~24 | ~215 |
+| Sprint 4 | Unit + RTL | ~30 | ~161 |
+| Sprint 5 | Unit + RTL | ~44 | ~205 |
+| Sprint 6 | Unit + E2E | ~26 | ~231 |
 
-*Los conteos son estimados. La meta es llegar a Phase 1.4 completo con ~215 tests frontend pasando (~158 tests totales incluyendo 38 de Phase 0.4).*
+*Los conteos son estimados. Sprint 5 expandido con Areas/Tables/Customers admin. La meta es ~230 tests frontend al finalizar Phase 1.4.*
 
 ---
 
