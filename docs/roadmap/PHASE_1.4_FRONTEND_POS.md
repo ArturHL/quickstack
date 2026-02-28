@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-28
-> **Status:** EN PROGRESO - Sprint 4/6 completado
+> **Status:** EN PROGRESO - Sprint 5/6 completado
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -785,9 +785,9 @@ Integrar creacion de orden y pago.
 
 ---
 
-## Sprint 5: Admin — Products y Branches
+## Sprint 5: Admin — Products y Branches ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** CRUD de productos y sucursales
+**Duracion:** 2.5 dias | **Objetivo:** CRUD de productos y sucursales | **Tests:** 62 nuevos — Acumulado: 226 frontend
 
 ### [FRONTEND] Tarea 5.1: ProductList Component (Admin)
 
@@ -796,13 +796,13 @@ Integrar creacion de orden y pago.
 Lista de productos para admin.
 
 **Criterios de Aceptacion:**
-- [ ] `features/products/components/ProductList.tsx`: consume `useProductsQuery()` (GET /api/v1/products)
-- [ ] MUI DataGrid con columnas: imagen, nombre, categoria, precio, estado (activo/inactivo)
-- [ ] Filtros: categoria, busqueda por nombre, mostrar inactivos
-- [ ] Paginacion server-side (params: page, size, search, categoryId)
-- [ ] Botones de accion por fila: Editar, Eliminar
-- [ ] Boton "Nuevo Producto" navega a `/admin/products/new`
-- [ ] Tests con RTL + MSW: 8 tests (render, pagination, filters, search, delete confirmation)
+- [x] `features/products/components/ProductList.tsx`: consume `useProductsQuery()` (GET /api/v1/products)
+- [x] MUI DataGrid con columnas: imagen, nombre, categoria, precio, estado (activo/inactivo)
+- [x] Filtros: categoria, busqueda por nombre, mostrar inactivos
+- [x] Paginacion server-side (params: page, size, search, categoryId)
+- [x] Botones de accion por fila: Editar, Eliminar
+- [x] Boton "Nuevo Producto" navega a `/admin/products/new`
+- [x] Tests con RTL + MSW: 9 tests (render, pagination, filters, search, delete confirmation)
 
 **Archivos:**
 - `frontend/src/features/products/components/ProductList.tsx`
@@ -819,13 +819,13 @@ Lista de productos para admin.
 Formulario crear/editar producto.
 
 **Criterios de Aceptacion:**
-- [ ] `features/products/components/ProductForm.tsx`: formulario completo con validacion
-- [ ] Props: `productId?: string` (si presente, modo edit)
-- [ ] Campos: nombre, descripcion, categoria (Select), SKU, precio base, precio costo, tipo (SIMPLE/VARIANT/COMBO), imagen URL, ordenamiento
-- [ ] Si tipo == VARIANT, mostrar sub-formulario para agregar variantes (lista dinamica)
-- [ ] Validaciones: nombre requerido, precio >= 0, SKU unico (validar en backend)
-- [ ] Submit llama `useCreateProductMutation` o `useUpdateProductMutation`
-- [ ] Tests con RTL: 10 tests (render, validation, create, edit, add variant)
+- [x] `features/products/components/ProductForm.tsx`: formulario completo con validacion
+- [x] Props: `productId?: string` (si presente, modo edit)
+- [x] Campos: nombre, descripcion, categoria (Select), SKU, precio base, precio costo, tipo (SIMPLE/VARIANT/COMBO), imagen URL, ordenamiento
+- [x] Si tipo == VARIANT, mostrar sub-formulario para agregar variantes (lista dinamica)
+- [x] Validaciones: nombre requerido, precio >= 0, SKU unico (validar en backend)
+- [x] Submit llama `useCreateProductMutation` o `useUpdateProductMutation`
+- [x] Tests con RTL: 8 tests (render, validation, create, edit, add variant)
 
 **Archivos:**
 - `frontend/src/features/products/components/ProductForm.tsx`
@@ -842,10 +842,10 @@ Formulario crear/editar producto.
 CRUD de sucursales (solo OWNER).
 
 **Criterios de Aceptacion:**
-- [ ] `features/branches/components/BranchList.tsx`: lista simple de sucursales con botones editar/eliminar
-- [ ] `features/branches/components/BranchForm.tsx`: formulario con campos: nombre, direccion, ciudad, telefono, email
-- [ ] Validaciones: nombre requerido
-- [ ] Tests con RTL + MSW: 8 tests (render list, create, edit, delete)
+- [x] `features/branches/components/BranchList.tsx`: lista simple de sucursales con botones editar/eliminar
+- [x] `features/branches/components/BranchForm.tsx`: formulario con campos: nombre, direccion, ciudad, telefono, email
+- [x] Validaciones: nombre requerido
+- [x] Tests con RTL + MSW: 8 tests (render list, create, edit, delete)
 
 **Archivos:**
 - `frontend/src/features/branches/components/BranchList.tsx`
@@ -864,11 +864,11 @@ CRUD de sucursales (solo OWNER).
 Selector de sucursal activa en TopBar.
 
 **Criterios de Aceptacion:**
-- [ ] `features/branches/components/BranchSelector.tsx`: MUI Select en TopBar
-- [ ] Consume `useBranchesQuery()`, muestra lista de sucursales
-- [ ] Seleccion guarda en `branchStore` (localStorage)
-- [ ] Si solo hay 1 branch, auto-seleccionar
-- [ ] Tests con RTL: 6 tests (render, select, persist, auto-select single)
+- [x] `features/branches/components/BranchSelector.tsx`: MUI Select en TopBar
+- [x] Consume `useBranchesQuery()`, muestra lista de sucursales
+- [x] Seleccion guarda en `branchStore` (localStorage)
+- [x] Si solo hay 1 branch, auto-seleccionar
+- [x] Tests con RTL: 4 tests (render, select, persist, auto-select single)
 
 **Archivos:**
 - `frontend/src/features/branches/components/BranchSelector.tsx`
@@ -885,11 +885,11 @@ Selector de sucursal activa en TopBar.
 CRUD de areas (MANAGER+). Las areas son contenedores logicos de mesas dentro de una sucursal.
 
 **Criterios de Aceptacion:**
-- [ ] `features/branches/components/AreaList.tsx`: lista de areas de una sucursal, botones editar/eliminar
-- [ ] `features/branches/components/AreaForm.tsx`: formulario con campos nombre, descripcion
-- [ ] Consume `useAreasQuery(branchId)` — `GET /api/v1/branches/{branchId}/areas`
-- [ ] Mutations: `useCreateAreaMutation`, `useUpdateAreaMutation`, `useDeleteAreaMutation`
-- [ ] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
+- [x] `features/branches/components/AreaList.tsx`: lista de areas de una sucursal, botones editar/eliminar
+- [x] `features/branches/components/AreaForm.tsx`: formulario con campos nombre, descripcion
+- [x] Consume `useAreasQuery(branchId)` — `GET /api/v1/branches/{branchId}/areas`
+- [x] Mutations: `useCreateAreaMutation`, `useUpdateAreaMutation`, `useDeleteAreaMutation`
+- [x] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
 
 **Archivos:**
 - `frontend/src/features/branches/components/AreaList.tsx`
@@ -908,11 +908,11 @@ CRUD de areas (MANAGER+). Las areas son contenedores logicos de mesas dentro de 
 CRUD de mesas dentro de un area (MANAGER+).
 
 **Criterios de Aceptacion:**
-- [ ] `features/branches/components/TableList.tsx`: lista de mesas de un area, muestra numero, capacidad, status badge
-- [ ] `features/branches/components/TableForm.tsx`: formulario con campos tableNumber, capacity, description
-- [ ] Consume `useTablesAdminQuery(areaId)` — `GET /api/v1/areas/{areaId}/tables`
-- [ ] Mutations: `useCreateTableMutation`, `useUpdateTableMutation`, `useDeleteTableMutation`
-- [ ] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
+- [x] `features/branches/components/TableList.tsx`: lista de mesas de un area, muestra numero, capacidad, status badge
+- [x] `features/branches/components/TableForm.tsx`: formulario con campos tableNumber, capacity, description
+- [x] Consume `useTablesAdminQuery(areaId)` — `GET /api/v1/areas/{areaId}/tables`
+- [x] Mutations: `useCreateTableMutation`, `useUpdateTableMutation`, `useDeleteTableMutation`
+- [x] Tests con RTL + MSW: 6 tests (render, create, edit, delete)
 
 **Archivos:**
 - `frontend/src/features/branches/components/TableList.tsx`
@@ -931,11 +931,11 @@ Vista de gestion de clientes para CASHIER+ (busqueda y edicion, no eliminacion).
 Distinto de `CustomerSelector` (inline en flujo POS) — esta es la pantalla de administracion.
 
 **Criterios de Aceptacion:**
-- [ ] `features/customers/components/CustomerList.tsx`: lista con busqueda por nombre/telefono
-- [ ] Paginacion server-side (GET /api/v1/customers?search=...)
-- [ ] Click en cliente abre dialog de edicion (nombre, telefono, email, direccion)
-- [ ] No permite eliminar clientes desde esta pantalla (soft delete solo via API directa)
-- [ ] Tests con RTL + MSW: 6 tests (render, search, edit)
+- [x] `features/customers/components/CustomerList.tsx`: lista con busqueda por nombre/telefono
+- [x] Paginacion server-side (GET /api/v1/customers?search=...)
+- [x] Click en cliente abre dialog de edicion (nombre, telefono, email, direccion)
+- [x] No permite eliminar clientes desde esta pantalla (soft delete solo via API directa)
+- [x] Tests con RTL + MSW: 6 tests (render, search, edit)
 
 **Archivos:**
 - `frontend/src/features/customers/components/CustomerList.tsx`
@@ -953,14 +953,14 @@ Distinto de `CustomerSelector` (inline en flujo POS) — esta es la pantalla de 
 Crear rutas de admin protegidas por rol.
 
 **Criterios de Aceptacion:**
-- [ ] Ruta `/admin/products` renderiza `ProductListPage` (requiere MANAGER+)
-- [ ] Ruta `/admin/products/new` renderiza `ProductFormPage` (requiere MANAGER+)
-- [ ] Ruta `/admin/products/:id/edit` renderiza `ProductFormPage` con productId (requiere MANAGER+)
-- [ ] Ruta `/admin/branches` renderiza `BranchListPage` (requiere OWNER)
-- [ ] Ruta `/admin/areas` renderiza `AreaListPage` con selector de sucursal (requiere MANAGER+)
-- [ ] Ruta `/admin/customers` renderiza `CustomerListPage` (requiere CASHIER+)
-- [ ] Actualizar Sidebar con links de admin (solo visibles para roles apropiados)
-- [ ] Tests de navegacion: 8 tests (acceso con roles correctos, redireccion si rol insuficiente)
+- [x] Ruta `/admin/products` renderiza `ProductListPage` (requiere MANAGER+)
+- [x] Ruta `/admin/products/new` renderiza `ProductFormPage` (requiere MANAGER+)
+- [x] Ruta `/admin/products/:id/edit` renderiza `ProductFormPage` con productId (requiere MANAGER+)
+- [x] Ruta `/admin/branches` renderiza `BranchListPage` (requiere OWNER)
+- [x] Ruta `/admin/areas` renderiza `AreaListPage` con selector de sucursal (requiere MANAGER+) — integrada en BranchListPage
+- [x] Ruta `/admin/customers` renderiza `CustomerListPage` (requiere CASHIER+)
+- [x] Actualizar Sidebar con links de admin (solo visibles para roles apropiados)
+- [x] Tests de navegacion: 8 tests (acceso con roles correctos, redireccion si rol insuficiente)
 
 **Archivos:**
 - `frontend/src/routes/adminRoutes.tsx`

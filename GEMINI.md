@@ -79,5 +79,7 @@ Currently in **Phase 1 (Core POS)**.
 - **Phase 0 (Foundation):** 100% Completed (Auth, Infrastructure, CI/CD).
 - **Phase 1.1 (Catalog Base):** Completed (6/6 sprints).
 - **Phase 1.2 (Modifiers + Combos):** Completed (4/4 sprints).
-- **Phase 1.3 (Orders + Payments):** In Progress (Sprint 4/6: Order Management API completed). Next: Sprint 5 — Payments.
-- **Backend Tests:** 643 total (0 failures).
+- **Phase 1.3 (Orders + Payments):** Completed (6/6 sprints). ~1,060 backend tests.
+- **Phase 1.4 (Frontend POS):** In Progress (Sprint 5/6 completed). Next: Sprint 6 — Order Management + Polish.
+- **Frontend Tests:** 226 total (0 failures).
+- **Backend Tests:** ~1,060 total (0 failures).

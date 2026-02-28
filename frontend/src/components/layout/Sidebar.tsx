@@ -7,6 +7,7 @@ import {
   ListItemText,
   Toolbar,
   Divider,
+  Typography,
 } from '@mui/material'
 import {
   Home as HomeIcon,
@@ -14,8 +15,26 @@ import {
   Receipt as ReceiptIcon,
   Inventory as InventoryIcon,
   Assessment as AssessmentIcon,
+  People as PeopleIcon,
+  Store as StoreIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuthStore } from '../../stores/authStore'
+import type { AuthUser } from '../../types/auth'
+
+type UserRole = AuthUser['role']
+
+const ROLE_RANK: Record<UserRole, number> = {
+  WAITER: 0,
+  CASHIER: 1,
+  MANAGER: 2,
+  OWNER: 3,
+}
+
+function hasMinRole(userRole: UserRole | undefined, minRole: UserRole): boolean {
+  if (!userRole) return false
+  return (ROLE_RANK[userRole] ?? -1) >= ROLE_RANK[minRole]
+}
 
 const DRAWER_WIDTH = 240
 
@@ -27,6 +46,7 @@ interface SidebarProps {
 export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const user = useAuthStore((s) => s.user)
 
   const handleNavigate = (path: string) => {
     navigate(path)
@@ -89,6 +109,57 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           </ListItemButton>
         </ListItem>
       </List>
+
+      {/* Admin section — CASHIER+ */}
+      {hasMinRole(user?.role, 'CASHIER') && (
+        <>
+          <Divider />
+          <Typography variant="caption" color="text.secondary" sx={{ px: 2, pt: 1, display: 'block' }}>
+            Administración
+          </Typography>
+          <List>
+            {hasMinRole(user?.role, 'MANAGER') && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={location.pathname.startsWith('/admin/products')}
+                  onClick={() => handleNavigate('/admin/products')}
+                >
+                  <ListItemIcon>
+                    <InventoryIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Productos" />
+                </ListItemButton>
+              </ListItem>
+            )}
+
+            {hasMinRole(user?.role, 'OWNER') && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={location.pathname.startsWith('/admin/branches')}
+                  onClick={() => handleNavigate('/admin/branches')}
+                >
+                  <ListItemIcon>
+                    <StoreIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Sucursales" />
+                </ListItemButton>
+              </ListItem>
+            )}
+
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={location.pathname.startsWith('/admin/customers')}
+                onClick={() => handleNavigate('/admin/customers')}
+              >
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Clientes" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </>
+      )}
     </>
   )
 

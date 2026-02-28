@@ -30,14 +30,15 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 - **1.1**: Catálogo Base — Categorías + Productos + Variantes + Menú POS | ✅ COMPLETADA (6/6 sprints) | 20 endpoints | ~650 tests backend
 - **1.2**: Modifiers + Combos (2 sem) — Personalización avanzada | ✅ COMPLETADA (4/4 sprints) | 15 endpoints (9 modifiers + 5 combos + 1 menu actualizado) | ~183 tests nuevos
 - **1.3**: Pedidos + Pagos (3 sem) — Sistema completo de órdenes | ✅ COMPLETADA (6/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Sprint 5: Payments ✅ | Sprint 6: Reporting ✅ | 28 endpoints | ~1,060 tests total
-- **1.4**: Frontend POS (3 sem) — UI completa del punto de venta | ⏳ EN PROGRESO (4/6 sprints) | 164 tests frontend
+- **1.4**: Frontend POS (3 sem) — UI completa del punto de venta | ⏳ EN PROGRESO (5/6 sprints) | 226 tests frontend
   - Sprint 1 ✅: Catálogo (ProductCard, ProductCatalog, /pos/catalog)
   - Sprint 2 ✅: ProductDetail + CartStore (VariantSelector, ModifierGroup, ProductDetailModal)
   - Sprint 3 ✅: Carrito + Flujo Servicio (CartItem, Cart, ServiceTypeSelector, TableSelector, CustomerSelector, rutas /pos/new /pos/cart /pos/new/table /pos/new/customer)
   - Sprint 4 ✅: Order Creation + Payment (Tarea B.1 backend ✅, Order.ts, orderApi, mutations, orderUtils, PaymentForm, PaymentPage, OrderConfirmationPage, posStore, /pos/payment /pos/confirmation)
-  - Sprint 5 (próximo): Admin — Products y Branches (CRUD)
+  - Sprint 5 ✅: Admin CRUD (ProductList, ProductForm, BranchList, BranchForm, BranchSelector, AreaList, AreaForm, TableList, TableForm, CustomerList, RoleProtectedRoute, adminRoutes, Sidebar admin section)
+  - Sprint 6 (próximo): Order Management + Polish
 
-**Próximo**: Phase 1.4 Sprint 5 — Admin CRUD para productos y sucursales
+**Próximo**: Phase 1.4 Sprint 6 — Order Management (lista de pedidos, detalle) + Polish final
 
 Ver: `docs/ROADMAP.md` | `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
 

@@ -7,6 +7,7 @@ import DashboardPage from '../pages/DashboardPage'
 import ProtectedRoute from '../components/common/ProtectedRoute'
 import AppLayout from '../components/layout/AppLayout'
 import { posRoutes } from './posRoutes'
+import { adminRoutes } from './adminRoutes'
 
 export const router = createBrowserRouter(
   [
@@ -41,6 +42,7 @@ export const router = createBrowserRouter(
               element: <DashboardPage />,
             },
             ...posRoutes,
+            ...adminRoutes,
           ],
         },
       ],

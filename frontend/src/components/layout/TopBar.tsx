@@ -2,6 +2,7 @@ import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/mater
 import { Menu as MenuIcon, Logout as LogoutIcon } from '@mui/icons-material'
 import { useAuthStore } from '../../stores/authStore'
 import { useLogout } from '../../hooks/useAuthQuery'
+import BranchSelector from '../../features/branches/components/BranchSelector'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -35,6 +36,8 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
         <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 3 }}>
           QuickStack POS
         </Typography>
+
+        <BranchSelector />
 
         <Box sx={{ flexGrow: 1 }} />
 

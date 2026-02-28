@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-28
-> **Estado:** Phase 1.4 ⏳ EN PROGRESO (4/6 sprints) | Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo de Servicio ✅ | Sprint 4: Order Creation + Payment ✅ | Sprint 5-6: Pendiente
+> **Estado:** Phase 1.4 ⏳ EN PROGRESO (5/6 sprints) | Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo de Servicio ✅ | Sprint 4: Order Creation + Payment ✅ | Sprint 5: Admin CRUD ✅ | Sprint 6: Pendiente
 
 ## Vision Summary
 
@@ -31,7 +31,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
 | 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
-| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (1.1-1.3 ✅, 1.4 Sprint 4/6) |
+| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (1.1-1.3 ✅, 1.4 Sprint 5/6) |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
 | 4 | Basic Reporting | Dashboard de ventas día/semana/mes | ⏳ Pendiente |
@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.3 COMPLETADA (6/6 sprints)
+**Status**: En progreso — Phase 1.4 Sprint 5/6 completado
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -248,7 +248,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ✅ Completada (6/6 sprints) — 28 endpoints, ~1,060 tests |
-| 1.4 | Frontend POS | 2-3 semanas | ⏳ En Progreso (4/6 sprints) — Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo Servicio ✅ | Sprint 4: Order Creation + Payment ✅ |
+| 1.4 | Frontend POS | 2-3 semanas | ⏳ En Progreso (5/6 sprints) — Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo Servicio ✅ | Sprint 4: Order Creation + Payment ✅ | Sprint 5: Admin CRUD ✅ |
 
 ### Scope de Phase 1
 
@@ -379,7 +379,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.4: Frontend POS
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (3/6 sprints) | **Tests:** 137 frontend
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (5/6 sprints) | **Tests:** 226 frontend
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
 
@@ -396,12 +396,14 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] Rutas: /pos/catalog, /pos/new, /pos/new/table, /pos/new/customer, /pos/cart — Sprint 1-3
 - [x] Pantalla de pago (solo efectivo, calcular cambio) — Sprint 4
 - [x] Creación de orden + submit + markReady + flujo COUNTER vs DINE_IN — Sprint 4
-- [ ] Vista de pedidos del día con filtros — Sprint 5
-- [ ] CRUD de productos (admin) — Sprint 5
-- [ ] CRUD de sucursales/areas/mesas (admin) — Sprint 5
-- [ ] Gestión de clientes (admin) — Sprint 5
+- [x] CRUD de productos (admin) — Sprint 5
+- [x] CRUD de sucursales/areas/mesas (admin) — Sprint 5
+- [x] Gestión de clientes (admin) — Sprint 5
+- [x] BranchSelector en TopBar con auto-select — Sprint 5
+- [x] RoleProtectedRoute + adminRoutes + Sidebar admin section — Sprint 5
+- [ ] Vista de pedidos del día con filtros — Sprint 6
 - [ ] Polish, responsive, empty states, error handling — Sprint 6
-- [x] ~164 tests frontend (Sprint 1-4) | ~67 adicionales en Sprint 5-6
+- [x] 226 tests frontend (Sprint 1-5)
 
 ---
 
@@ -695,6 +697,26 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-28 (Phase 1.4 Sprint 5)
+
+- **Phase 1.4 Sprint 5/6 COMPLETADO — Admin CRUD:**
+  - `RoleProtectedRoute.tsx`: componente que valida rol mínimo del usuario (OWNER/MANAGER/CASHIER/WAITER) y redirige a /dashboard si el rol es insuficiente
+  - `features/products/`: ProductList (tabla con búsqueda, filtro categoría, paginación, delete confirmación — 9 tests), ProductForm (crear/editar con validación — 8 tests), ProductListPage, ProductFormPage
+  - `features/products/hooks/`: useProductsQuery, useCategoriesQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation
+  - `features/products/api/productApi.ts`: getProducts, getProduct, createProduct, updateProduct, deleteProduct, getCategories
+  - `features/branches/`: BranchList (tabla con crear/editar/eliminar inline — 8 tests), BranchForm (dialog con campos nombre/dirección/ciudad/teléfono/email), BranchSelector (TopBar Select con auto-select single — 4 tests)
+  - `features/branches/`: AreaList (CRUD por branch con tabs — tests), AreaForm, TableList (CRUD por área — tests), TableForm
+  - `features/branches/hooks/`: useBranchesQuery, useBranchMutations, useAreasQuery, useAreaMutations, useTablesAdminQuery, useTableMutations
+  - `features/branches/pages/BranchListPage.tsx`: vista integrada con tabs Branch → Area → Table
+  - `features/customers/`: CustomerList (búsqueda, paginación, edición inline — tests), CustomerListPage
+  - `features/customers/hooks/`: useCustomersAdminQuery, useUpdateCustomerMutation
+  - `router/adminRoutes.tsx`: rutas `/admin/products`, `/admin/products/new`, `/admin/products/:id/edit` (MANAGER+), `/admin/branches` (OWNER), `/admin/customers` (CASHIER+)
+  - `router/adminRoutes.test.tsx`: 8 tests — acceso con roles correctos, redirección si rol insuficiente, redirect unauthenticated a login
+  - `Sidebar.tsx`: sección "Administración" con links Productos (MANAGER+), Sucursales (OWNER), Clientes (CASHIER+) — rol-based visibility
+  - `TopBar.tsx`: BranchSelector integrado
+  - MSW handlers: `productHandlers.ts` (filtrado server-side por search/categoryId), `branchHandlers.ts` (branches, areas, tables, CRUD)
+  - **Acumulado frontend: 226 tests, 0 fallos (62 tests nuevos)**
 
 ### 2026-02-28 (Phase 1.4 Sprint 4)
 
