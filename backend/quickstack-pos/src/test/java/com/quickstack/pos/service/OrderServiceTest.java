@@ -36,12 +36,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import jakarta.persistence.EntityManager;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -792,6 +796,172 @@ class OrderServiceTest {
 
                         assertThatThrownBy(() -> orderService.createOrder(TENANT_ID, USER_ID, deliveryRequest()))
                                         .isInstanceOf(ResourceNotFoundException.class);
+                }
+        }
+
+        // =========================================================================
+        // getDailySummary
+        // =========================================================================
+
+        @Nested
+        @DisplayName("getDailySummary")
+        class GetDailySummaryTests {
+
+                private static final UUID REPORT_BRANCH_ID = UUID.randomUUID();
+                private static final LocalDate REPORT_DATE = LocalDate.of(2026, 2, 27);
+
+                @Test
+                @DisplayName("36. Branch not found throws ResourceNotFoundException")
+                void branchNotFoundThrowsException() {
+                        when(branchRepository.findByIdAndTenantId(REPORT_BRANCH_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
+
+                        assertThatThrownBy(() -> orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
+
+                @Test
+                @DisplayName("37. Empty day returns zero counts and no divide-by-zero")
+                void emptyDayReturnsZeros() {
+                        stubBranchFound();
+                        stubStats(0L, BigDecimal.ZERO);
+                        stubServiceTypes(List.of());
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.totalOrders()).isEqualTo(0);
+                        assertThat(result.totalSales()).isEqualByComparingTo(BigDecimal.ZERO);
+                        assertThat(result.averageTicket()).isEqualByComparingTo(BigDecimal.ZERO);
+                        assertThat(result.ordersByServiceType()).isEmpty();
+                        assertThat(result.topProducts()).isEmpty();
+                }
+
+                @Test
+                @DisplayName("38. Returns correct totalOrders count")
+                void returnsCorrectTotalOrders() {
+                        stubBranchFound();
+                        stubStats(5L, new BigDecimal("500.00"));
+                        stubServiceTypes(List.of());
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.totalOrders()).isEqualTo(5);
+                }
+
+                @Test
+                @DisplayName("39. Returns correct totalSales sum")
+                void returnsCorrectTotalSales() {
+                        stubBranchFound();
+                        stubStats(3L, new BigDecimal("300.00"));
+                        stubServiceTypes(List.of());
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.totalSales()).isEqualByComparingTo(new BigDecimal("300.00"));
+                }
+
+                @Test
+                @DisplayName("40. Returns correct averageTicket calculation")
+                void returnsCorrectAverageTicket() {
+                        stubBranchFound();
+                        stubStats(3L, new BigDecimal("300.00")); // 300 / 3 = 100.00
+                        stubServiceTypes(List.of());
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.averageTicket()).isEqualByComparingTo(new BigDecimal("100.00"));
+                }
+
+                @Test
+                @DisplayName("41. Groups orders by service type correctly")
+                void groupsByServiceType() {
+                        stubBranchFound();
+                        stubStats(3L, new BigDecimal("300.00"));
+
+                        Map<String, Object> counterRow = new HashMap<>();
+                        counterRow.put("service_type", "COUNTER");
+                        counterRow.put("cnt", 2L);
+
+                        Map<String, Object> dineInRow = new HashMap<>();
+                        dineInRow.put("service_type", "DINE_IN");
+                        dineInRow.put("cnt", 1L);
+
+                        stubServiceTypes(List.of(counterRow, dineInRow));
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.ordersByServiceType())
+                                        .containsEntry("COUNTER", 2L)
+                                        .containsEntry("DINE_IN", 1L);
+                }
+
+                @Test
+                @DisplayName("42. Returns top products list with name and quantity")
+                void returnsTopProducts() {
+                        stubBranchFound();
+                        stubStats(2L, new BigDecimal("200.00"));
+                        stubServiceTypes(List.of());
+
+                        var pizza = new com.quickstack.pos.dto.response.DailySummaryResponse.TopProductEntry(
+                                        "Pizza Margherita", 5L);
+                        stubTopProducts(List.of(pizza));
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.topProducts()).hasSize(1);
+                        assertThat(result.topProducts().get(0).productName()).isEqualTo("Pizza Margherita");
+                        assertThat(result.topProducts().get(0).quantitySold()).isEqualTo(5L);
+                }
+
+                @Test
+                @DisplayName("43. Response contains correct date and branchId")
+                void responseContainsCorrectDateAndBranchId() {
+                        stubBranchFound();
+                        stubStats(1L, new BigDecimal("100.00"));
+                        stubServiceTypes(List.of());
+                        stubTopProducts(List.of());
+
+                        var result = orderService.getDailySummary(TENANT_ID, REPORT_BRANCH_ID, REPORT_DATE);
+
+                        assertThat(result.date()).isEqualTo(REPORT_DATE);
+                        assertThat(result.branchId()).isEqualTo(REPORT_BRANCH_ID);
+                }
+
+                // --- stubs ---
+
+                private void stubBranchFound() {
+                        Branch branch = new Branch();
+                        branch.setId(REPORT_BRANCH_ID);
+                        when(branchRepository.findByIdAndTenantId(REPORT_BRANCH_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(branch));
+                }
+
+                private void stubStats(long count, BigDecimal totalSales) {
+                        Map<String, Object> stats = new HashMap<>();
+                        stats.put("total_orders", count);
+                        stats.put("total_sales", totalSales);
+                        when(jdbcTemplate.queryForMap(anyString(),
+                                        any(UUID.class), any(UUID.class), any(UUID.class), any(LocalDate.class)))
+                                        .thenReturn(stats);
+                }
+
+                private void stubServiceTypes(List<Map<String, Object>> rows) {
+                        when(jdbcTemplate.queryForList(anyString(),
+                                        any(UUID.class), any(UUID.class), any(UUID.class), any(LocalDate.class)))
+                                        .thenReturn(rows);
+                }
+
+                @SuppressWarnings({"unchecked", "rawtypes"})
+                private void stubTopProducts(
+                                List<com.quickstack.pos.dto.response.DailySummaryResponse.TopProductEntry> products) {
+                        when(jdbcTemplate.query(anyString(), any(RowMapper.class),
+                                        any(UUID.class), any(UUID.class), any(UUID.class), any(LocalDate.class)))
+                                        .thenReturn(products);
                 }
         }
 

@@ -9,6 +9,7 @@ import com.quickstack.common.exception.ResourceNotFoundException;
 import com.quickstack.pos.dto.request.OrderCreateRequest;
 import com.quickstack.pos.dto.request.OrderItemModifierRequest;
 import com.quickstack.pos.dto.request.OrderItemRequest;
+import com.quickstack.pos.dto.response.DailySummaryResponse;
 import com.quickstack.pos.dto.response.OrderResponse;
 import com.quickstack.pos.entity.KdsStatus;
 import com.quickstack.pos.entity.Order;
@@ -31,9 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -418,6 +423,78 @@ public class OrderService {
 
         log.info("[POS] ACTION=ORDER_CANCELLED tenantId={} userId={} resourceId={} resourceType=ORDER",
                 tenantId, userId, orderId);
+    }
+
+    // -------------------------------------------------------------------------
+    // Reporting
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the daily sales summary for a branch on a given date.
+     * <p>
+     * Only COMPLETED orders are included. Branch must belong to the tenant (IDOR protection).
+     *
+     * @param tenantId the tenant scope
+     * @param branchId the branch to report on
+     * @param date     the date to report on
+     * @return aggregated metrics for the day
+     * @throws ResourceNotFoundException if the branch is not found (IDOR protection)
+     */
+    @Transactional(readOnly = true)
+    public DailySummaryResponse getDailySummary(UUID tenantId, UUID branchId, LocalDate date) {
+        // IDOR protection: validate branch belongs to tenant
+        branchRepository.findByIdAndTenantId(branchId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch", branchId));
+
+        // Query 1: total orders count and total sales for completed orders
+        // COALESCE uses 0.00 to ensure numeric type is preserved (not integer 0)
+        Map<String, Object> stats = jdbcTemplate.queryForMap(
+                "SELECT COUNT(*) AS total_orders, COALESCE(SUM(total), 0.00) AS total_sales " +
+                "FROM orders WHERE tenant_id = ? AND branch_id = ? " +
+                "AND status_id = ? AND DATE(opened_at) = ?",
+                tenantId, branchId, OrderStatusConstants.COMPLETED, date);
+
+        int totalOrders = ((Number) stats.get("total_orders")).intValue();
+        // Use toString() conversion to handle both BigDecimal and Integer/Long JDBC types,
+        // then normalize to scale 2 for consistent JSON serialization (e.g. 0.00 not 0)
+        BigDecimal totalSales = new BigDecimal(stats.get("total_sales").toString())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal averageTicket = totalOrders > 0
+                ? totalSales.divide(BigDecimal.valueOf(totalOrders), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO.setScale(2);
+
+        // Query 2: breakdown by service type
+        List<Map<String, Object>> serviceTypeRows = jdbcTemplate.queryForList(
+                "SELECT service_type, COUNT(*) AS cnt FROM orders " +
+                "WHERE tenant_id = ? AND branch_id = ? " +
+                "AND status_id = ? AND DATE(opened_at) = ? " +
+                "GROUP BY service_type",
+                tenantId, branchId, OrderStatusConstants.COMPLETED, date);
+
+        Map<String, Long> ordersByServiceType = new LinkedHashMap<>();
+        for (Map<String, Object> row : serviceTypeRows) {
+            ordersByServiceType.put(
+                    (String) row.get("service_type"),
+                    ((Number) row.get("cnt")).longValue());
+        }
+
+        // Query 3: top 5 products by quantity sold
+        List<DailySummaryResponse.TopProductEntry> topProducts = jdbcTemplate.query(
+                "SELECT oi.product_name, SUM(oi.quantity) AS qty " +
+                "FROM order_items oi JOIN orders o ON oi.order_id = o.id " +
+                "WHERE o.tenant_id = ? AND o.branch_id = ? " +
+                "AND o.status_id = ? AND DATE(o.opened_at) = ? " +
+                "GROUP BY oi.product_name ORDER BY qty DESC LIMIT 5",
+                (rs, rowNum) -> new DailySummaryResponse.TopProductEntry(
+                        rs.getString("product_name"),
+                        rs.getLong("qty")),
+                tenantId, branchId, OrderStatusConstants.COMPLETED, date);
+
+        log.info("[POS] ACTION=DAILY_SUMMARY_READ tenantId={} branchId={} date={} totalOrders={}",
+                tenantId, branchId, date, totalOrders);
+
+        return new DailySummaryResponse(date, branchId, totalOrders, totalSales, averageTicket,
+                ordersByServiceType, topProducts);
     }
 
     // -------------------------------------------------------------------------
