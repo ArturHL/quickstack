@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-28
-> **Status:** PENDIENTE - Sprint 0/6 (revisado post-análisis de coherencia)
+> **Status:** EN PROGRESO - Sprint 1/6 completado
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -326,61 +326,62 @@ Requerido para que el frontend pueda completar el flujo de pago (ver ADR-003).
 
 ---
 
-## Sprint 1: Infraestructura y Catalogo POS
+## Sprint 1: Infraestructura y Catalogo POS ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** Pantalla de catalogo de productos funcional
+**Duracion:** 2.5 dias | **Objetivo:** Pantalla de catalogo de productos funcional | **Tests:** 18 (6 ProductCard + 6 ProductCatalog + 4 useMenuQuery + 3 routes)
 
-### [FRONTEND] Tarea 1.1: Tipos TypeScript — Menu y Products
+### [FRONTEND] Tarea 1.1: Tipos TypeScript — Menu y Products ✅
 
 **Prioridad:** Alta | **Dependencias:** Ninguna
 
 Definir tipos para consumir API de menu.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/types/Menu.ts`: tipos `MenuResponse`, `MenuCategoryItem`, `MenuProductItem`, `MenuVariantItem`, `MenuModifierGroupItem`, `MenuModifierItem`, `MenuComboItem`
-- [ ] Todos los tipos coinciden exactamente con DTOs del backend (referencia: Phase 1.1 MenuResponse)
-- [ ] Tipos exportados correctamente
-- [ ] No requiere tests (solo tipos)
+- [x] `features/pos/types/Menu.ts`: tipos `MenuResponse`, `MenuCategoryItem`, `MenuProductItem`, `MenuVariantItem`, `MenuModifierGroupItem`, `MenuModifierItem`, `MenuComboItem`
+- [x] Todos los tipos coinciden exactamente con DTOs del backend (referencia: Phase 1.1 MenuResponse)
+- [x] Tipos exportados correctamente
+- [x] No requiere tests (solo tipos)
 
 **Archivos:**
 - `frontend/src/features/pos/types/Menu.ts`
 
 ---
 
-### [FRONTEND] Tarea 1.2: Menu API y Query Hook
+### [FRONTEND] Tarea 1.2: Menu API y Query Hook ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Crear funciones de API y hook de TanStack Query.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/api/menuApi.ts`: funcion `getMenu()` que llama `GET /api/v1/menu`
-- [ ] `features/pos/hooks/useMenuQuery.ts`: hook `useMenuQuery()` usando `useQuery` de TanStack
-- [ ] Query key: `['menu']`
-- [ ] Cache time: 5 minutos (productos cambian poco)
-- [ ] Retry: 2 intentos
-- [ ] Tests con Vitest + MSW: 4 tests (loading, success, error, cached)
+- [x] `features/pos/api/menuApi.ts`: funcion `getMenu()` que llama `GET /api/v1/menu`
+- [x] `features/pos/hooks/useMenuQuery.ts`: hook `useMenuQuery()` usando `useQuery` de TanStack
+- [x] Query key: `['menu']`
+- [x] Cache time: 5 minutos (productos cambian poco)
+- [x] Retry: 2 intentos
+- [x] Tests con Vitest + MSW: 4 tests (loading, success, error, cached)
 
 **Archivos:**
 - `frontend/src/features/pos/api/menuApi.ts`
 - `frontend/src/features/pos/hooks/useMenuQuery.ts`
 - `frontend/src/features/pos/hooks/__tests__/useMenuQuery.test.ts`
+- `frontend/src/mocks/handlers/menuHandlers.ts` (nuevo — MSW handler)
 
 ---
 
-### [FRONTEND] Tarea 1.3: ProductCard Component
+### [FRONTEND] Tarea 1.3: ProductCard Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.1
 
 Card individual de producto para el grid.
 
 **Criterios de Aceptacion:**
-- [ ] `ProductCard.tsx`: MUI Card que muestra `name`, `basePrice`, `imageUrl` (placeholder si null), `isAvailable` badge
-- [ ] Props: `product: MenuProductItem`, `onClick: () => void`
-- [ ] Si `isAvailable == false`, mostrar overlay "No disponible"
-- [ ] Hover effect (elevation change)
-- [ ] Responsive: height fijo para consistencia en grid
-- [ ] Tests con RTL: 5 tests (render, click, unavailable badge, placeholder image)
+- [x] `ProductCard.tsx`: MUI Card que muestra `name`, `basePrice`, `imageUrl` (placeholder si null), `isAvailable` badge
+- [x] Props: `product: MenuProductItem`, `onClick: () => void`
+- [x] Si `isAvailable == false`, mostrar overlay "No disponible" + button disabled
+- [x] Hover effect (elevation change via CSS sx)
+- [x] Responsive: height fijo para consistencia en grid
+- [x] Tests con RTL: 6 tests (render nombre, render precio, click, badge no disponible, disabled state, placeholder imagen, imagen real)
 
 **Archivos:**
 - `frontend/src/features/pos/components/ProductCard.tsx`
@@ -388,19 +389,19 @@ Card individual de producto para el grid.
 
 ---
 
-### [FRONTEND] Tarea 1.4: ProductCatalog Component
+### [FRONTEND] Tarea 1.4: ProductCatalog Component ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.2, 1.3
 
 Grid de productos organizado por categorias.
 
 **Criterios de Aceptacion:**
-- [ ] `ProductCatalog.tsx`: consume `useMenuQuery()`, muestra loading spinner, error alert, o grid de productos
-- [ ] Productos agrupados por categoria (usar `MenuCategoryItem`)
-- [ ] Tabs de MUI para navegar categorias
-- [ ] Grid responsive: 4 cols desktop, 2 tablet, 1 mobile (MUI Grid2)
-- [ ] Click en ProductCard abre modal de detalle (implementar en Sprint 2)
-- [ ] Tests con RTL + MSW: 6 tests (loading, error, render categorias, render productos, click producto)
+- [x] `ProductCatalog.tsx`: consume `useMenuQuery()`, muestra loading spinner, error alert, o grid de productos
+- [x] Productos agrupados por categoria (usar `MenuCategoryItem`)
+- [x] Tabs de MUI para navegar categorias
+- [x] Grid responsive: 4 cols desktop, 2 tablet, 1 mobile (MUI Grid)
+- [x] Click en ProductCard llama `onProductClick` (modal se integra en Sprint 2)
+- [x] Tests con RTL + MSW: 6 tests (loading, error, render categorias, render productos, switch categoria, click producto)
 
 **Archivos:**
 - `frontend/src/features/pos/components/ProductCatalog.tsx`
@@ -408,24 +409,25 @@ Grid de productos organizado por categorias.
 
 ---
 
-### [FRONTEND] Tarea 1.5: Ruta y Pantalla /pos/catalog
+### [FRONTEND] Tarea 1.5: Ruta y Pantalla /pos/catalog ✅
 
 **Prioridad:** Alta | **Dependencias:** 1.4
 
 Crear ruta y pantalla de catalogo.
 
 **Criterios de Aceptacion:**
-- [ ] Crear `frontend/src/routes/posRoutes.tsx` con ruta `/pos/catalog`
-- [ ] Pantalla `CatalogPage.tsx` que renderiza `ProductCatalog` component
-- [ ] Agregar ruta protegida en `App.tsx` (requiere rol CASHIER+)
-- [ ] Agregar link en Sidebar (icono Shopping Cart, label "Catalogo")
-- [ ] Tests de navegacion: 3 tests (ruta accesible, requiere auth, link en sidebar)
+- [x] Crear `frontend/src/router/posRoutes.tsx` con ruta `/pos/catalog`
+- [x] Pantalla `CatalogPage.tsx` que renderiza `ProductCatalog` component
+- [x] Agregar ruta en `router.tsx` dentro del ProtectedRoute + AppLayout
+- [x] Agregar link en Sidebar (icono ShoppingCart, label "Catalogo", activo en /pos/*)
+- [x] Tests de navegacion: 3 tests (ruta renderiza catalogo, link en sidebar, activo en /pos/*)
 
 **Archivos:**
-- `frontend/src/routes/posRoutes.tsx`
+- `frontend/src/router/posRoutes.tsx`
 - `frontend/src/features/pos/pages/CatalogPage.tsx`
-- `frontend/src/components/layout/Sidebar.tsx` (modificar)
-- `frontend/src/routes/posRoutes.test.tsx`
+- `frontend/src/components/layout/Sidebar.tsx` (modificado)
+- `frontend/src/router/router.tsx` (modificado)
+- `frontend/src/router/posRoutes.test.tsx`
 
 ---
 

@@ -7,19 +7,15 @@ import {
   ListItemText,
   Toolbar,
   Divider,
-  Collapse,
 } from '@mui/material'
 import {
   Home as HomeIcon,
-  Restaurant as RestaurantIcon,
+  ShoppingCart as ShoppingCartIcon,
   Receipt as ReceiptIcon,
   Inventory as InventoryIcon,
   Assessment as AssessmentIcon,
-  ExpandLess,
-  ExpandMore,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useState } from 'react'
 
 const DRAWER_WIDTH = 240
 
@@ -31,7 +27,6 @@ interface SidebarProps {
 export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [catalogOpen, setCatalogOpen] = useState(false)
 
   const handleNavigate = (path: string) => {
     navigate(path)
@@ -56,21 +51,16 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => setCatalogOpen(!catalogOpen)} disabled>
+          <ListItemButton
+            selected={location.pathname.startsWith('/pos')}
+            onClick={() => handleNavigate('/pos/catalog')}
+          >
             <ListItemIcon>
-              <RestaurantIcon />
+              <ShoppingCartIcon />
             </ListItemIcon>
-            <ListItemText primary="Catálogo" secondary="Próximamente" />
-            {catalogOpen ? <ExpandLess /> : <ExpandMore />}
+            <ListItemText primary="Catálogo" />
           </ListItemButton>
         </ListItem>
-        <Collapse in={catalogOpen} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }} disabled>
-              <ListItemText primary="Productos" secondary="Phase 1" />
-            </ListItemButton>
-          </List>
-        </Collapse>
 
         <ListItem disablePadding>
           <ListItemButton disabled>
