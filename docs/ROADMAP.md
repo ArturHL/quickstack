@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
 > **Última actualización:** 2026-02-28
-> **Estado:** Phase 1.3 ✅ COMPLETADA (6/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Sprint 5: Payments ✅ | Sprint 6: Reporting ✅
+> **Estado:** Phase 1.4 ⏳ EN PROGRESO (3/6 sprints) | Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo de Servicio ✅ | Sprint 4-6: Pendiente
 
 ## Vision Summary
 
@@ -31,7 +31,7 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
 | 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
-| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (3/4 sub-fases completadas) |
+| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (1.1-1.3 ✅, 1.4 Sprint 3/6) |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
 | 4 | Basic Reporting | Dashboard de ventas día/semana/mes | ⏳ Pendiente |
@@ -248,7 +248,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
 | 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ✅ Completada (6/6 sprints) — 28 endpoints, ~1,060 tests |
-| 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
+| 1.4 | Frontend POS | 2-3 semanas | ⏳ En Progreso (3/6 sprints) — Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo Servicio ✅ |
 
 ### Scope de Phase 1
 
@@ -379,27 +379,29 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.4: Frontend POS
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ Pendiente
+**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (3/6 sprints) | **Tests:** 137 frontend
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
 
-**Dependencies:** Phase 1.3 completada
+**Dependencies:** Phase 1.3 completada ✅
 
 **Scope Frontend:**
-- [ ] Pantalla de catálogo (grid responsive con búsqueda)
-- [ ] Modal de producto con variantes + modificadores
-- [ ] Carrito de compras con cálculo de totales en tiempo real
-- [ ] Selector de tipo de servicio (DINE_IN/COUNTER/DELIVERY/TAKEOUT)
-- [ ] Selector de mesa (si DINE_IN) con visualización de disponibilidad
-- [ ] Formulario de cliente (si DELIVERY) con validación
-- [ ] Pantalla de pago (solo efectivo, calcular cambio)
-- [ ] Vista de pedidos del día con filtros
-- [ ] CRUD de productos (admin) con upload de imágenes
-- [ ] CRUD de sucursales (admin)
-- [ ] Selector de sucursal activa (persistido en localStorage)
-- [ ] State management: posStore, cartStore, branchStore (Zustand)
-- [ ] 15 pantallas/componentes principales
-- [ ] ~120 tests frontend nuevos (acumulado: ~158 tests frontend)
+- [x] Pantalla de catálogo (grid responsive por categoría con tabs) — Sprint 1
+- [x] Modal de producto con variantes + modificadores — Sprint 2
+- [x] Carrito de compras con cálculo de totales en tiempo real (IVA 16%) — Sprint 2-3
+- [x] Selector de tipo de servicio (DINE_IN/COUNTER/DELIVERY/TAKEOUT) — Sprint 3
+- [x] Selector de mesa con tabs por área y status badges — Sprint 3
+- [x] Selector/creador de cliente con búsqueda debounced — Sprint 3
+- [x] State management: cartStore, branchStore (Zustand + persist) — Sprint 2-3
+- [x] Rutas: /pos/catalog, /pos/new, /pos/new/table, /pos/new/customer, /pos/cart — Sprint 1-3
+- [ ] Pantalla de pago (solo efectivo, calcular cambio) — Sprint 4
+- [ ] Creación de orden + submit + markReady + flujo COUNTER vs DINE_IN — Sprint 4
+- [ ] Vista de pedidos del día con filtros — Sprint 4
+- [ ] CRUD de productos (admin) — Sprint 5
+- [ ] CRUD de sucursales/areas/mesas (admin) — Sprint 5
+- [ ] Gestión de clientes (admin) — Sprint 5
+- [ ] Polish, responsive, empty states, error handling — Sprint 6
+- [x] ~137 tests frontend (Sprint 1-3) | ~120 adicionales en Sprint 4-6
 
 ---
 
@@ -693,6 +695,37 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-28 (Phase 1.4 Sprints 1-3)
+
+- **Phase 1.4 Sprint 3/6 COMPLETADO — Carrito + Flujo de Servicio:**
+  - `CartItem.tsx`: MUI ListItem con nombre/variante, modifier chips, botones +/-, delete — 6 tests
+  - `Cart.tsx`: empty state, lista de CartItem, subtotal/IVA/total, Limpiar/Continuar — 8 tests
+  - `ServiceTypeSelector.tsx`: 4 cards (DINE_IN/COUNTER/DELIVERY/TAKEOUT) con iconos MUI — 5 tests
+  - `TableSelector.tsx`: tabs por área, grid de mesas, solo AVAILABLE clickeables — 8 tests
+  - `CustomerSelector.tsx`: búsqueda debounced 300ms, crear cliente en dialog — 10 tests
+  - `branchStore.ts`: Zustand + persist localStorage para `activeBranchId`
+  - `tableApi.ts`, `customerApi.ts`: funciones axios con patrón `r.data.data`
+  - `useAreasQuery`, `useTablesQuery`, `useCustomersQuery`, `useCreateCustomerMutation`
+  - MSW handlers: `tableHandlers.ts`, `customerHandlers.ts` registrados en `server.ts`
+  - Rutas: `/pos/new`, `/pos/new/table`, `/pos/new/customer`, `/pos/cart` + 4 pages
+  - Navegación condicional: DINE_IN→/table, DELIVERY/TAKEOUT→/customer, COUNTER→/catalog
+  - **Acumulado frontend: 137 tests, 0 fallos**
+
+- **Phase 1.4 Sprint 2/6 COMPLETADO — ProductDetail + CartStore:**
+  - `cartStore.ts`: Zustand + sessionStorage persist, TAX_RATE=0.16, selectors subtotal/tax/total
+  - `VariantSelector.tsx`, `ModifierGroup.tsx`, `ProductDetailModal.tsx`
+  - Integración de modal en `ProductCatalog.tsx` (estado interno, sin prop `onProductClick`)
+  - `CartItem.ts`, `SelectedModifier.ts`, `ServiceType.ts` en `types/Cart.ts`
+  - **37 tests nuevos** (11 cartStore + 5 VariantSelector + 9 ModifierGroup + 10 ProductDetailModal + 2 ProductCatalog)
+
+- **Phase 1.4 Sprint 1/6 COMPLETADO — Infraestructura y Catálogo:**
+  - `types/Menu.ts`: tipos completos para MenuResponse y DTOs anidados
+  - `menuApi.ts`, `useMenuQuery.ts` (staleTime: 5min, retry: 2)
+  - `ProductCard.tsx`, `ProductCatalog.tsx` (tabs por categoría, grid MUI responsive)
+  - `CatalogPage.tsx`, ruta `/pos/catalog`, link "Catálogo" en Sidebar (icono ShoppingCart)
+  - MSW handler `menuHandlers.ts`
+  - **18 tests nuevos** (6 ProductCard + 6 ProductCatalog + 4 useMenuQuery + 3 routes)
 
 ### 2026-02-28 (Phase 1.3 Sprint 6)
 
