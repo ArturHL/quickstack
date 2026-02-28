@@ -237,7 +237,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 **Est. Effort:** 8-10 semanas
 
-**Status**: En progreso — Phase 1.3 Sprint 5/6 completado
+**Status**: En progreso — Phase 1.3 COMPLETADA (6/6 sprints)
 
 > **Nota:** Phase 1 se divide en sub-fases para facilitar desarrollo incremental y validación temprana con el piloto.
 
@@ -247,7 +247,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 |----------|--------|----------|--------|
 | 1.1 | Catálogo Base (Productos + Variantes + Menú POS) | 3 semanas | ✅ Completada (6/6 sprints) |
 | 1.2 | Modificadores + Combos | 2 semanas | ✅ Completada (4/4 sprints) — Modifiers ✅ Combos ✅ Menu ✅ |
-| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ⏳ En progreso (5/6 sprints) |
+| 1.3 | Sistema de Pedidos + Pagos | 2-3 semanas | ✅ Completada (6/6 sprints) — 28 endpoints, ~1,060 tests |
 | 1.4 | Frontend POS | 2-3 semanas | ⏳ Pendiente |
 
 ### Scope de Phase 1
@@ -357,23 +357,23 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.3: Sistema de Pedidos y Pagos
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En progreso (5/6 sprints)
+**Duración:** 3 semanas (6 sprints) | **Status:** ✅ COMPLETADA (6/6 sprints)
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.3_ORDERS_PAYMENTS.md`
 
 **Dependencies:** Phase 1.2 completada
 
 **Scope Backend:**
-- [x] Módulos: `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Order/Payment)
+- [x] Módulos: `quickstack-branch` (Branch/Area/Table) + `quickstack-pos` (Customer/Order/Payment/Reporting)
 - [x] CRUD de sucursales, áreas y mesas — Sprint 1 ✅
 - [x] CRUD de clientes (para delivery) — Sprint 2 ✅
 - [x] Entidades: Order, OrderItem, OrderItemModifier — Sprint 3 ✅
 - [x] API: crear pedido, agregar/quitar items, submit, cancel — Sprint 4 ✅
 - [x] API: registrar pago en efectivo (CASH only), cerrar orden — Sprint 5 ✅
 - [x] API: liberar mesa (DINE_IN) + actualizar stats de cliente al pagar — Sprint 5 ✅
-- [ ] API: Daily Summary endpoint (resumen de ventas del día) — Sprint 6 ⏳
-- [x] 30 endpoints REST implementados (27 + `/payments`, `/orders/{id}/payments`)
-- [x] ~1,040 tests backend pasando (quickstack-pos: 182, quickstack-app: 129)
+- [x] API: `GET /api/v1/reports/daily-summary` (MANAGER+) — Sprint 6 ✅
+- [x] 28 endpoints REST implementados
+- [x] ~1,060 tests backend pasando (quickstack-pos: 196, quickstack-app: 135)
 
 ---
 
@@ -693,6 +693,20 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 ---
 
 ## Changelog
+
+### 2026-02-28 (Phase 1.3 Sprint 6)
+
+- **Phase 1.3 Sprint 6/6 COMPLETADO — Reporting API:**
+  - `DailySummaryResponse.java` — record con `TopProductEntry` nested record
+  - `OrderService.getDailySummary()`: 3 JdbcTemplate queries (queryForMap, queryForList, query con RowMapper)
+  - IDOR: branchId validado contra tenant antes de ejecutar queries reporting
+  - Solo órdenes `COMPLETED`; topProducts vía `JOIN order_items`
+  - `COALESCE(SUM(total), 0.00)` + `.setScale(2, HALF_UP)` para BigDecimal escala 2 en JSON
+  - `ReportController`: `GET /api/v1/reports/daily-summary` (MANAGER+, fecha default = hoy Mexico City)
+  - `SecurityConfig` actualizado: `/api/v1/reports/**` registrado
+  - 14 tests nuevos en quickstack-pos: 8 unit service (tests 36–43) + 6 unit controller
+  - 6 integration tests (`ReportIntegrationTest`) en quickstack-app
+  - **Phase 1.3 COMPLETADA — Acumulado total: ~1,060 tests backend**
 
 ### 2026-02-27 (Phase 1.3 Sprint 5)
 
