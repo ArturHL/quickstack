@@ -581,6 +581,69 @@ class OrderServiceTest {
         }
 
         // =========================================================================
+        // markOrderReady
+        // =========================================================================
+
+        @Nested
+        @DisplayName("markOrderReady")
+        class MarkOrderReadyTests {
+
+                @Test
+                @DisplayName("25. Marking IN_PROGRESS order as READY transitions status")
+                void markReadyTransitionsToReady() {
+                        Order order = buildOrder(ServiceType.COUNTER, null);
+                        order.setStatusId(OrderStatusConstants.IN_PROGRESS);
+                        when(orderRepository.findByIdAndTenantId(ORDER_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(order));
+                        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+                        orderService.markOrderReady(TENANT_ID, USER_ID, ORDER_ID);
+
+                        assertThat(order.getStatusId()).isEqualTo(OrderStatusConstants.READY);
+                        verify(jdbcTemplate).update(contains("order_status_history"),
+                                        eq(TENANT_ID), eq(ORDER_ID),
+                                        eq(OrderStatusConstants.READY), eq(USER_ID));
+                }
+
+                @Test
+                @DisplayName("26. Marking non-existent order throws ResourceNotFoundException")
+                void markReadyNotFoundThrows() {
+                        when(orderRepository.findByIdAndTenantId(ORDER_ID, TENANT_ID))
+                                        .thenReturn(Optional.empty());
+
+                        assertThatThrownBy(() -> orderService.markOrderReady(TENANT_ID, USER_ID, ORDER_ID))
+                                        .isInstanceOf(ResourceNotFoundException.class);
+                }
+
+                @Test
+                @DisplayName("27. Marking PENDING order as READY throws BusinessRuleException")
+                void markReadyPendingOrderThrows() {
+                        Order order = buildPendingOrder();
+                        when(orderRepository.findByIdAndTenantId(ORDER_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(order));
+
+                        assertThatThrownBy(() -> orderService.markOrderReady(TENANT_ID, USER_ID, ORDER_ID))
+                                        .isInstanceOf(BusinessRuleException.class)
+                                        .satisfies(ex -> assertThat(((BusinessRuleException) ex).getCode())
+                                                        .isEqualTo("ORDER_NOT_IN_PROGRESS"));
+                }
+
+                @Test
+                @DisplayName("28. Marking COMPLETED order as READY throws BusinessRuleException")
+                void markReadyCompletedOrderThrows() {
+                        Order order = buildOrder(ServiceType.COUNTER, null);
+                        order.setStatusId(OrderStatusConstants.COMPLETED);
+                        when(orderRepository.findByIdAndTenantId(ORDER_ID, TENANT_ID))
+                                        .thenReturn(Optional.of(order));
+
+                        assertThatThrownBy(() -> orderService.markOrderReady(TENANT_ID, USER_ID, ORDER_ID))
+                                        .isInstanceOf(BusinessRuleException.class)
+                                        .satisfies(ex -> assertThat(((BusinessRuleException) ex).getCode())
+                                                        .isEqualTo("ORDER_NOT_IN_PROGRESS"));
+                }
+        }
+
+        // =========================================================================
         // cancelOrder
         // =========================================================================
 

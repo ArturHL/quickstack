@@ -333,6 +333,37 @@ class OrderControllerTest {
     }
 
     // =========================================================================
+    // POST /orders/{id}/ready
+    // =========================================================================
+
+    @Nested
+    @DisplayName("markOrderReady")
+    class MarkOrderReadyTests {
+
+        @Test
+        @DisplayName("16. Returns 200 with updated order on success")
+        void returnsOkOnSuccess() {
+            when(orderService.markOrderReady(TENANT_ID, USER_ID, ORDER_ID))
+                    .thenReturn(buildOrderResponse());
+
+            ResponseEntity<?> result = controller.markOrderReady(ownerPrincipal, ORDER_ID);
+
+            assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+            verify(orderService).markOrderReady(TENANT_ID, USER_ID, ORDER_ID);
+        }
+
+        @Test
+        @DisplayName("17. BusinessRuleException propagates when order is not IN_PROGRESS")
+        void businessRuleExceptionPropagates() {
+            when(orderService.markOrderReady(any(), any(), any()))
+                    .thenThrow(new BusinessRuleException("ORDER_NOT_IN_PROGRESS", "Not in progress"));
+
+            assertThatThrownBy(() -> controller.markOrderReady(ownerPrincipal, ORDER_ID))
+                    .isInstanceOf(BusinessRuleException.class);
+        }
+    }
+
+    // =========================================================================
     // POST /orders/{id}/cancel
     // =========================================================================
 
@@ -341,7 +372,7 @@ class OrderControllerTest {
     class CancelOrderTests {
 
         @Test
-        @DisplayName("16. Returns 204 on successful cancellation")
+        @DisplayName("18. Returns 204 on successful cancellation")
         void returns204OnSuccess() {
             doNothing().when(orderService).cancelOrder(TENANT_ID, USER_ID, ORDER_ID);
 

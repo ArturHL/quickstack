@@ -170,6 +170,23 @@ public class OrderController {
     }
 
     /**
+     * Marks an IN_PROGRESS order as READY. Requires OWNER, MANAGER, or CASHIER role.
+     */
+    @PostMapping("/{id}/ready")
+    @PreAuthorize("@posPermissionEvaluator.canCreateOrder(authentication)")
+    public ResponseEntity<ApiResponse<OrderResponse>> markOrderReady(
+            @AuthenticationPrincipal JwtAuthenticationPrincipal principal,
+            @PathVariable("id") UUID orderId
+    ) {
+        log.info("Marking order ready id={} tenant={}", orderId, principal.tenantId());
+
+        OrderResponse response = orderService.markOrderReady(
+                principal.tenantId(), principal.userId(), orderId);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
      * Cancels an order. Requires OWNER or MANAGER role.
      */
     @PostMapping("/{id}/cancel")

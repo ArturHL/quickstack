@@ -2,7 +2,7 @@
 
 > **Version:** 1.1.0
 > **Fecha:** 2026-02-28
-> **Status:** EN PROGRESO - Sprint 3/6 completado
+> **Status:** EN PROGRESO - Sprint 4/6 completado
 > **Modulo:** Frontend (React + Vite + MUI)
 > **Parte de:** Phase 1: Core POS - Ventas Completas
 
@@ -316,13 +316,13 @@ Agregar endpoint que transiciona una orden de `IN_PROGRESS` a `READY`.
 Requerido para que el frontend pueda completar el flujo de pago (ver ADR-003).
 
 **Criterios de Aceptacion:**
-- [ ] `OrderController`: `POST /api/v1/orders/{id}/ready` (requiere CASHIER+)
-- [ ] `OrderService.markOrderReady(tenantId, orderId)`: valida estado `IN_PROGRESS`, transiciona a `READY`
-- [ ] Si orden no es `IN_PROGRESS` → 409 (`BusinessRuleException`)
-- [ ] Si orden no pertenece al tenant → 404 (`ResourceNotFoundException`)
-- [ ] Inserta registro en `order_status_history`
-- [ ] `SecurityConfig`: `/api/v1/orders/**` ya esta registrado (sin cambio adicional)
-- [ ] Tests: 4 unit (success, not-found, wrong-status, business-rule) + 2 integration (happy path, wrong status)
+- [x] `OrderController`: `POST /api/v1/orders/{id}/ready` (requiere CASHIER+)
+- [x] `OrderService.markOrderReady(tenantId, orderId)`: valida estado `IN_PROGRESS`, transiciona a `READY`
+- [x] Si orden no es `IN_PROGRESS` → 409 (`BusinessRuleException`)
+- [x] Si orden no pertenece al tenant → 404 (`ResourceNotFoundException`)
+- [x] Inserta registro en `order_status_history`
+- [x] `SecurityConfig`: `/api/v1/orders/**` ya esta registrado (sin cambio adicional)
+- [x] Tests: 4 unit (success, not-found, wrong-status, business-rule) + 2 integration (happy path, wrong status)
 
 ---
 
@@ -668,9 +668,9 @@ Conectar pantallas en flujo completo.
 
 ---
 
-## Sprint 4: Order Creation y Payment
+## Sprint 4: Order Creation y Payment ✅ COMPLETADO
 
-**Duracion:** 2.5 dias | **Objetivo:** Crear orden, pagar y completar flujo
+**Duracion:** 2.5 dias | **Objetivo:** Crear orden, pagar y completar flujo | **Tests:** 27 nuevos (+~8 backend B.1) — Acumulado: 164 frontend
 
 ### [FRONTEND] Tarea 4.1: Tipos TypeScript — Orders y Payments
 
@@ -679,9 +679,9 @@ Conectar pantallas en flujo completo.
 Definir tipos para ordenes y pagos.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/types/Order.ts`: tipos `OrderCreateRequest`, `OrderItemRequest`, `OrderItemModifierRequest`, `OrderResponse`, `OrderItemResponse`, `ServiceType`, `OrderStatus`, `PaymentRequest`, `PaymentResponse`, `PaymentMethod`
-- [ ] Todos coinciden con DTOs del backend (referencia: Phase 1.3)
-- [ ] No requiere tests
+- [x] `features/pos/types/Order.ts`: tipos `OrderCreateRequest`, `OrderItemRequest`, `OrderItemModifierRequest`, `OrderResponse`, `OrderItemResponse`, `OrderItemModifierResponse`, `ServiceType`, `OrderStatus`, `PaymentRequest`, `PaymentResponse`, `PaymentMethod`
+- [x] Todos coinciden con DTOs del backend (referencia: Phase 1.3)
+- [x] No requiere tests
 
 **Archivos:**
 - `frontend/src/features/pos/types/Order.ts`
@@ -695,13 +695,13 @@ Definir tipos para ordenes y pagos.
 Funciones de API y hooks de TanStack Query para ordenes.
 
 **Criterios de Aceptacion:**
-- [ ] `features/pos/api/orderApi.ts`: funciones `createOrder(request)`, `submitOrder(orderId)`, `markOrderReady(orderId)`, `getOrder(orderId)`
-- [ ] `features/pos/hooks/useCreateOrderMutation.ts`: hook usando `useMutation`
-- [ ] `features/pos/hooks/useSubmitOrderMutation.ts`: hook para POST /orders/{id}/submit (PENDING → IN_PROGRESS)
-- [ ] `features/pos/hooks/useMarkReadyMutation.ts`: hook para POST /orders/{id}/ready (IN_PROGRESS → READY)
-- [ ] `features/pos/hooks/useRegisterPaymentMutation.ts`: hook para POST /api/v1/payments
-- [ ] Invalidar query cache de orders al crear/pagar
-- [ ] Tests con Vitest + MSW: 10 tests (create success, create error, submit, markReady, payment success)
+- [x] `features/pos/api/orderApi.ts`: funciones `createOrder(request)`, `submitOrder(orderId)`, `markOrderReady(orderId)`, `getOrder(orderId)`, `registerPayment(request)`
+- [x] `features/pos/hooks/useCreateOrderMutation.ts`: hook usando `useMutation`
+- [x] `features/pos/hooks/useSubmitOrderMutation.ts`: hook para POST /orders/{id}/submit (PENDING → IN_PROGRESS)
+- [x] `features/pos/hooks/useMarkReadyMutation.ts`: hook para POST /orders/{id}/ready (IN_PROGRESS → READY)
+- [x] `features/pos/hooks/useRegisterPaymentMutation.ts`: hook para POST /api/v1/payments
+- [x] Invalidar query cache de orders al crear/pagar
+- [x] Tests con Vitest + MSW: 10 tests (create success, create error, submit, markReady, payment success)
 
 **Archivos:**
 - `frontend/src/features/pos/api/orderApi.ts`
@@ -720,10 +720,10 @@ Funciones de API y hooks de TanStack Query para ordenes.
 Transformar items de cartStore a OrderCreateRequest.
 
 **Criterios de Aceptacion:**
-- [ ] Funcion `buildOrderRequest(cartStore): OrderCreateRequest` en utils
-- [ ] Mapea `CartItem[]` a `OrderItemRequest[]` con estructura correcta (productId, variantId, modifiers)
-- [ ] Incluye `branchId` (desde branchStore), `serviceType`, `tableId?`, `customerId?`
-- [ ] Tests unitarios: 6 tests (diferentes service types, con/sin modifiers, con/sin variantes)
+- [x] Funcion `buildOrderRequest(cartStore): OrderCreateRequest` en utils
+- [x] Mapea `CartItem[]` a `OrderItemRequest[]` con estructura correcta (productId, variantId, modifiers)
+- [x] Incluye `branchId` (desde branchStore), `serviceType`, `tableId?`, `customerId?`
+- [x] Tests unitarios: 6 tests (diferentes service types, con/sin modifiers, con/sin variantes)
 
 **Archivos:**
 - `frontend/src/features/pos/utils/orderUtils.ts`
@@ -738,13 +738,13 @@ Transformar items de cartStore a OrderCreateRequest.
 Formulario de pago en efectivo.
 
 **Criterios de Aceptacion:**
-- [ ] `PaymentForm.tsx`: formulario con input de "Monto Recibido" (NumberInput)
-- [ ] Props: `orderTotal: number`, `onSubmit: (amount: number) => void`
-- [ ] Validacion: amount >= orderTotal (mostrar error si no)
-- [ ] Mostrar "Cambio a Devolver" calculado automaticamente (amount - total)
-- [ ] Botones rapidos: "Exacto", "$100", "$200", "$500"
-- [ ] Boton "Registrar Pago" disabled si validacion falla
-- [ ] Tests con RTL: 8 tests (render, validation, quick buttons, calculate change, submit)
+- [x] `PaymentForm.tsx`: formulario con input de "Monto Recibido" (NumberInput)
+- [x] Props: `orderTotal: number`, `onSubmit: (amount: number) => void`
+- [x] Validacion: amount >= orderTotal (mostrar error si no)
+- [x] Mostrar "Cambio a Devolver" calculado automaticamente (amount - total)
+- [x] Botones rapidos: "Exacto", "$100", "$200", "$500"
+- [x] Boton "Registrar Pago" disabled si validacion falla
+- [x] Tests con RTL: 8 tests (render, validation, quick buttons, calculate change, submit)
 
 **Archivos:**
 - `frontend/src/features/pos/components/PaymentForm.tsx`
@@ -759,22 +759,22 @@ Formulario de pago en efectivo.
 Integrar creacion de orden y pago.
 
 **Criterios de Aceptacion:**
-- [ ] Boton "Enviar Orden" en Cart.tsx (flujo varia por serviceType — ver ADR-003):
+- [x] Boton "Enviar Orden" en Cart.tsx (flujo varia por serviceType — ver ADR-003):
   - Llama `useCreateOrderMutation` con `buildOrderRequest(cartStore)` → orderId
   - Llama `useSubmitOrderMutation(orderId)` → orden pasa a IN_PROGRESS
   - Si serviceType == COUNTER o TAKEOUT: llama `useMarkReadyMutation(orderId)` → READY, navega a `/pos/payment`
   - Si serviceType == DINE_IN o DELIVERY: navega a `/orders` (orden queda IN_PROGRESS esperando cocina)
   - Si cualquier step falla, muestra Snackbar con mensaje de error
-- [ ] Pantalla `PaymentPage.tsx`:
+- [x] Pantalla `PaymentPage.tsx`:
   - Consume `orderId` de posStore
   - Llama `useOrderQuery(orderId)` para obtener detalles (orden debe estar en READY)
   - Renderiza resumen de orden + `PaymentForm`
   - Submit de PaymentForm llama `useRegisterPaymentMutation`
   - Si payment success, navega a `/pos/confirmation`
-- [ ] Pantalla `OrderConfirmationPage.tsx`:
+- [x] Pantalla `OrderConfirmationPage.tsx`:
   - Muestra "Pedido Completado" con numero de orden
   - Boton "Nueva Venta" limpia cartStore y navega a `/pos/new`
-- [ ] Tests end-to-end con MSW: 8 tests (flujo COUNTER completo, flujo DINE_IN hasta IN_PROGRESS, error en submit, error en markReady)
+- [x] Tests end-to-end con MSW: 8 tests (flujo COUNTER completo, flujo DINE_IN hasta IN_PROGRESS, error en submit, error en markReady)
 
 **Archivos:**
 - `frontend/src/features/pos/components/Cart.tsx` (modificar)

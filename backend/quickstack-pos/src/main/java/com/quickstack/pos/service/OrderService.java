@@ -380,6 +380,42 @@ public class OrderService {
     }
 
     /**
+     * Marks an IN_PROGRESS order as READY.
+     * <p>
+     * Represents the kitchen confirming the order is ready to serve/deliver.
+     * Inserts a status history record for the audit trail.
+     *
+     * @param tenantId the tenant scope
+     * @param userId   the requesting user
+     * @param orderId  the order to mark as ready
+     * @return the updated order as a response DTO
+     * @throws BusinessRuleException     if the order is not IN_PROGRESS
+     * @throws ResourceNotFoundException if the order is not found
+     */
+    @Transactional
+    public OrderResponse markOrderReady(UUID tenantId, UUID userId, UUID orderId) {
+        Order order = orderRepository.findByIdAndTenantId(orderId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+
+        if (!OrderStatusConstants.IN_PROGRESS.equals(order.getStatusId())) {
+            throw new BusinessRuleException("ORDER_NOT_IN_PROGRESS",
+                    "Order must be IN_PROGRESS to be marked as READY");
+        }
+
+        order.setStatusId(OrderStatusConstants.READY);
+        order.setUpdatedBy(userId);
+        Order saved = orderRepository.save(order);
+
+        entityManager.flush();
+        insertStatusHistory(tenantId, saved.getId(), OrderStatusConstants.READY, userId);
+
+        log.info("[POS] ACTION=ORDER_MARKED_READY tenantId={} userId={} resourceId={} resourceType=ORDER",
+                tenantId, userId, orderId);
+
+        return OrderResponse.from(saved);
+    }
+
+    /**
      * Cancels an order, transitioning it to CANCELLED state.
      * <p>
      * Releases the table (if DINE_IN) back to AVAILABLE.

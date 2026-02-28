@@ -342,11 +342,56 @@ class OrderIntegrationTest extends BaseE2ETest {
         }
 
         // =========================================================================
+        // POST /orders/{id}/ready
+        // =========================================================================
+
+        @Test
+        @DisplayName("14. POST ready transitions IN_PROGRESS order to READY")
+        void markOrderReadyTransitionsToReady() {
+                UUID productId = createProduct(tenantId, "Torta", new BigDecimal("75.00"));
+                UUID orderId = createOrderDirect(tenantId, branchId, userId);
+                createOrderItemDirect(tenantId, orderId, productId);
+
+                // First submit to IN_PROGRESS
+                given()
+                                .header("Authorization", ownerToken)
+                                .when()
+                                .post("/orders/{id}/submit", orderId)
+                                .then()
+                                .statusCode(200);
+
+                // Then mark as READY
+                given()
+                                .header("Authorization", ownerToken)
+                                .when()
+                                .post("/orders/{id}/ready", orderId)
+                                .then()
+                                .statusCode(200);
+
+                String statusId = jdbcTemplate.queryForObject(
+                                "SELECT status_id::text FROM orders WHERE id = ?", String.class, orderId);
+                assertThat(statusId).isEqualTo("d3333333-3333-3333-3333-333333333333");
+        }
+
+        @Test
+        @DisplayName("15. POST ready on PENDING order returns 409 (wrong status)")
+        void markReadyOnPendingOrderReturns409() {
+                UUID orderId = createOrderDirect(tenantId, branchId, userId);
+
+                given()
+                                .header("Authorization", ownerToken)
+                                .when()
+                                .post("/orders/{id}/ready", orderId)
+                                .then()
+                                .statusCode(409);
+        }
+
+        // =========================================================================
         // POST /orders/{id}/cancel
         // =========================================================================
 
         @Test
-        @DisplayName("14. POST cancel by OWNER returns 204, status CANCELLED, table released")
+        @DisplayName("17. POST cancel by OWNER returns 204, status CANCELLED, table released")
         void cancelOrderByOwnerReturns204() {
                 UUID productId = createProduct(tenantId, "Comida Cancelada", new BigDecimal("80.00"));
                 UUID tableId = createTable(tenantId, areaId, "TC1");
