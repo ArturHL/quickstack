@@ -2,12 +2,16 @@ export interface AuthUser {
   id: string
   email: string
   fullName: string
-  role: 'OWNER' | 'MANAGER' | 'CASHIER' | 'WAITER'
+  role: 'OWNER' | 'MANAGER' | 'CASHIER' | 'WAITER' | 'KITCHEN'
+  roleId: string
+  branchId?: string | null
   tenantId: string
 }
 
 export interface AuthResponse {
   accessToken: string
+  tokenType: string
+  expiresIn: number
   user: AuthUser
 }
 

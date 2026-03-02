@@ -2,12 +2,26 @@ import { http, HttpResponse } from 'msw'
 
 const BASE = `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth`
 
+const TEST_USER = {
+  id: '1',
+  email: 'owner@test.com',
+  fullName: 'Test Owner',
+  roleId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  tenantId: 'tenant-1',
+  branchId: null,
+}
+
 export const authHandlers = [
   http.post(`${BASE}/login`, () =>
     HttpResponse.json(
       {
-        accessToken: 'test-access-token',
-        user: { id: '1', email: 'owner@test.com', fullName: 'Test Owner', role: 'OWNER', tenantId: 'tenant-1' },
+        data: {
+          accessToken: 'test-access-token',
+          tokenType: 'Bearer',
+          expiresIn: 900,
+          user: TEST_USER,
+        },
+        meta: { timestamp: '2026-01-01T00:00:00Z' },
       },
       { status: 200 }
     )
@@ -19,13 +33,24 @@ export const authHandlers = [
 
   http.get(`${BASE}/me`, () =>
     HttpResponse.json(
-      { id: '1', email: 'owner@test.com', fullName: 'Test Owner', role: 'OWNER', tenantId: 'tenant-1' },
+      { data: TEST_USER, meta: { timestamp: '2026-01-01T00:00:00Z' } },
       { status: 200 }
     )
   ),
 
   http.post(`${BASE}/refresh`, () =>
-    HttpResponse.json({ accessToken: 'new-access-token' }, { status: 200 })
+    HttpResponse.json(
+      {
+        data: {
+          accessToken: 'new-access-token',
+          tokenType: 'Bearer',
+          expiresIn: 900,
+          user: TEST_USER,
+        },
+        meta: { timestamp: '2026-01-01T00:00:00Z' },
+      },
+      { status: 200 }
+    )
   ),
 
   http.post(`${BASE}/forgot-password`, () => new HttpResponse(null, { status: 200 })),

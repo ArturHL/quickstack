@@ -64,10 +64,8 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const response = await axiosInstance.post<{ accessToken: string }>(
-        '/api/v1/auth/refresh'
-      )
-      const newToken = response.data.accessToken
+      const response = await axiosInstance.post('/api/v1/auth/refresh')
+      const newToken = response.data.data.accessToken
       const currentUser = useAuthStore.getState().user
       if (currentUser) {
         useAuthStore.getState().setAuth(newToken, currentUser)

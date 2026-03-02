@@ -6,11 +6,18 @@ import { useAuthStore } from '../stores/authStore'
 import type {
   ApiError,
   AuthResponse,
+  AuthUser,
   ForgotPasswordRequest,
   LoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
 } from '../types/auth'
+
+const ROLE_ID_TO_CODE: Record<string, AuthUser['role']> = {
+  'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa': 'OWNER',
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb': 'CASHIER',
+  'cccccccc-cccc-cccc-cccc-cccccccccccc': 'KITCHEN',
+}
 
 export function useLogin() {
   const navigate = useNavigate()
@@ -20,7 +27,11 @@ export function useLogin() {
   return useMutation<AuthResponse, AxiosError<ApiError>, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: (data) => {
-      setAuth(data.accessToken, data.user)
+      const user: AuthUser = {
+        ...data.user,
+        role: ROLE_ID_TO_CODE[data.user.roleId] ?? data.user.role,
+      }
+      setAuth(data.accessToken, user)
       const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
       navigate(from, { replace: true })
     },

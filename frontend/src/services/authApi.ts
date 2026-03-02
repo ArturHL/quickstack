@@ -10,13 +10,13 @@ import type {
 
 export const authApi = {
   login: (data: LoginRequest): Promise<AuthResponse> =>
-    axiosInstance.post<AuthResponse>('/api/v1/auth/login', data).then((r) => r.data),
+    axiosInstance.post('/api/v1/auth/login', data).then((r) => r.data.data),
 
   register: (data: RegisterRequest): Promise<void> =>
     axiosInstance.post<void>('/api/v1/auth/register', data).then((r) => r.data),
 
-  refreshToken: (): Promise<{ accessToken: string }> =>
-    axiosInstance.post<{ accessToken: string }>('/api/v1/auth/refresh').then((r) => r.data),
+  refreshToken: (): Promise<AuthResponse> =>
+    axiosInstance.post('/api/v1/auth/refresh').then((r) => r.data.data),
 
   logout: (): Promise<void> =>
     axiosInstance.post<void>('/api/v1/auth/logout').then((r) => r.data),
@@ -28,5 +28,5 @@ export const authApi = {
     axiosInstance.post<void>('/api/v1/auth/reset-password', data).then((r) => r.data),
 
   getMe: (): Promise<AuthUser> =>
-    axiosInstance.get<AuthUser>('/api/v1/auth/me').then((r) => r.data),
+    axiosInstance.get('/api/v1/auth/me').then((r) => r.data.data),
 }

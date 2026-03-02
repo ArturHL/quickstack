@@ -13,7 +13,15 @@ const mockUser: AuthUser = {
   email: 'owner@test.com',
   fullName: 'Test Owner',
   role: 'OWNER',
+  roleId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
   tenantId: 'tenant-1',
+}
+
+function refreshResponse(accessToken: string) {
+  return HttpResponse.json(
+    { data: { accessToken, tokenType: 'Bearer', expiresIn: 900, user: mockUser }, meta: {} },
+    { status: 200 }
+  )
 }
 
 describe('axiosInstance — interceptor de auth', () => {
@@ -74,9 +82,7 @@ describe('axiosInstance — interceptor de auth', () => {
         }
         return HttpResponse.json({ data: 'secret-data' })
       }),
-      http.post(`${BASE}/api/v1/auth/refresh`, () =>
-        HttpResponse.json({ accessToken: 'new-token' }, { status: 200 })
-      )
+      http.post(`${BASE}/api/v1/auth/refresh`, () => refreshResponse('new-token'))
     )
 
     useAuthStore.getState().setAuth('old-token', mockUser)
@@ -96,9 +102,7 @@ describe('axiosInstance — interceptor de auth', () => {
         }
         return HttpResponse.json({ ok: true })
       }),
-      http.post(`${BASE}/api/v1/auth/refresh`, () =>
-        HttpResponse.json({ accessToken: 'refreshed-token' }, { status: 200 })
-      )
+      http.post(`${BASE}/api/v1/auth/refresh`, () => refreshResponse('refreshed-token'))
     )
 
     useAuthStore.getState().setAuth('old-token', mockUser)
@@ -189,7 +193,7 @@ describe('axiosInstance — interceptor de auth', () => {
       http.post(`${BASE}/api/v1/auth/refresh`, async () => {
         refreshCount++
         await delay(20) // Simula latencia para que el segundo request entre a la cola
-        return HttpResponse.json({ accessToken: 'new-token' })
+        return refreshResponse('new-token')
       })
     )
 
