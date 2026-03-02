@@ -6,6 +6,7 @@ type UserRole = AuthUser['role']
 
 const ROLE_RANK: Record<UserRole, number> = {
   WAITER: 0,
+  KITCHEN: 1,
   CASHIER: 1,
   MANAGER: 2,
   OWNER: 3,

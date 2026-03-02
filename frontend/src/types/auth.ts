@@ -3,7 +3,7 @@ export interface AuthUser {
   email: string
   fullName: string
   role: 'OWNER' | 'MANAGER' | 'CASHIER' | 'WAITER' | 'KITCHEN'
-  roleId: string
+  roleId?: string
   branchId?: string | null
   tenantId: string
 }
