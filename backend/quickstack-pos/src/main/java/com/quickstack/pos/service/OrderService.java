@@ -490,7 +490,7 @@ public class OrderService {
                 Map<String, Object> stats = jdbcTemplate.queryForMap(
                                 "SELECT COUNT(*) AS total_orders, COALESCE(SUM(total), 0.00) AS total_sales " +
                                                 "FROM orders WHERE tenant_id = ? AND branch_id = ? " +
-                                                "AND status_id = ? AND DATE(opened_at) = ?",
+                                                "AND status_id = ? AND (opened_at AT TIME ZONE 'America/Mexico_City')::date = ?",
                                 tenantId, branchId, OrderStatusConstants.COMPLETED, date);
 
                 int totalOrders = ((Number) stats.get("total_orders")).intValue();
@@ -507,7 +507,7 @@ public class OrderService {
                 List<Map<String, Object>> serviceTypeRows = jdbcTemplate.queryForList(
                                 "SELECT service_type, COUNT(*) AS cnt FROM orders " +
                                                 "WHERE tenant_id = ? AND branch_id = ? " +
-                                                "AND status_id = ? AND DATE(opened_at) = ? " +
+                                                "AND status_id = ? AND (opened_at AT TIME ZONE 'America/Mexico_City')::date = ? " +
                                                 "GROUP BY service_type",
                                 tenantId, branchId, OrderStatusConstants.COMPLETED, date);
 
@@ -523,7 +523,7 @@ public class OrderService {
                                 "SELECT oi.product_name, SUM(oi.quantity) AS qty " +
                                                 "FROM order_items oi JOIN orders o ON oi.order_id = o.id " +
                                                 "WHERE o.tenant_id = ? AND o.branch_id = ? " +
-                                                "AND o.status_id = ? AND DATE(o.opened_at) = ? " +
+                                                "AND o.status_id = ? AND (o.opened_at AT TIME ZONE 'America/Mexico_City')::date = ? " +
                                                 "GROUP BY oi.product_name ORDER BY qty DESC LIMIT 5",
                                 (rs, rowNum) -> new DailySummaryResponse.TopProductEntry(
                                                 rs.getString("product_name"),
