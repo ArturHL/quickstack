@@ -68,8 +68,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Expose port
 EXPOSE 8080
 
-# JVM optimizations for containers
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
+# JVM optimizations for Render free tier (512MB RAM limit)
+# Explicit limits instead of MaxRAMPercentage to account for non-heap JVM memory:
+# heap(220) + metaspace(96) + code_cache(64) + OS/native(~80) ≈ 460MB < 512MB
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xmx220m -Xms100m -XX:MaxMetaspaceSize=96m -XX:ReservedCodeCacheSize=64m -XX:+UseSerialGC"
 
 # Run the application
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]

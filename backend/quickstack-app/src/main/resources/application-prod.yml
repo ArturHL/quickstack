@@ -2,6 +2,11 @@ spring:
   jpa:
     show-sql: false
 
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+
   devtools:
     restart:
       enabled: false
