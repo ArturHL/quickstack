@@ -113,6 +113,12 @@ PERSONAL_NOTES.md
 *.personal.md
 
 # ============================
+# Credentials & Secrets (local only)
+# ============================
+CREDENCIALES_TEST.txt
+CREDENCIALES*.txt
+
+# ============================
 # Claude Code Context (local)
 # ============================
 .context/

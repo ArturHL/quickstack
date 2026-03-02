@@ -69,9 +69,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 EXPOSE 8080
 
 # JVM optimizations for Render free tier (512MB RAM limit)
-# Explicit limits instead of MaxRAMPercentage to account for non-heap JVM memory:
-# heap(220) + metaspace(96) + code_cache(64) + OS/native(~80) ≈ 460MB < 512MB
-ENV JAVA_OPTS="-XX:+UseContainerSupport -Xmx220m -Xms100m -XX:MaxMetaspaceSize=96m -XX:ReservedCodeCacheSize=64m -XX:+UseSerialGC"
+# JJWT loads classes lazily on first JWT generation — needs more Metaspace than startup suggests.
+# heap(185) + metaspace(140) + code_cache(48) + OS/native(~80) ≈ 453MB < 512MB
+ENV JAVA_OPTS="-XX:+UseContainerSupport -Xmx185m -Xms80m -XX:MaxMetaspaceSize=140m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
 
 # Run the application
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
