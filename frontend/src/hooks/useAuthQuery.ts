@@ -29,7 +29,7 @@ export function useLogin() {
     onSuccess: (data) => {
       const user: AuthUser = {
         ...data.user,
-        role: ROLE_ID_TO_CODE[data.user.roleId] ?? data.user.role,
+        role: ROLE_ID_TO_CODE[data.user.roleId ?? ''] ?? data.user.role,
       }
       setAuth(data.accessToken, user)
       const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
