@@ -2,15 +2,23 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { screen, waitFor, fireEvent } from '@testing-library/react'
 import { renderWithProviders } from '../../../../test-utils/renderWithProviders'
 import DailySummaryPage from '../DailySummaryPage'
+import { useBranchStore } from '../../../pos/stores/branchStore'
 
 beforeEach(() => {
   localStorage.clear()
+  useBranchStore.setState({ activeBranchId: 'branch-1' })
 })
 
 describe('DailySummaryPage', () => {
   it('renders page title', () => {
     renderWithProviders(<DailySummaryPage />)
     expect(screen.getByText('Reportes')).toBeInTheDocument()
+  })
+
+  it('shows message when no branch is selected', () => {
+    useBranchStore.setState({ activeBranchId: null })
+    renderWithProviders(<DailySummaryPage />)
+    expect(screen.getByText(/selecciona una sucursal/i)).toBeInTheDocument()
   })
 
   it('shows date selector defaulting to today', () => {

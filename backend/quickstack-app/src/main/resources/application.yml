@@ -127,11 +127,11 @@ quickstack:
 
   cookie:
     refresh-token:
-      name: __Host-refreshToken
+      name: refreshToken
       path: /api/v1/auth
       secure: true
       http-only: true
-      same-site: STRICT
+      same-site: NONE
       max-age: 7d
 
 springdoc:

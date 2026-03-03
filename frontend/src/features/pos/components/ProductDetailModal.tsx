@@ -11,6 +11,7 @@ import {
   IconButton,
 } from '@mui/material'
 import { Add, Remove } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 import type { MenuProductItem } from '../types/Menu'
 import type { SelectedModifier } from '../types/Cart'
 import VariantSelector from './VariantSelector'
@@ -30,6 +31,7 @@ interface ContentProps {
 
 function ProductDetailContent({ product, onClose }: ContentProps) {
   const addItem = useCartStore((state) => state.addItem)
+  const navigate = useNavigate()
 
   const defaultVariant = product.variants.find((v) => v.isDefault) ?? null
   const initialMods: Record<string, string[]> = {}
@@ -107,6 +109,7 @@ function ProductDetailContent({ product, onClose }: ContentProps) {
     })
 
     onClose()
+    navigate('/pos/cart')
   }
 
   return (

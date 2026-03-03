@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material'
 import { useDailySummaryQuery } from '../hooks/useDailySummaryQuery'
+import { useBranchStore } from '../../pos/stores/branchStore'
 
 function todayISO(): string {
   return new Date().toISOString().split('T')[0]
@@ -42,7 +43,8 @@ function MetricCard({ label, value }: MetricCardProps) {
 
 export default function DailySummaryPage() {
   const [date, setDate] = useState(todayISO())
-  const { data, isLoading, isError } = useDailySummaryQuery(date)
+  const activeBranchId = useBranchStore((s) => s.activeBranchId)
+  const { data, isLoading, isError } = useDailySummaryQuery(activeBranchId, date)
 
   return (
     <Box>
@@ -59,13 +61,19 @@ export default function DailySummaryPage() {
         />
       </Box>
 
-      {isLoading && (
+      {!activeBranchId && (
+        <Typography color="text.secondary">
+          Selecciona una sucursal para ver el reporte.
+        </Typography>
+      )}
+
+      {activeBranchId && isLoading && (
         <Box display="flex" justifyContent="center" p={4}>
           <CircularProgress />
         </Box>
       )}
 
-      {isError && (
+      {activeBranchId && isError && (
         <Typography color="error">Error al cargar el reporte.</Typography>
       )}
 
