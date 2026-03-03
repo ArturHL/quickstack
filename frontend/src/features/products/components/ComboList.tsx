@@ -15,7 +15,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tooltip,
   Typography,
@@ -27,8 +26,8 @@ import ComboForm from './ComboForm'
 import type { ComboResponse } from '../types/Product'
 
 export default function ComboList() {
-  const [page, setPage] = useState(0)
-  const { data, isLoading, isError } = useCombosQuery({ page, size: 20 })
+  const { data, isLoading, isError } = useCombosQuery()
+  const combos = data ?? []
   const { mutate: createCombo, isPending: isCreating } = useCreateComboMutation()
   const { mutate: updateCombo, isPending: isUpdating } = useUpdateComboMutation()
   const { mutate: deleteCombo, isPending: isDeleting } = useDeleteComboMutation()
@@ -89,14 +88,14 @@ export default function ComboList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.content.length === 0 && (
+            {combos.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
                   <Typography color="text.secondary" py={2}>No hay combos</Typography>
                 </TableCell>
               </TableRow>
             )}
-            {data?.content.map((combo) => (
+            {combos.map((combo) => (
               <TableRow key={combo.id}>
                 <TableCell>{combo.name}</TableCell>
                 <TableCell>{combo.description ?? '—'}</TableCell>
@@ -138,14 +137,6 @@ export default function ComboList() {
             ))}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={data?.totalElements ?? 0}
-          page={page}
-          onPageChange={(_e, p) => setPage(p)}
-          rowsPerPage={20}
-          rowsPerPageOptions={[20]}
-        />
       </TableContainer>
 
       <ComboForm

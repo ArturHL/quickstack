@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { comboApi } from '../api/comboApi'
 
-export const useCombosQuery = (params: { page?: number; size?: number } = {}) => {
+export const useCombosQuery = () => {
   return useQuery({
-    queryKey: ['combos', params],
-    queryFn: () => comboApi.getCombos(params),
+    queryKey: ['combos'],
+    queryFn: () => comboApi.getCombos(),
     staleTime: 2 * 60 * 1000,
   })
 }

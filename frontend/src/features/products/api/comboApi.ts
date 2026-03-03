@@ -1,10 +1,10 @@
 import axiosInstance from '../../../utils/axiosInstance'
-import type { ComboResponse, ComboPage, ComboCreateRequest, ComboUpdateRequest } from '../types/Product'
+import type { ComboResponse, ComboCreateRequest, ComboUpdateRequest } from '../types/Product'
 
 export const comboApi = {
-  getCombos: (params: { page?: number; size?: number } = {}): Promise<ComboPage> =>
+  getCombos: (): Promise<ComboResponse[]> =>
     axiosInstance
-      .get<{ data: ComboPage }>('/api/v1/combos', { params })
+      .get<{ data: ComboResponse[] }>('/api/v1/combos')
       .then((r) => r.data.data),
 
   getCombo: (id: string): Promise<ComboResponse> =>

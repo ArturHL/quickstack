@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { ComboResponse, ComboPage } from '../../features/products/types/Product'
+import type { ComboResponse } from '../../features/products/types/Product'
 
 const BASE = `${import.meta.env.VITE_API_BASE_URL}/api/v1`
 
@@ -37,20 +37,9 @@ export const mockCombos: ComboResponse[] = [
   },
 ]
 
-const mockPage = (content: ComboResponse[], page = 0, size = 20): ComboPage => ({
-  content,
-  totalElements: content.length,
-  totalPages: 1,
-  number: page,
-  size,
-})
-
 export const comboHandlers = [
-  http.get(`${BASE}/combos`, ({ request }) => {
-    const url = new URL(request.url)
-    const page = parseInt(url.searchParams.get('page') ?? '0')
-    const size = parseInt(url.searchParams.get('size') ?? '20')
-    return HttpResponse.json({ data: mockPage(mockCombos, page, size) }, { status: 200 })
+  http.get(`${BASE}/combos`, () => {
+    return HttpResponse.json({ data: mockCombos }, { status: 200 })
   }),
 
   http.get(`${BASE}/combos/:id`, ({ params }) => {
