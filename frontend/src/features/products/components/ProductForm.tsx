@@ -69,6 +69,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
     if (!name.trim()) newErrors.name = 'El nombre es requerido'
+    if (!categoryId) newErrors.categoryId = 'La categoría es requerida'
     const price = parseFloat(basePrice)
     if (isNaN(price) || price < 0) newErrors.basePrice = 'El precio debe ser mayor o igual a 0'
     if (productType === 'VARIANT') {
@@ -136,19 +137,19 @@ export default function ProductForm({ productId }: ProductFormProps) {
           rows={2}
         />
 
-        <FormControl>
-          <InputLabel id="category-label">Categoría</InputLabel>
+        <FormControl error={!!errors.categoryId}>
+          <InputLabel id="category-label">Categoría *</InputLabel>
           <Select
             labelId="category-label"
-            label="Categoría"
+            label="Categoría *"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
           >
-            <MenuItem value="">Sin categoría</MenuItem>
             {categories?.map((cat) => (
               <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
             ))}
           </Select>
+          {errors.categoryId && <FormHelperText>{errors.categoryId}</FormHelperText>}
         </FormControl>
 
         <TextField
