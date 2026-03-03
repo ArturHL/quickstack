@@ -8,6 +8,7 @@ export const useCreateComboMutation = () => {
     mutationFn: (body: ComboCreateRequest) => comboApi.createCombo(body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['combos'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }
@@ -19,6 +20,7 @@ export const useUpdateComboMutation = () => {
       comboApi.updateCombo(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['combos'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }
@@ -29,6 +31,7 @@ export const useDeleteComboMutation = () => {
     mutationFn: (id: string) => comboApi.deleteCombo(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['combos'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

@@ -9,6 +9,7 @@ export const useCreateProductMutation = () => {
     mutationFn: (body: ProductCreateRequest) => productApi.createProduct(body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

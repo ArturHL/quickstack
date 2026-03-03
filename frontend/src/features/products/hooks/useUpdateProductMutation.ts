@@ -10,6 +10,7 @@ export const useUpdateProductMutation = () => {
       productApi.updateProduct(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

@@ -8,6 +8,8 @@ import theme from '../../../theme/theme'
 import ProtectedRoute from '../ProtectedRoute'
 import LoginPage from '../../../features/auth/LoginPage'
 import { useAuthStore } from '../../../stores/authStore'
+import { server } from '../../../mocks/server'
+import { refreshHandlers } from '../../../mocks/handlers/authHandlers'
 
 const routerFutureFlags = { v7_startTransition: true, v7_relativeSplatPath: true } as const
 
@@ -46,6 +48,9 @@ function renderWithRoutes(initialRoute = '/dashboard') {
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     useAuthStore.setState({ accessToken: null, user: null, isAuthenticated: false, isLoading: false })
+    // Make refresh fail by default — this test file tests ProtectedRoute UI behavior,
+    // not the refresh mechanism. Prevents auth state from leaking between tests.
+    server.use(refreshHandlers.unauthorized())
   })
 
   it('usuario no autenticado en /dashboard → redirigido a /login', () => {

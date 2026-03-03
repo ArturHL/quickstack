@@ -8,6 +8,7 @@ export const useDeleteProductMutation = () => {
     mutationFn: (id: string) => productApi.deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

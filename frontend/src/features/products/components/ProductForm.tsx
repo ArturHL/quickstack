@@ -123,12 +123,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }
 
     // Update or create variants
+    const base = parseFloat(basePrice)
     for (const v of variants) {
-      const price = parseFloat(v.effectivePrice)
+      const priceAdjustment = parseFloat(v.effectivePrice) - base
       if (v.id) {
-        ops.push(variantApi.updateVariant(pid, v.id, { name: v.name.trim(), effectivePrice: price }))
+        ops.push(variantApi.updateVariant(pid, v.id, { name: v.name.trim(), priceAdjustment }))
       } else {
-        ops.push(variantApi.createVariant(pid, { name: v.name.trim(), effectivePrice: price }))
+        ops.push(variantApi.createVariant(pid, { name: v.name.trim(), priceAdjustment }))
       }
     }
 
@@ -171,7 +172,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
             ...body,
             variants: variants.map((v) => ({
               name: v.name.trim(),
-              effectivePrice: parseFloat(v.effectivePrice),
+              priceAdjustment: parseFloat(v.effectivePrice) - parseFloat(basePrice),
             })),
           }
         : body

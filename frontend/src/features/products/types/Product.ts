@@ -159,14 +159,14 @@ export interface ComboUpdateRequest extends ComboCreateRequest {
 
 export interface VariantCreateRequest {
   name: string
-  effectivePrice: number
+  priceAdjustment: number
   isDefault?: boolean
   sortOrder?: number
 }
 
 export interface VariantUpdateRequest {
   name: string
-  effectivePrice: number
+  priceAdjustment: number
   isDefault?: boolean
   sortOrder?: number
 }

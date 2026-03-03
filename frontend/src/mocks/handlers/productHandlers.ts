@@ -248,8 +248,8 @@ export const productHandlers = [
       productId: params.productId as string,
       tenantId: 'tenant-1',
       name: (body.name as string) ?? '',
-      priceAdjustment: 0,
-      effectivePrice: (body.effectivePrice as number) ?? 0,
+      priceAdjustment: (body.priceAdjustment as number) ?? 0,
+      effectivePrice: (body.priceAdjustment as number) ?? 0,
       isDefault: false,
       sortOrder: 99,
       isActive: true,
@@ -266,7 +266,8 @@ export const productHandlers = [
     const updated: VariantResponse = {
       ...existing,
       name: (body.name as string) ?? existing.name,
-      effectivePrice: (body.effectivePrice as number) ?? existing.effectivePrice,
+      priceAdjustment: (body.priceAdjustment as number) ?? existing.priceAdjustment,
+      effectivePrice: (body.priceAdjustment as number) ?? existing.effectivePrice,
       updatedAt: new Date().toISOString(),
     }
     return HttpResponse.json({ data: updated }, { status: 200 })

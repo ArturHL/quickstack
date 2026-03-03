@@ -8,6 +8,7 @@ export const useUpdateCategoryMutation = () => {
       categoryApi.updateCategory(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

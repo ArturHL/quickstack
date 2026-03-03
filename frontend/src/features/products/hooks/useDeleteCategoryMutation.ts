@@ -7,6 +7,7 @@ export const useDeleteCategoryMutation = () => {
     mutationFn: (id: string) => categoryApi.deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }

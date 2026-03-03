@@ -7,6 +7,7 @@ export const useCreateCategoryMutation = () => {
     mutationFn: (body: CategoryCreateRequest) => categoryApi.createCategory(body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['menu'] })
     },
   })
 }
