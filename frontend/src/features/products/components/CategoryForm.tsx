@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Dialog,
@@ -19,17 +19,9 @@ interface CategoryFormProps {
 
 export default function CategoryForm({ open, onClose, onSubmit, isPending, initial }: CategoryFormProps) {
   const isEdit = !!initial
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  const [name, setName] = useState(initial?.name ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
   const [nameError, setNameError] = useState('')
-
-  useEffect(() => {
-    if (open) {
-      setName(initial?.name ?? '')
-      setDescription(initial?.description ?? '')
-      setNameError('')
-    }
-  }, [open, initial])
 
   const handleSubmit = () => {
     if (!name.trim()) {

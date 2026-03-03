@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Checkbox,
@@ -35,23 +35,13 @@ export default function ModifierGroupForm({
   open, onClose, onSubmit, isPending, initial,
 }: ModifierGroupFormProps) {
   const isEdit = !!initial
-  const [name, setName] = useState('')
-  const [selectionType, setSelectionType] = useState<SelectionType>('SINGLE')
-  const [isRequired, setIsRequired] = useState(false)
-  const [minSelections, setMinSelections] = useState('0')
+  const [name, setName] = useState(initial?.name ?? '')
+  const [selectionType, setSelectionType] = useState<SelectionType>(
+    initial && initial.maxSelections !== 1 ? 'MULTIPLE' : 'SINGLE'
+  )
+  const [isRequired, setIsRequired] = useState(initial?.isRequired ?? false)
+  const [minSelections, setMinSelections] = useState(String(initial?.minSelections ?? 0))
   const [nameError, setNameError] = useState('')
-
-  useEffect(() => {
-    if (open) {
-      setName(initial?.name ?? '')
-      setIsRequired(initial?.isRequired ?? false)
-      setMinSelections(String(initial?.minSelections ?? 0))
-      setSelectionType(
-        initial && initial.maxSelections !== 1 ? 'MULTIPLE' : 'SINGLE'
-      )
-      setNameError('')
-    }
-  }, [open, initial])
 
   const handleSubmit = () => {
     if (!name.trim()) {

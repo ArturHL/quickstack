@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Dialog,
@@ -19,17 +19,9 @@ interface ModifierFormProps {
 
 export default function ModifierForm({ open, onClose, onSubmit, isPending, initial }: ModifierFormProps) {
   const isEdit = !!initial
-  const [name, setName] = useState('')
-  const [priceAdjustment, setPriceAdjustment] = useState('0')
+  const [name, setName] = useState(initial?.name ?? '')
+  const [priceAdjustment, setPriceAdjustment] = useState(String(initial?.priceAdjustment ?? 0))
   const [nameError, setNameError] = useState('')
-
-  useEffect(() => {
-    if (open) {
-      setName(initial?.name ?? '')
-      setPriceAdjustment(String(initial?.priceAdjustment ?? 0))
-      setNameError('')
-    }
-  }, [open, initial])
 
   const handleSubmit = () => {
     if (!name.trim()) {
