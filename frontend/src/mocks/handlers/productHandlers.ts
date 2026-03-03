@@ -88,6 +88,41 @@ export const productHandlers = [
     }, { status: 200 })
   }),
 
+  http.post(`${BASE}/categories`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>
+    const newCategory: CategoryResponse = {
+      id: 'cat-new',
+      tenantId: 'tenant-1',
+      name: (body.name as string) ?? '',
+      description: (body.description as string) ?? null,
+      imageUrl: null,
+      sortOrder: 99,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'manager',
+      updatedBy: 'manager',
+    }
+    return HttpResponse.json({ data: newCategory }, { status: 201 })
+  }),
+
+  http.put(`${BASE}/categories/:id`, async ({ params, request }) => {
+    const body = (await request.json()) as Record<string, unknown>
+    const existing = mockCategories.find((c) => c.id === params.id)
+    if (!existing) return HttpResponse.json({ error: 'NOT_FOUND' }, { status: 404 })
+    const updated: CategoryResponse = {
+      ...existing,
+      name: (body.name as string) ?? existing.name,
+      description: (body.description as string) ?? existing.description,
+      updatedAt: new Date().toISOString(),
+    }
+    return HttpResponse.json({ data: updated }, { status: 200 })
+  }),
+
+  http.delete(`${BASE}/categories/:id`, () => {
+    return new HttpResponse(null, { status: 204 })
+  }),
+
   http.get(`${BASE}/products`, ({ request }) => {
     const url = new URL(request.url)
     const search = url.searchParams.get('search') ?? ''

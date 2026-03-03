@@ -17,6 +17,7 @@ import {
   Assessment as AssessmentIcon,
   People as PeopleIcon,
   Store as StoreIcon,
+  Category as CategoryIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
@@ -122,6 +123,20 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             Administración
           </Typography>
           <List>
+            {hasMinRole(user?.role, 'MANAGER') && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={location.pathname.startsWith('/admin/categories')}
+                  onClick={() => handleNavigate('/admin/categories')}
+                >
+                  <ListItemIcon>
+                    <CategoryIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Categorías" />
+                </ListItemButton>
+              </ListItem>
+            )}
+
             {hasMinRole(user?.role, 'MANAGER') && (
               <ListItem disablePadding>
                 <ListItemButton

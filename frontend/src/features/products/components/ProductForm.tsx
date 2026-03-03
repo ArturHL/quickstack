@@ -70,6 +70,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     const newErrors: Record<string, string> = {}
     if (!name.trim()) newErrors.name = 'El nombre es requerido'
     if (!categoryId) newErrors.categoryId = 'La categoría es requerida'
+    if (sku && !/^[A-Z0-9_-]{1,50}$/.test(sku)) newErrors.sku = 'SKU inválido: solo mayúsculas, números, _ y -'
     const price = parseFloat(basePrice)
     if (isNaN(price) || price < 0) newErrors.basePrice = 'El precio debe ser mayor o igual a 0'
     if (productType === 'VARIANT') {
@@ -155,7 +156,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
         <TextField
           label="SKU"
           value={sku}
-          onChange={(e) => setSku(e.target.value)}
+          onChange={(e) => setSku(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ''))}
+          error={!!errors.sku}
+          helperText={errors.sku ?? 'Solo letras mayúsculas, números, guiones y guiones bajos'}
           inputProps={{ 'aria-label': 'sku' }}
         />
 

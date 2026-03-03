@@ -83,6 +83,25 @@ describe('ProductForm — create mode', () => {
     renderWithProviders(<ProductForm />)
     expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument()
   })
+
+  it('converts SKU input to uppercase automatically', async () => {
+    renderWithProviders(<ProductForm />)
+
+    const skuInput = screen.getByRole('textbox', { name: /sku/i })
+    await userEvent.type(skuInput, 'cafe-001')
+
+    expect(skuInput).toHaveValue('CAFE-001')
+  })
+
+  it('rejects special characters in SKU', async () => {
+    renderWithProviders(<ProductForm />)
+
+    const skuInput = screen.getByRole('textbox', { name: /sku/i })
+    await userEvent.type(skuInput, 'café@#!')
+
+    // Only valid chars remain
+    expect((skuInput as HTMLInputElement).value).toMatch(/^[A-Z0-9_-]*$/)
+  })
 })
 
 describe('ProductForm — edit mode', () => {
