@@ -72,6 +72,51 @@ export interface VariantResponse {
   updatedAt: string
 }
 
+export interface ModifierResponse {
+  id: string
+  groupId: string
+  tenantId: string
+  name: string
+  priceAdjustment: number
+  isDefault: boolean
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ModifierGroupResponse {
+  id: string
+  productId: string
+  tenantId: string
+  name: string
+  minSelections: number
+  maxSelections: number | null
+  isRequired: boolean
+  sortOrder: number
+  isActive: boolean
+  modifiers: ModifierResponse[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ModifierGroupCreateRequest {
+  name: string
+  minSelections: number
+  maxSelections?: number | null
+  isRequired: boolean
+}
+
+export interface ModifierGroupUpdateRequest extends ModifierGroupCreateRequest {}
+
+export interface ModifierCreateRequest {
+  name: string
+  priceAdjustment: number
+  isDefault?: boolean
+}
+
+export interface ModifierUpdateRequest extends ModifierCreateRequest {}
+
 export interface VariantCreateRequest {
   name: string
   effectivePrice: number
