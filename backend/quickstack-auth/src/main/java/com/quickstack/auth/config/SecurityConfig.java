@@ -61,8 +61,9 @@ public class SecurityConfig {
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints (actuator)
+                        // Public endpoints (actuator + Swagger UI)
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // Public auth endpoints (no JWT required)
                         .requestMatchers(HttpMethod.POST,

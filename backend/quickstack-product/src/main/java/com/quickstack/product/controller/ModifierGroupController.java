@@ -1,5 +1,6 @@
 package com.quickstack.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.ModifierCreateRequest;
@@ -46,6 +47,7 @@ import java.util.UUID;
  * - V4.1: Cross-tenant access returns 404 (IDOR protection)
  * - V4.2: @PreAuthorize for write operation access control
  */
+@Tag(name = "Modificadores", description = "Grupos de modificadores y sus opciones por producto (OWNER/MANAGER)")
 @RestController
 public class ModifierGroupController {
 

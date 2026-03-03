@@ -1,5 +1,6 @@
 package com.quickstack.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.ProductAvailabilityRequest;
@@ -42,6 +43,7 @@ import java.util.UUID;
  * - V4.1: Multi-tenant isolation — tenantId always extracted from JWT
  * - V4.1: IDOR protection — cross-tenant access returns 404
  */
+@Tag(name = "Productos", description = "CRUD de productos del catálogo (OWNER/MANAGER)")
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {

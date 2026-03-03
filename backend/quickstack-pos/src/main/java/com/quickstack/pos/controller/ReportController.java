@@ -1,5 +1,6 @@
 package com.quickstack.pos.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.pos.dto.response.DailySummaryResponse;
@@ -29,6 +30,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant branchId returns 404 (enforced in service layer)
  * - V4.2: @PreAuthorize restricts access to MANAGER and OWNER roles
  */
+@Tag(name = "Reportes", description = "Resumen diario de ventas por sucursal (MANAGER+)")
 @RestController
 public class ReportController {
 

@@ -1,5 +1,6 @@
 package com.quickstack.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.request.VariantCreateRequest;
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Variantes", description = "Variantes de productos con precio propio (OWNER/MANAGER)")
 @RestController
 @RequestMapping("/api/v1/products/{productId}/variants")
 public class VariantController {

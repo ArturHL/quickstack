@@ -1,5 +1,6 @@
 package com.quickstack.branch.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.branch.dto.request.TableCreateRequest;
 import com.quickstack.branch.dto.request.TableStatusUpdateRequest;
 import com.quickstack.branch.dto.request.TableUpdateRequest;
@@ -35,6 +36,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant access returns 404
  * - V4.2: @PreAuthorize for operation-level access control
  */
+@Tag(name = "Mesas", description = "Mesas y su estado por área (OWNER/MANAGER)")
 @RestController
 public class TableController {
 

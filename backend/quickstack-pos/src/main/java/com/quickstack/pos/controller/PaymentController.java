@@ -1,5 +1,6 @@
 package com.quickstack.pos.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.pos.dto.request.PaymentRequest;
@@ -31,6 +32,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant access returns 404 (enforced in service layer)
  * - V4.2: @PreAuthorize for operation-level access control
  */
+@Tag(name = "Pagos", description = "Registro de pagos y consulta de pagos por orden")
 @RestController
 public class PaymentController {
 

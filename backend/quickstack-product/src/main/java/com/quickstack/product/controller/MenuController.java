@@ -1,5 +1,6 @@
 package com.quickstack.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.product.dto.response.MenuResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Access: any authenticated user (OWNER, MANAGER, CASHIER).
  * Caching: Cache-Control max-age=30, private — safe to cache on client for 30 seconds.
  */
+@Tag(name = "Menú POS", description = "Menú activo con categorías y productos para el punto de venta")
 @RestController
 @RequestMapping("/api/v1/menu")
 public class MenuController {

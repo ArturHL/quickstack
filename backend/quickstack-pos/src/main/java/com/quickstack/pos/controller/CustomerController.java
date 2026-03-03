@@ -1,5 +1,6 @@
 package com.quickstack.pos.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.pos.dto.request.CustomerCreateRequest;
@@ -35,6 +36,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant access returns 404
  * - V4.2: @PreAuthorize for operation-level access control
  */
+@Tag(name = "Clientes", description = "Registro y gestión de clientes del POS (CASHIER+)")
 @RestController
 @RequestMapping("/api/v1/customers")
 public class CustomerController {

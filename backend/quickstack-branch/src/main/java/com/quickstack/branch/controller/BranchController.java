@@ -1,5 +1,6 @@
 package com.quickstack.branch.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.branch.dto.request.BranchCreateRequest;
 import com.quickstack.branch.dto.request.BranchUpdateRequest;
 import com.quickstack.branch.dto.response.BranchResponse;
@@ -34,6 +35,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant access returns 404
  * - V4.2: @PreAuthorize for operation-level access control
  */
+@Tag(name = "Sucursales", description = "Gestión de sucursales del restaurante (OWNER)")
 @RestController
 @RequestMapping("/api/v1/branches")
 public class BranchController {

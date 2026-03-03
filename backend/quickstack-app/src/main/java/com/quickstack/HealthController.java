@@ -1,5 +1,6 @@
 package com.quickstack;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +10,7 @@ import java.util.Map;
 /**
  * Simple health check controller (in addition to actuator).
  */
+@Tag(name = "Sistema", description = "Health check del servicio")
 @RestController
 public class HealthController {
 

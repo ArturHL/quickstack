@@ -1,5 +1,6 @@
 package com.quickstack.auth.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.auth.dto.response.SessionResponse;
@@ -24,6 +25,7 @@ import java.util.UUID;
  * - V3.3.1: Users can view active sessions
  * - V3.3.4: Users can log out of all sessions
  */
+@Tag(name = "Sesiones", description = "Gestión de sesiones activas del usuario autenticado")
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserSessionController {

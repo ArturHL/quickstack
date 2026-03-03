@@ -1,5 +1,6 @@
 package com.quickstack.branch.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.branch.dto.request.AreaCreateRequest;
 import com.quickstack.branch.dto.request.AreaUpdateRequest;
 import com.quickstack.branch.dto.response.AreaResponse;
@@ -32,6 +33,7 @@ import java.util.UUID;
  * - V4.1: IDOR protection — cross-tenant access returns 404
  * - V4.2: @PreAuthorize for operation-level access control
  */
+@Tag(name = "Áreas", description = "Áreas físicas dentro de una sucursal (OWNER/MANAGER)")
 @RestController
 public class AreaController {
 

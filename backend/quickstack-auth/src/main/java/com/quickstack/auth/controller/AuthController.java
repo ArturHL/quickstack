@@ -1,5 +1,6 @@
 package com.quickstack.auth.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.quickstack.common.config.properties.CookieProperties;
 import com.quickstack.common.config.properties.JwtProperties;
 import com.quickstack.common.dto.ApiResponse;
@@ -55,6 +56,7 @@ import java.util.UUID;
  * - V3.4: Secure cookie attributes
  * - V3.5: Token rotation
  */
+@Tag(name = "Autenticación", description = "Login, registro, refresh token, logout y recuperación de contraseña")
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
