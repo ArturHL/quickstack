@@ -40,6 +40,6 @@ export const productApi = {
 
   getCategories: (): Promise<CategoryResponse[]> =>
     axiosInstance
-      .get<{ data: CategoryResponse[] }>('/api/v1/categories')
-      .then((r) => r.data.data),
+      .get<{ data: { content: CategoryResponse[] } }>('/api/v1/categories')
+      .then((r) => r.data.data.content),
 }

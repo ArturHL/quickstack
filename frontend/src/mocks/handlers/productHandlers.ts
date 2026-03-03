@@ -83,7 +83,9 @@ const mockPage = (content: ProductResponse[], page = 0, size = 20): ProductPage 
 
 export const productHandlers = [
   http.get(`${BASE}/categories`, () => {
-    return HttpResponse.json({ data: mockCategories }, { status: 200 })
+    return HttpResponse.json({
+      data: { content: mockCategories, totalElements: mockCategories.length, totalPages: 1, number: 0, size: 20 },
+    }, { status: 200 })
   }),
 
   http.get(`${BASE}/products`, ({ request }) => {
