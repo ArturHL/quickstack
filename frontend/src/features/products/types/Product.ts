@@ -107,7 +107,7 @@ export interface ModifierGroupCreateRequest {
   isRequired: boolean
 }
 
-export interface ModifierGroupUpdateRequest extends ModifierGroupCreateRequest {}
+export type ModifierGroupUpdateRequest = ModifierGroupCreateRequest
 
 export interface ModifierCreateRequest {
   name: string
@@ -115,7 +115,7 @@ export interface ModifierCreateRequest {
   isDefault?: boolean
 }
 
-export interface ModifierUpdateRequest extends ModifierCreateRequest {}
+export type ModifierUpdateRequest = ModifierCreateRequest
 
 export interface ComboItemResponse {
   productId: string

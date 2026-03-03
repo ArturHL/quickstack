@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Button,
@@ -49,31 +49,19 @@ export default function ComboForm({ open, onClose, onSubmit, isPending, initial 
   const { data: productsPage } = useProductsQuery({ size: 100 })
   const products = productsPage?.content ?? []
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [price, setPrice] = useState('')
-  const [items, setItems] = useState<ComboItem[]>([])
+  const [name, setName] = useState(initial?.name ?? '')
+  const [description, setDescription] = useState(initial?.description ?? '')
+  const [price, setPrice] = useState(initial ? String(initial.price) : '')
+  const [items, setItems] = useState<ComboItem[]>(
+    initial?.items.map((i) => ({
+      productId: i.productId,
+      productName: i.productName,
+      quantity: i.quantity,
+    })) ?? []
+  )
   const [selectedProductId, setSelectedProductId] = useState('')
   const [selectedQty, setSelectedQty] = useState('1')
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  useEffect(() => {
-    if (open) {
-      setName(initial?.name ?? '')
-      setDescription(initial?.description ?? '')
-      setPrice(initial ? String(initial.price) : '')
-      setItems(
-        initial?.items.map((i) => ({
-          productId: i.productId,
-          productName: i.productName,
-          quantity: i.quantity,
-        })) ?? []
-      )
-      setSelectedProductId('')
-      setSelectedQty('1')
-      setErrors({})
-    }
-  }, [open, initial])
 
   const handleAddItem = () => {
     if (!selectedProductId) return
