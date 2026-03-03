@@ -23,6 +23,7 @@ export default function AppLayout() {
         sx={{
           flexGrow: 1,
           p: 3,
+          ml: { sm: `${DRAWER_WIDTH}px` },
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
         }}
       >

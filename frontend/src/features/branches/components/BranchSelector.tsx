@@ -22,7 +22,7 @@ export default function BranchSelector() {
   if (!branches?.length) return null
 
   return (
-    <FormControl size="small" sx={{ minWidth: 180 }}>
+    <FormControl size="small" sx={{ minWidth: { xs: 130, sm: 180 } }}>
       <InputLabel id="branch-selector-label" sx={{ color: 'inherit' }}>
         Sucursal
       </InputLabel>

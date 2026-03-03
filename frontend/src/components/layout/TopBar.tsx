@@ -33,7 +33,11 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
           <MenuIcon />
         </IconButton>
 
-        <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 3 }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 0, mr: 2, whiteSpace: 'nowrap' }}
+        >
           QuickStack POS
         </Typography>
 
@@ -41,16 +45,32 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        <Typography variant="body1" sx={{ mr: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}
+          noWrap
+        >
           {displayName}
         </Typography>
 
+        {/* Mobile: solo ícono */}
+        <IconButton
+          color="inherit"
+          onClick={() => logout()}
+          disabled={isPending}
+          aria-label="cerrar sesión"
+          sx={{ display: { xs: 'flex', sm: 'none' } }}
+        >
+          <LogoutIcon />
+        </IconButton>
+
+        {/* Desktop: botón con texto */}
         <Button
           color="inherit"
           onClick={() => logout()}
           disabled={isPending}
           startIcon={<LogoutIcon />}
-          sx={{ textTransform: 'none' }}
+          sx={{ textTransform: 'none', display: { xs: 'none', sm: 'flex' } }}
         >
           Cerrar sesión
         </Button>
