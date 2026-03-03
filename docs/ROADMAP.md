@@ -1,7 +1,7 @@
 # QuickStack POS - Roadmap del MVP
 
-> **Última actualización:** 2026-02-28
-> **Estado:** Phase 1.4 ⏳ EN PROGRESO (5/6 sprints) | Sprint 1: Catálogo ✅ | Sprint 2: ProductDetail + CartStore ✅ | Sprint 3: Carrito + Flujo de Servicio ✅ | Sprint 4: Order Creation + Payment ✅ | Sprint 5: Admin CRUD ✅ | Sprint 6: Pendiente
+> **Última actualización:** 2026-03-02
+> **Estado:** Phase 1.4 ✅ COMPLETADA | Phase 1.5 ⏳ EN PROGRESO (Estabilización — bugs producción + flujos faltantes)
 
 ## Vision Summary
 
@@ -31,7 +31,8 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 | Fase | Nombre | Objetivo | Estado |
 |------|--------|----------|--------|
 | 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
-| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ⏳ En Progreso (1.1-1.3 ✅, 1.4 Sprint 5/6) |
+| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ✅ 100% (1.1-1.4 completadas) |
+| 1.5 | Estabilización | Bugs producción + flujos admin faltantes (categorías, variantes, modificadores, combos, reportes) | ⏳ En Progreso (Sprint 1/5) |
 | 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
 | 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
 | 4 | Basic Reporting | Dashboard de ventas día/semana/mes | ⏳ Pendiente |
