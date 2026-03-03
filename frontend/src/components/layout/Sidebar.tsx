@@ -106,14 +106,19 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding>
-          <ListItemButton disabled>
-            <ListItemIcon>
-              <AssessmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Reportes" secondary="Próximamente" />
-          </ListItemButton>
-        </ListItem>
+        {hasMinRole(user?.role, 'MANAGER') && (
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={location.pathname.startsWith('/admin/reports')}
+              onClick={() => handleNavigate('/admin/reports')}
+            >
+              <ListItemIcon>
+                <AssessmentIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reportes" />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
 
       {/* Admin section — CASHIER+ */}

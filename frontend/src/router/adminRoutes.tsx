@@ -5,6 +5,7 @@ import CategoryListPage from '../features/products/pages/CategoryListPage'
 import ComboListPage from '../features/products/pages/ComboListPage'
 import BranchListPage from '../features/branches/pages/BranchListPage'
 import CustomerListPage from '../features/customers/pages/CustomerListPage'
+import DailySummaryPage from '../features/reports/pages/DailySummaryPage'
 
 export const adminRoutes = [
   {
@@ -15,6 +16,7 @@ export const adminRoutes = [
       { path: '/admin/products/new', element: <ProductFormPage /> },
       { path: '/admin/products/:id/edit', element: <ProductFormPage /> },
       { path: '/admin/combos', element: <ComboListPage /> },
+      { path: '/admin/reports', element: <DailySummaryPage /> },
     ],
   },
   {
