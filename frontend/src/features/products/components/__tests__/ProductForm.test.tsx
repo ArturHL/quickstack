@@ -130,3 +130,81 @@ describe('ProductForm — edit mode', () => {
     )
   })
 })
+
+describe('ProductForm — edit mode VARIANT', () => {
+  it('loads existing variants for a VARIANT product', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: /nombre producto/i })).toHaveValue('Café con Leche')
+    )
+
+    await waitFor(() => {
+      const variantInputs = screen.getAllByRole('textbox', { name: /nombre variante/i })
+      expect(variantInputs.length).toBe(2)
+      expect(variantInputs[0]).toHaveValue('Chico')
+      expect(variantInputs[1]).toHaveValue('Grande')
+    })
+  })
+
+  it('shows existing variant prices', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() => {
+      const priceInputs = screen.getAllByRole('spinbutton', { name: /precio variante/i })
+      expect(priceInputs[0]).toHaveValue(35)
+      expect(priceInputs[1]).toHaveValue(45)
+    })
+  })
+
+  it('can edit an existing variant name', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() => {
+      const variantInputs = screen.getAllByRole('textbox', { name: /nombre variante/i })
+      expect(variantInputs[0]).toHaveValue('Chico')
+    })
+
+    const variantInputs = screen.getAllByRole('textbox', { name: /nombre variante/i })
+    await userEvent.clear(variantInputs[0])
+    await userEvent.type(variantInputs[0], 'Pequeño')
+
+    expect(variantInputs[0]).toHaveValue('Pequeño')
+  })
+
+  it('can add a new variant in edit mode', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('textbox', { name: /nombre variante/i }).length).toBe(2)
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: /agregar variante/i }))
+
+    expect(screen.getAllByRole('textbox', { name: /nombre variante/i }).length).toBe(3)
+  })
+
+  it('can remove an existing variant in edit mode', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('textbox', { name: /nombre variante/i }).length).toBe(2)
+    })
+
+    const deleteButtons = screen.getAllByRole('button', { name: /eliminar variante/i })
+    await userEvent.click(deleteButtons[0])
+
+    expect(screen.getAllByRole('textbox', { name: /nombre variante/i }).length).toBe(1)
+  })
+
+  it('type selector is disabled in edit mode', async () => {
+    renderWithProviders(<ProductForm productId="prod-3" />)
+
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: /nombre producto/i })).toHaveValue('Café con Leche')
+    )
+
+    const typeCombobox = screen.getByRole('combobox', { name: /tipo de producto/i })
+    expect(typeCombobox).toHaveAttribute('aria-disabled', 'true')
+  })
+})

@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { ProductResponse, ProductPage, CategoryResponse } from '../../features/products/types/Product'
+import type { ProductResponse, ProductPage, CategoryResponse, VariantResponse } from '../../features/products/types/Product'
 
 const BASE = `${import.meta.env.VITE_API_BASE_URL}/api/v1`
 
@@ -70,6 +70,54 @@ export const mockProducts: ProductResponse[] = [
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'admin',
     updatedBy: 'admin',
+  },
+  {
+    id: 'prod-3',
+    tenantId: 'tenant-1',
+    categoryId: 'cat-1',
+    categoryName: 'Bebidas',
+    name: 'Café con Leche',
+    description: null,
+    sku: 'CAF-002',
+    basePrice: 0,
+    costPrice: null,
+    productType: 'VARIANT',
+    imageUrl: null,
+    sortOrder: 3,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    createdBy: 'admin',
+    updatedBy: 'admin',
+  },
+]
+
+export const mockVariants: VariantResponse[] = [
+  {
+    id: 'var-1',
+    productId: 'prod-3',
+    tenantId: 'tenant-1',
+    name: 'Chico',
+    priceAdjustment: 0,
+    effectivePrice: 35,
+    isDefault: true,
+    sortOrder: 1,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'var-2',
+    productId: 'prod-3',
+    tenantId: 'tenant-1',
+    name: 'Grande',
+    priceAdjustment: 10,
+    effectivePrice: 45,
+    isDefault: false,
+    sortOrder: 2,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
   },
 ]
 
@@ -184,6 +232,47 @@ export const productHandlers = [
   }),
 
   http.delete(`${BASE}/products/:id`, () => {
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  // Variant handlers
+  http.get(`${BASE}/products/:productId/variants`, ({ params }) => {
+    const variants = mockVariants.filter((v) => v.productId === params.productId)
+    return HttpResponse.json({ data: variants }, { status: 200 })
+  }),
+
+  http.post(`${BASE}/products/:productId/variants`, async ({ params, request }) => {
+    const body = (await request.json()) as Record<string, unknown>
+    const newVariant: VariantResponse = {
+      id: 'var-new',
+      productId: params.productId as string,
+      tenantId: 'tenant-1',
+      name: (body.name as string) ?? '',
+      priceAdjustment: 0,
+      effectivePrice: (body.effectivePrice as number) ?? 0,
+      isDefault: false,
+      sortOrder: 99,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    return HttpResponse.json({ data: newVariant }, { status: 201 })
+  }),
+
+  http.put(`${BASE}/products/:productId/variants/:variantId`, async ({ params, request }) => {
+    const body = (await request.json()) as Record<string, unknown>
+    const existing = mockVariants.find((v) => v.id === params.variantId)
+    if (!existing) return HttpResponse.json({ error: 'NOT_FOUND' }, { status: 404 })
+    const updated: VariantResponse = {
+      ...existing,
+      name: (body.name as string) ?? existing.name,
+      effectivePrice: (body.effectivePrice as number) ?? existing.effectivePrice,
+      updatedAt: new Date().toISOString(),
+    }
+    return HttpResponse.json({ data: updated }, { status: 200 })
+  }),
+
+  http.delete(`${BASE}/products/:productId/variants/:variantId`, () => {
     return new HttpResponse(null, { status: 204 })
   }),
 ]

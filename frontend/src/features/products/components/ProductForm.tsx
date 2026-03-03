@@ -16,12 +16,15 @@ import {
 import { Add, Delete } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useCategoriesQuery } from '../hooks/useCategoriesQuery'
+import { useVariantsQuery } from '../hooks/useVariantsQuery'
 import { useCreateProductMutation } from '../hooks/useCreateProductMutation'
 import { useUpdateProductMutation } from '../hooks/useUpdateProductMutation'
 import { productApi } from '../api/productApi'
+import { variantApi } from '../api/variantApi'
 import type { ProductType } from '../types/Product'
 
 interface VariantInput {
+  id?: string
   name: string
   effectivePrice: string
 }
@@ -46,8 +49,15 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [costPrice, setCostPrice] = useState('')
   const [productType, setProductType] = useState<ProductType>('SIMPLE')
   const [variants, setVariants] = useState<VariantInput[]>([{ name: '', effectivePrice: '' }])
+  const [deletedVariantIds, setDeletedVariantIds] = useState<string[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoadingProduct, setIsLoadingProduct] = useState(isEdit)
+  const [isSavingVariants, setIsSavingVariants] = useState(false)
+
+  const { data: existingVariants } = useVariantsQuery(
+    productId,
+    isEdit && productType === 'VARIANT'
+  )
 
   useEffect(() => {
     if (!isEdit) return
@@ -65,6 +75,18 @@ export default function ProductForm({ productId }: ProductFormProps) {
     })
     return () => { cancelled = true }
   }, [isEdit, productId])
+
+  useEffect(() => {
+    if (existingVariants && existingVariants.length > 0) {
+      setVariants(
+        existingVariants.map((v) => ({
+          id: v.id,
+          name: v.name,
+          effectivePrice: String(v.effectivePrice),
+        }))
+      )
+    }
+  }, [existingVariants])
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -84,7 +106,36 @@ export default function ProductForm({ productId }: ProductFormProps) {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleRemoveVariant = (index: number) => {
+    const variant = variants[index]
+    if (variant.id) {
+      setDeletedVariantIds((prev) => [...prev, variant.id!])
+    }
+    setVariants((prev) => prev.filter((_, idx) => idx !== index))
+  }
+
+  const saveVariantChanges = async (pid: string) => {
+    const ops: Promise<unknown>[] = []
+
+    // Delete removed variants
+    for (const vid of deletedVariantIds) {
+      ops.push(variantApi.deleteVariant(pid, vid))
+    }
+
+    // Update or create variants
+    for (const v of variants) {
+      const price = parseFloat(v.effectivePrice)
+      if (v.id) {
+        ops.push(variantApi.updateVariant(pid, v.id, { name: v.name.trim(), effectivePrice: price }))
+      } else {
+        ops.push(variantApi.createVariant(pid, { name: v.name.trim(), effectivePrice: price }))
+      }
+    }
+
+    await Promise.all(ops)
+  }
+
+  const handleSubmit = async () => {
     if (!validate()) return
 
     const body = {
@@ -98,9 +149,36 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }
 
     if (isEdit) {
-      updateProduct({ id: productId, body }, { onSuccess: () => navigate('/admin/products') })
+      updateProduct(
+        { id: productId, body },
+        {
+          onSuccess: async () => {
+            if (productType === 'VARIANT') {
+              setIsSavingVariants(true)
+              try {
+                await saveVariantChanges(productId)
+              } finally {
+                setIsSavingVariants(false)
+              }
+            }
+            navigate('/admin/products')
+          },
+        }
+      )
     } else {
-      createProduct(body, { onSuccess: () => navigate('/admin/products') })
+      const createBody = productType === 'VARIANT'
+        ? {
+            ...body,
+            variants: variants.map((v) => ({
+              name: v.name.trim(),
+              effectivePrice: parseFloat(v.effectivePrice),
+            })),
+          }
+        : body
+
+      createProduct(createBody as Parameters<typeof createProduct>[0], {
+        onSuccess: () => navigate('/admin/products'),
+      })
     }
   }
 
@@ -112,7 +190,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     )
   }
 
-  const isPending = isCreating || isUpdating
+  const isPending = isCreating || isUpdating || isSavingVariants
 
   return (
     <Box maxWidth={600}>
@@ -189,6 +267,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
             value={productType}
             onChange={(e) => setProductType(e.target.value as ProductType)}
             inputProps={{ 'aria-label': 'tipo de producto' }}
+            disabled={isEdit}
           >
             <MenuItem value="SIMPLE">Simple</MenuItem>
             <MenuItem value="VARIANT">Con variantes</MenuItem>
@@ -211,7 +290,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
               </Button>
             </Box>
             {variants.map((v, i) => (
-              <Box key={i} display="flex" gap={1} alignItems="flex-start" mb={1}>
+              <Box key={v.id ?? `new-${i}`} display="flex" gap={1} alignItems="flex-start" mb={1}>
                 <TextField
                   label="Nombre variante"
                   value={v.name}
@@ -243,7 +322,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
+                    onClick={() => handleRemoveVariant(i)}
                     aria-label={`eliminar variante ${i + 1}`}
                   >
                     <Delete fontSize="small" />

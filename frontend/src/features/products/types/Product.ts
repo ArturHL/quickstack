@@ -57,3 +57,31 @@ export interface ProductCreateRequest {
 export interface ProductUpdateRequest extends ProductCreateRequest {
   isActive?: boolean
 }
+
+export interface VariantResponse {
+  id: string
+  productId: string
+  tenantId: string
+  name: string
+  priceAdjustment: number
+  effectivePrice: number
+  isDefault: boolean
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface VariantCreateRequest {
+  name: string
+  effectivePrice: number
+  isDefault?: boolean
+  sortOrder?: number
+}
+
+export interface VariantUpdateRequest {
+  name: string
+  effectivePrice: number
+  isDefault?: boolean
+  sortOrder?: number
+}

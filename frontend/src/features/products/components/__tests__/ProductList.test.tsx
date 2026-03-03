@@ -88,7 +88,7 @@ describe('ProductList', () => {
   it('shows category names in table', async () => {
     renderWithProviders(<ProductList />)
     await waitFor(() => expect(screen.getByText('Café Americano')).toBeInTheDocument())
-    expect(screen.getByText('Bebidas')).toBeInTheDocument()
+    expect(screen.getAllByText('Bebidas').length).toBeGreaterThan(0)
     expect(screen.getByText('Comida')).toBeInTheDocument()
   })
 
