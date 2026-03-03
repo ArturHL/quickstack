@@ -46,7 +46,7 @@ export const branchApi = {
 
   createTable: (areaId: string, body: TableCreateRequest): Promise<TableResponse> =>
     axiosInstance
-      .post<{ data: TableResponse }>(`/api/v1/areas/${areaId}/tables`, body)
+      .post<{ data: TableResponse }>(`/api/v1/areas/${areaId}/tables`, { ...body, areaId })
       .then((r) => r.data.data),
 
   updateTable: (tableId: string, body: TableCreateRequest): Promise<TableResponse> =>

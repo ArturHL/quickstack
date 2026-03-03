@@ -16,7 +16,7 @@ export const modifierApi = {
 
   createModifierGroup: (productId: string, body: ModifierGroupCreateRequest): Promise<ModifierGroupResponse> =>
     axiosInstance
-      .post<{ data: ModifierGroupResponse }>(`/api/v1/products/${productId}/modifier-groups`, body)
+      .post<{ data: ModifierGroupResponse }>(`/api/v1/products/${productId}/modifier-groups`, { ...body, productId })
       .then((r) => r.data.data),
 
   updateModifierGroup: (groupId: string, body: ModifierGroupUpdateRequest): Promise<ModifierGroupResponse> =>

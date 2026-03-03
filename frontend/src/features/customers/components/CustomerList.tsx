@@ -19,9 +19,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { Search } from '@mui/icons-material'
+import { Add, Search } from '@mui/icons-material'
 import { useCustomersAdminQuery } from '../hooks/useCustomersAdminQuery'
 import { useUpdateCustomerMutation } from '../hooks/useUpdateCustomerMutation'
+import { useCreateCustomerMutation } from '../hooks/useCreateCustomerMutation'
 import type { CustomerResponse } from '../../pos/types/Customer'
 
 export default function CustomerList() {
@@ -32,8 +33,15 @@ export default function CustomerList() {
   const [editPhone, setEditPhone] = useState('')
   const [editEmail, setEditEmail] = useState('')
 
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newPhone, setNewPhone] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [createContactError, setCreateContactError] = useState('')
+
   const { data, isLoading, isError } = useCustomersAdminQuery({ search, page, size: 20 })
   const { mutate: updateCustomer, isPending: isUpdating } = useUpdateCustomerMutation()
+  const { mutate: createCustomer, isPending: isCreating } = useCreateCustomerMutation()
 
   const openEdit = (customer: CustomerResponse) => {
     setEditTarget(customer)
@@ -47,6 +55,26 @@ export default function CustomerList() {
     updateCustomer(
       { id: editTarget.id, body: { name: editName, phone: editPhone || undefined, email: editEmail || undefined } },
       { onSuccess: () => setEditTarget(null) }
+    )
+  }
+
+  const handleOpenCreate = () => {
+    setNewName('')
+    setNewPhone('')
+    setNewEmail('')
+    setCreateContactError('')
+    setCreateOpen(true)
+  }
+
+  const handleCreate = () => {
+    if (!newPhone.trim() && !newEmail.trim()) {
+      setCreateContactError('Ingresa al menos un teléfono o email')
+      return
+    }
+    setCreateContactError('')
+    createCustomer(
+      { name: newName.trim() || undefined, phone: newPhone.trim() || undefined, email: newEmail.trim() || undefined },
+      { onSuccess: () => setCreateOpen(false) }
     )
   }
 
@@ -70,6 +98,9 @@ export default function CustomerList() {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h5">Clientes</Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={handleOpenCreate}>
+          Nuevo Cliente
+        </Button>
       </Box>
 
       <Box mb={2}>
@@ -134,6 +165,43 @@ export default function CustomerList() {
           rowsPerPageOptions={[20]}
         />
       </TableContainer>
+
+      {/* Create dialog */}
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Nuevo Cliente</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2} pt={1}>
+            <TextField
+              label="Nombre"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              inputProps={{ 'aria-label': 'nombre nuevo cliente' }}
+            />
+            <TextField
+              label="Teléfono"
+              value={newPhone}
+              onChange={(e) => { setNewPhone(e.target.value); setCreateContactError('') }}
+              inputProps={{ 'aria-label': 'teléfono nuevo cliente' }}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={newEmail}
+              onChange={(e) => { setNewEmail(e.target.value); setCreateContactError('') }}
+              inputProps={{ 'aria-label': 'email nuevo cliente' }}
+            />
+            {createContactError && (
+              <Typography color="error" variant="caption">{createContactError}</Typography>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCreateOpen(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleCreate} disabled={isCreating}>
+            Crear
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit dialog */}
       <Dialog open={!!editTarget} onClose={() => setEditTarget(null)} fullWidth maxWidth="xs">

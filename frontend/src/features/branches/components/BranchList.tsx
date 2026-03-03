@@ -38,7 +38,7 @@ export default function BranchList() {
     createBranch(data, { onSuccess: () => setFormOpen(false) })
   }
 
-  const handleEdit = (data: { name: string; address?: string; city?: string; phone?: string; email?: string }) => {
+  const handleEdit = (data: { name: string; code: string; address?: string; city?: string; phone?: string; email?: string }) => {
     if (!editTarget) return
     updateBranch({ id: editTarget.id, body: data }, { onSuccess: () => setEditTarget(null) })
   }

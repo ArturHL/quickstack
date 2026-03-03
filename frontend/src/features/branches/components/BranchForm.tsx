@@ -13,27 +13,29 @@ import type { BranchResponse } from '../types/Branch'
 interface BranchFormProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: { name: string; address?: string; city?: string; phone?: string; email?: string }) => void
+  onSubmit: (data: { name: string; code: string; address?: string; city?: string; phone?: string; email?: string }) => void
   isPending?: boolean
   initial?: BranchResponse | null
 }
 
 export default function BranchForm({ open, onClose, onSubmit, isPending, initial }: BranchFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
+  const [code, setCode] = useState(initial?.code ?? '')
   const [address, setAddress] = useState(initial?.address ?? '')
   const [city, setCity] = useState(initial?.city ?? '')
   const [phone, setPhone] = useState(initial?.phone ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
-  const [nameError, setNameError] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleSubmit = () => {
-    if (!name.trim()) {
-      setNameError('El nombre es requerido')
-      return
-    }
-    setNameError('')
+    const newErrors: Record<string, string> = {}
+    if (!name.trim()) newErrors.name = 'El nombre es requerido'
+    if (!code.trim()) newErrors.code = 'El código es requerido'
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
     onSubmit({
       name: name.trim(),
+      code: code.trim(),
       address: address.trim() || undefined,
       city: city.trim() || undefined,
       phone: phone.trim() || undefined,
@@ -50,9 +52,17 @@ export default function BranchForm({ open, onClose, onSubmit, isPending, initial
             label="Nombre *"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            error={!!nameError}
-            helperText={nameError || ' '}
+            error={!!errors.name}
+            helperText={errors.name || ' '}
             inputProps={{ 'aria-label': 'nombre sucursal' }}
+          />
+          <TextField
+            label="Código *"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            error={!!errors.code}
+            helperText={errors.code || 'Identificador corto de la sucursal (ej. SUC-01)'}
+            inputProps={{ 'aria-label': 'código sucursal', maxLength: 20 }}
           />
           <TextField
             label="Dirección"

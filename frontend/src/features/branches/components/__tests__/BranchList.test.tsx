@@ -40,6 +40,7 @@ describe('BranchList', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /nueva sucursal/i }))
     await userEvent.type(screen.getByRole('textbox', { name: /nombre sucursal/i }), 'Sucursal Sur')
+    await userEvent.type(screen.getByRole('textbox', { name: /código sucursal/i }), 'SUC-03')
     await userEvent.click(screen.getByRole('button', { name: /^crear$/i }))
 
     await waitFor(() =>

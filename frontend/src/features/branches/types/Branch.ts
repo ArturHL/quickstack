@@ -2,6 +2,7 @@ export interface BranchResponse {
   id: string
   tenantId: string
   name: string
+  code: string
   address: string | null
   city: string | null
   phone: string | null
@@ -15,6 +16,7 @@ export interface BranchResponse {
 
 export interface BranchCreateRequest {
   name: string
+  code: string
   address?: string
   city?: string
   phone?: string

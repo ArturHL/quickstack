@@ -48,7 +48,7 @@ describe('ComboForm — create mode', () => {
     expect(screen.getByText(/el nombre es requerido/i)).toBeInTheDocument()
   })
 
-  it('shows validation error when no items added', async () => {
+  it('shows validation error when fewer than 2 items added', async () => {
     renderWithProviders(
       <ComboForm open onClose={vi.fn()} onSubmit={vi.fn()} isPending={false} />
     )
@@ -57,7 +57,7 @@ describe('ComboForm — create mode', () => {
     await userEvent.type(screen.getByRole('spinbutton', { name: /precio combo/i }), '50')
     await userEvent.click(screen.getByRole('button', { name: /^crear$/i }))
 
-    expect(screen.getByText(/agrega al menos un producto/i)).toBeInTheDocument()
+    expect(screen.getByText(/el combo debe tener al menos 2 productos/i)).toBeInTheDocument()
   })
 
   it('shows product selector and add button', async () => {

@@ -86,7 +86,7 @@ export default function ComboForm({ open, onClose, onSubmit, isPending, initial 
     if (!name.trim()) newErrors.name = 'El nombre es requerido'
     const p = parseFloat(price)
     if (isNaN(p) || p < 0) newErrors.price = 'El precio debe ser mayor o igual a 0'
-    if (items.length === 0) newErrors.items = 'Agrega al menos un producto al combo'
+    if (items.length < 2) newErrors.items = 'El combo debe tener al menos 2 productos diferentes'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
