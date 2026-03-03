@@ -18,6 +18,7 @@ import {
   People as PeopleIcon,
   Store as StoreIcon,
   Category as CategoryIcon,
+  LocalOffer as LocalOfferIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
@@ -147,6 +148,20 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                     <InventoryIcon />
                   </ListItemIcon>
                   <ListItemText primary="Productos" />
+                </ListItemButton>
+              </ListItem>
+            )}
+
+            {hasMinRole(user?.role, 'MANAGER') && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={location.pathname.startsWith('/admin/combos')}
+                  onClick={() => handleNavigate('/admin/combos')}
+                >
+                  <ListItemIcon>
+                    <LocalOfferIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Combos" />
                 </ListItemButton>
               </ListItem>
             )}

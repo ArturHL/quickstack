@@ -117,6 +117,46 @@ export interface ModifierCreateRequest {
 
 export interface ModifierUpdateRequest extends ModifierCreateRequest {}
 
+export interface ComboItemResponse {
+  productId: string
+  productName: string
+  quantity: number
+}
+
+export interface ComboResponse {
+  id: string
+  tenantId: string
+  name: string
+  description: string | null
+  imageUrl: string | null
+  price: number
+  sortOrder: number
+  isActive: boolean
+  items: ComboItemResponse[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ComboPage {
+  content: ComboResponse[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}
+
+export interface ComboCreateRequest {
+  name: string
+  description?: string
+  price: number
+  sortOrder?: number
+  items: { productId: string; quantity: number }[]
+}
+
+export interface ComboUpdateRequest extends ComboCreateRequest {
+  isActive?: boolean
+}
+
 export interface VariantCreateRequest {
   name: string
   effectivePrice: number
