@@ -136,7 +136,7 @@ public class AuthController {
 
         log.info("User registered successfully: userId={}", user.getId());
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
-                .body(ApiResponse.success(UserResponse.from(user)));
+                .body(ApiResponse.success(UserResponse.from(user, null)));
     }
 
     /**

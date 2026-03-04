@@ -46,7 +46,7 @@ export default function UserList() {
   const [newPassword, setNewPassword] = useState('')
   const [newFullName, setNewFullName] = useState('')
   const [newPhone, setNewPhone] = useState('')
-  const [newRoleId, setNewRoleId] = useState(ROLE_OPTIONS[0].id)
+  const [newRoleId, setNewRoleId] = useState<string>(ROLE_OPTIONS[0].id)
 
   // Edit dialog state
   const [editTarget, setEditTarget] = useState<UserResponse | null>(null)

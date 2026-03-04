@@ -7,6 +7,7 @@ import com.quickstack.common.security.PasswordBreachChecker;
 import com.quickstack.common.security.PasswordService;
 import com.quickstack.auth.service.SessionService;
 import com.quickstack.user.service.UserService;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class MultiTenantSecurityTest {
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private JdbcTemplate jdbcTemplate;
 
     private static final UUID TENANT_A = UUID.randomUUID();
     private static final UUID TENANT_B = UUID.randomUUID();
@@ -95,7 +99,7 @@ class MultiTenantSecurityTest {
         @Test
         @DisplayName("registerUser enforces email uniqueness per tenant - tenant A blocks, tenant B allows")
         void registerEnforcesEmailUniquenessPerTenant() {
-            UserService userService = new UserService(userRepository, passwordService, breachChecker);
+            UserService userService = new UserService(userRepository, passwordService, breachChecker, jdbcTemplate);
 
             // Email taken in tenant A, free in tenant B
             when(userRepository.existsByTenantIdAndEmail(TENANT_A, EMAIL)).thenReturn(true);
