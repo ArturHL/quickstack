@@ -29,6 +29,7 @@ import { useCreateUserMutation } from '../hooks/useCreateUserMutation'
 import { useUpdateUserMutation } from '../hooks/useUpdateUserMutation'
 import { useDeleteUserMutation } from '../hooks/useDeleteUserMutation'
 import { ROLE_OPTIONS, type UserResponse } from '../api/userApi'
+import { useAuthStore } from '../../../stores/authStore'
 
 const ROLE_LABELS: Record<string, string> = {
   OWNER: 'Dueño',
@@ -56,6 +57,8 @@ export default function UserList() {
 
   // Delete dialog state
   const [deleteTarget, setDeleteTarget] = useState<UserResponse | null>(null)
+
+  const currentUserId = useAuthStore((s) => s.user?.id)
 
   const { data, isLoading, isError } = useUsersAdminQuery({ search, page, size: 20 })
   const { mutate: createUser, isPending: isCreating } = useCreateUserMutation()
@@ -195,15 +198,18 @@ export default function UserList() {
                       <Edit fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => setDeleteTarget(user)}
-                      aria-label={`eliminar ${user.fullName}`}
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
+                  <Tooltip title={user.id === currentUserId ? 'No puedes eliminar tu propia cuenta' : 'Eliminar'}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => setDeleteTarget(user)}
+                        disabled={user.id === currentUserId}
+                        aria-label={`eliminar ${user.fullName}`}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                 </TableCell>
               </TableRow>

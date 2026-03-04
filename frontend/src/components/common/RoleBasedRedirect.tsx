@@ -9,8 +9,8 @@ const ROLE_ROUTES: Record<Role, string> = {
     WAITER: '/waiter/tables',
     CASHIER: '/cashier/pos',
     KITCHEN: '/kitchen/board',
-    MANAGER: '/admin/dashboard',
-    OWNER: '/admin/dashboard',
+    MANAGER: '/admin/reports',
+    OWNER: '/admin/branches',
 }
 
 export default function RoleBasedRedirect() {

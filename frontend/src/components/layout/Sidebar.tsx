@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@mui/material'
 import {
-  HomeOutlined as HomeIcon,
   ShoppingCartOutlined as ShoppingCartIcon,
   ReceiptLongOutlined as ReceiptIcon,
   InventoryOutlined as InventoryIcon,
@@ -18,9 +17,12 @@ import {
   StoreOutlined as StoreIcon,
   CategoryOutlined as CategoryIcon,
   LocalOfferOutlined as LocalOfferIcon,
+  LanguageOutlined as GlobalIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
+import { useBranchStore } from '../../features/pos/stores/branchStore'
+import { useBranchesQuery } from '../../features/branches/hooks/useBranchesQuery'
 import type { AuthUser } from '../../types/auth'
 
 type UserRole = AuthUser['role']
@@ -149,6 +151,13 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const user = useAuthStore((s) => s.user)
+  const activeBranchId = useBranchStore((s) => s.activeBranchId)
+  const { data: branches } = useBranchesQuery()
+
+  const isOwner = user?.role === 'OWNER'
+  const isGlobalView = isOwner && activeBranchId === null
+  const activeBranch = branches?.find((b) => b.id === activeBranchId)
+  const contextLabel = isGlobalView ? 'Vista Global' : (activeBranch?.name ?? 'Punto de Venta')
 
   const handleNavigate = (path: string) => {
     navigate(path)
@@ -171,118 +180,132 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         >
           QuickStack
         </Typography>
-        <Typography
-          sx={{
-            color: S.sectionLabel,
-            fontSize: '0.6875rem',
-            mt: 0.25,
-            fontFamily: '"Inter", sans-serif',
-          }}
-        >
-          Punto de Venta
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+          {isGlobalView && (
+            <GlobalIcon sx={{ fontSize: 11, color: S.sectionLabel }} />
+          )}
+          <Typography
+            sx={{
+              color: S.sectionLabel,
+              fontSize: '0.6875rem',
+              fontFamily: '"Inter", sans-serif',
+            }}
+          >
+            {contextLabel}
+          </Typography>
+        </Box>
       </Box>
 
-      <SectionLabel>Operaciones</SectionLabel>
-      <List disablePadding>
-        <NavItem
-          icon={<HomeIcon />}
-          label="Dashboard"
-          path="/dashboard"
-          active={location.pathname === '/dashboard'}
-          onClick={handleNavigate}
-        />
-        <NavItem
-          icon={<ShoppingCartIcon />}
-          label="Catálogo"
-          path="/pos/catalog"
-          active={location.pathname.startsWith('/pos')}
-          onClick={handleNavigate}
-        />
-        <NavItem
-          icon={<ReceiptIcon />}
-          label="Pedidos"
-          path="/orders"
-          active={location.pathname.startsWith('/orders')}
-          onClick={handleNavigate}
-        />
-        <NavItem
-          icon={<InventoryIcon />}
-          label="Inventario"
-          path="/inventory"
-          active={false}
-          disabled
-          secondary="Próximamente"
-          onClick={handleNavigate}
-        />
-        {hasMinRole(user?.role, 'MANAGER') && (
-          <NavItem
-            icon={<AssessmentIcon />}
-            label="Reportes"
-            path="/admin/reports"
-            active={location.pathname.startsWith('/admin/reports')}
-            onClick={handleNavigate}
-          />
-        )}
-      </List>
-
-      {hasMinRole(user?.role, 'CASHIER') && (
+      {isGlobalView ? (
+        /* ── Owner Global View ── */
         <>
-          <SectionLabel>Administración</SectionLabel>
+          <SectionLabel>Gestión Global</SectionLabel>
           <List disablePadding>
-            {hasMinRole(user?.role, 'MANAGER') && (
-              <NavItem
-                icon={<CategoryIcon />}
-                label="Categorías"
-                path="/admin/categories"
-                active={location.pathname.startsWith('/admin/categories')}
-                onClick={handleNavigate}
-              />
-            )}
-            {hasMinRole(user?.role, 'MANAGER') && (
-              <NavItem
-                icon={<InventoryIcon />}
-                label="Productos"
-                path="/admin/products"
-                active={location.pathname.startsWith('/admin/products')}
-                onClick={handleNavigate}
-              />
-            )}
-            {hasMinRole(user?.role, 'MANAGER') && (
-              <NavItem
-                icon={<LocalOfferIcon />}
-                label="Combos"
-                path="/admin/combos"
-                active={location.pathname.startsWith('/admin/combos')}
-                onClick={handleNavigate}
-              />
-            )}
-            {hasMinRole(user?.role, 'OWNER') && (
-              <NavItem
-                icon={<StoreIcon />}
-                label="Sucursales"
-                path="/admin/branches"
-                active={location.pathname.startsWith('/admin/branches')}
-                onClick={handleNavigate}
-              />
-            )}
-            {hasMinRole(user?.role, 'OWNER') && (
-              <NavItem
-                icon={<PeopleIcon />}
-                label="Usuarios"
-                path="/admin/users"
-                active={location.pathname.startsWith('/admin/users')}
-                onClick={handleNavigate}
-              />
-            )}
+            <NavItem
+              icon={<StoreIcon />}
+              label="Sucursales"
+              path="/admin/branches"
+              active={location.pathname.startsWith('/admin/branches')}
+              onClick={handleNavigate}
+            />
             <NavItem
               icon={<PeopleIcon />}
-              label="Clientes"
-              path="/admin/customers"
-              active={location.pathname.startsWith('/admin/customers')}
+              label="Usuarios"
+              path="/admin/users"
+              active={location.pathname.startsWith('/admin/users')}
+              onClick={handleNavigate}
+            />
+            <NavItem
+              icon={<AssessmentIcon />}
+              label="Reportes globales"
+              path="/admin/reports"
+              active={false}
+              disabled
+              secondary="Próximamente"
               onClick={handleNavigate}
             />
           </List>
+        </>
+      ) : (
+        /* ── Branch / Manager View ── */
+        <>
+          <SectionLabel>Operaciones</SectionLabel>
+          <List disablePadding>
+            <NavItem
+              icon={<ShoppingCartIcon />}
+              label="Catálogo"
+              path="/admin/catalog"
+              active={location.pathname.startsWith('/admin/catalog')}
+              onClick={handleNavigate}
+            />
+            <NavItem
+              icon={<ReceiptIcon />}
+              label="Pedidos"
+              path="/admin/orders"
+              active={location.pathname.startsWith('/admin/orders')}
+              onClick={handleNavigate}
+            />
+            <NavItem
+              icon={<InventoryIcon />}
+              label="Inventario"
+              path="/inventory"
+              active={false}
+              disabled
+              secondary="Próximamente"
+              onClick={handleNavigate}
+            />
+          </List>
+
+          {hasMinRole(user?.role, 'CASHIER') && (
+            <>
+              <SectionLabel>Administración</SectionLabel>
+              <List disablePadding>
+                {hasMinRole(user?.role, 'MANAGER') && (
+                  <NavItem
+                    icon={<AssessmentIcon />}
+                    label="Reporte del día"
+                    path="/admin/reports"
+                    active={location.pathname.startsWith('/admin/reports')}
+                    onClick={handleNavigate}
+                  />
+                )}
+                {hasMinRole(user?.role, 'MANAGER') && (
+                  <NavItem
+                    icon={<CategoryIcon />}
+                    label="Categorías"
+                    path="/admin/categories"
+                    active={location.pathname.startsWith('/admin/categories')}
+                    onClick={handleNavigate}
+                  />
+                )}
+                {hasMinRole(user?.role, 'MANAGER') && (
+                  <NavItem
+                    icon={<InventoryIcon />}
+                    label="Productos"
+                    path="/admin/products"
+                    active={location.pathname.startsWith('/admin/products')}
+                    onClick={handleNavigate}
+                  />
+                )}
+                {hasMinRole(user?.role, 'MANAGER') && (
+                  <NavItem
+                    icon={<LocalOfferIcon />}
+                    label="Combos"
+                    path="/admin/combos"
+                    active={location.pathname.startsWith('/admin/combos')}
+                    onClick={handleNavigate}
+                  />
+                )}
+                <NavItem
+                  icon={<PeopleIcon />}
+                  label="Clientes"
+                  path="/admin/customers"
+                  active={location.pathname.startsWith('/admin/customers')}
+                  onClick={handleNavigate}
+                />
+              </List>
+            </>
+          )}
         </>
       )}
 
