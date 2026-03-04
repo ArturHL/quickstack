@@ -3,16 +3,23 @@ package com.quickstack.user.service;
 import com.quickstack.common.exception.ApiException;
 import com.quickstack.common.security.PasswordBreachChecker;
 import com.quickstack.common.security.PasswordService;
+import com.quickstack.user.dto.request.UserUpdateAdminRequest;
+import com.quickstack.user.dto.response.UserResponse;
 import com.quickstack.user.entity.User;
 import com.quickstack.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for user management operations.
@@ -36,14 +43,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final PasswordBreachChecker breachChecker;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserService(
             UserRepository userRepository,
             PasswordService passwordService,
-            PasswordBreachChecker breachChecker) {
+            PasswordBreachChecker breachChecker,
+            JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.breachChecker = breachChecker;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
@@ -142,9 +152,78 @@ public class UserService {
         log.info("Password changed for user: userId={}", userId);
     }
 
+    /**
+     * Find a single user as a UserResponse (including roleCode).
+     */
+    public UserResponse getUserResponse(UUID tenantId, UUID userId) {
+        User user = userRepository.findByTenantIdAndId(tenantId, userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+        Map<UUID, String> roleCodes = fetchAllRoleCodes();
+        return UserResponse.from(user, roleCodes.get(user.getRoleId()));
+    }
+
+    /**
+     * List users within a tenant with optional search filter.
+     */
+    public Page<UserResponse> listUsers(UUID tenantId, String search, Pageable pageable) {
+        Map<UUID, String> roleCodes = fetchAllRoleCodes();
+        String effectiveSearch = (search != null && search.isBlank()) ? null : search;
+        return userRepository.findByTenantIdAndSearch(tenantId, effectiveSearch, pageable)
+            .map(user -> UserResponse.from(user, roleCodes.get(user.getRoleId())));
+    }
+
+    /**
+     * Update a user's profile fields (fullName, phone, roleId).
+     * Email and password cannot be changed via this method.
+     */
+    @Transactional
+    public UserResponse updateUser(UUID tenantId, UUID userId, UUID requestingUserId, UserUpdateAdminRequest request) {
+        User user = userRepository.findByTenantIdAndId(tenantId, userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (request.fullName() != null && !request.fullName().isBlank()) {
+            user.setFullName(request.fullName());
+        }
+        if (request.phone() != null) {
+            user.setPhone(request.phone().isBlank() ? null : request.phone());
+        }
+        if (request.roleId() != null) {
+            user.setRoleId(request.roleId());
+        }
+        user.setUpdatedBy(requestingUserId);
+
+        User saved = userRepository.save(user);
+        Map<UUID, String> roleCodes = fetchAllRoleCodes();
+        log.info("[USER] ACTION=UPDATE tenantId={} userId={} requestedBy={}", tenantId, userId, requestingUserId);
+        return UserResponse.from(saved, roleCodes.get(saved.getRoleId()));
+    }
+
+    /**
+     * Soft-delete a user. A user cannot deactivate themselves.
+     */
+    @Transactional
+    public void deactivateUser(UUID tenantId, UUID userId, UUID requestingUserId) {
+        if (userId.equals(requestingUserId)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "SELF_DELETE", "Cannot deactivate your own account");
+        }
+        User user = userRepository.findByTenantIdAndId(tenantId, userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.softDelete(requestingUserId);
+        userRepository.save(user);
+        log.info("[USER] ACTION=DEACTIVATE tenantId={} userId={} requestedBy={}", tenantId, userId, requestingUserId);
+    }
+
     // -------------------------------------------------------------------------
     // Helper methods
     // -------------------------------------------------------------------------
+
+    private Map<UUID, String> fetchAllRoleCodes() {
+        return jdbcTemplate.query(
+            "SELECT id::text, code FROM roles",
+            (rs, i) -> Map.entry(UUID.fromString(rs.getString("id")), rs.getString("code"))
+        ).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 
     private String maskEmail(String email) {
         if (email == null || email.length() < 4) {

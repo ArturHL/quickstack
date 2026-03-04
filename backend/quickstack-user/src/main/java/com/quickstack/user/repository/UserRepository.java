@@ -1,6 +1,8 @@
 package com.quickstack.user.repository;
 
 import com.quickstack.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -52,4 +54,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.deletedAt IS NULL")
     Optional<User> findByEmailGlobal(@Param("email") String email);
+
+    /**
+     * List active users within a tenant with optional search filter.
+     * Searches by email or fullName (case-insensitive).
+     */
+    @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId AND u.deletedAt IS NULL " +
+           "AND (:search IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<User> findByTenantIdAndSearch(
+        @Param("tenantId") UUID tenantId,
+        @Param("search") String search,
+        Pageable pageable
+    );
 }
