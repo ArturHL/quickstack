@@ -19,28 +19,22 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 
 ## Estado Actual
 
-**Phase 0 (Foundation)** | **✅ 100% COMPLETADA**
+**Phase 0 (Foundation)** | **✅ COMPLETADA**
 
-- **0.1-0.2**: Infraestructura, CI/CD, Deploy (Render + Vercel + Neon)
-- **0.3**: Auth Backend — 340 tests | 8 endpoints | ASVS L2: V2 26%, V3 74%, V6 56%
-- **0.4**: Auth Frontend — 38 tests | Auth flow completo | Dashboard + Layout
+**Phase 1 (Core POS)** | **✅ COMPLETADA** — Backend: ~1,060 tests | Frontend: 319 tests
+- 1.1–1.3: Backend completo (catálogo, pedidos, pagos, reportes) — 28 endpoints
+- 1.4: Frontend POS base — 244 tests
+- 1.5: Estabilización Admin (categorías, variantes, modificadores, combos, reportes) — 75 tests nuevos
 
-**Phase 1 (Core POS)** | **⏳ EN PROGRESO** — 4 sub-fases (11 semanas)
+**Phase 2 (UX Roles + Piloto)** | **⏳ EN PROGRESO**
+- Enrutamiento por roles: /waiter, /cashier, /kitchen, /admin ✅
+- Comanda Edge design system en layouts ✅
+- Pendiente: CashierPos UI, User Management, deprecar /pos/*
 
-- **1.1**: Catálogo Base — Categorías + Productos + Variantes + Menú POS | ✅ COMPLETADA (6/6 sprints) | 20 endpoints | ~650 tests backend
-- **1.2**: Modifiers + Combos (2 sem) — Personalización avanzada | ✅ COMPLETADA (4/4 sprints) | 15 endpoints (9 modifiers + 5 combos + 1 menu actualizado) | ~183 tests nuevos
-- **1.3**: Pedidos + Pagos (3 sem) — Sistema completo de órdenes | ✅ COMPLETADA (6/6 sprints) | Sprint 1: Branch/Area/Table ✅ | Sprint 2: Customer ✅ | Sprint 3: Order Core ✅ | Sprint 4: Order Management API ✅ | Sprint 5: Payments ✅ | Sprint 6: Reporting ✅ | 28 endpoints | ~1,060 tests total
-- **1.4**: Frontend POS (3 sem) — UI completa del punto de venta | ✅ COMPLETADA (6/6 sprints) | 244 tests frontend
-  - Sprint 1 ✅: Catálogo (ProductCard, ProductCatalog, /pos/catalog)
-  - Sprint 2 ✅: ProductDetail + CartStore (VariantSelector, ModifierGroup, ProductDetailModal)
-  - Sprint 3 ✅: Carrito + Flujo Servicio (CartItem, Cart, ServiceTypeSelector, TableSelector, CustomerSelector, rutas /pos/new /pos/cart /pos/new/table /pos/new/customer)
-  - Sprint 4 ✅: Order Creation + Payment (Tarea B.1 backend ✅, Order.ts, orderApi, mutations, orderUtils, PaymentForm, PaymentPage, OrderConfirmationPage, posStore, /pos/payment /pos/confirmation)
-  - Sprint 5 ✅: Admin CRUD (ProductList, ProductForm, BranchList, BranchForm, BranchSelector, AreaList, AreaForm, TableList, TableForm, CustomerList, RoleProtectedRoute, adminRoutes, Sidebar admin section)
-  - Sprint 6 ✅: Order Management (OrderList, OrderDetail, orderRoutes, useOrdersQuery, useCancelOrderMutation, useMarkReadyMutation, Sidebar pedidos link)
+**Horizonte Piloto**: ADMIN + CASHIER funcionales → lanzar para feedback real
+**Horizonte MVP (6 meses)**: Inventario por receta + Registro de gastos + WAITER + KDS + Bot WhatsApp
 
-**Phase 1 COMPLETADA** — Backend: ~1,060 tests | Frontend: 244 tests
-
-Ver: `docs/ROADMAP.md` | `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
+Ver: `docs/ROADMAP.md` | `docs/ARCHITECTURE.md`
 
 ## Comandos
 

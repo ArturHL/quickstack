@@ -1,13 +1,33 @@
-# QuickStack POS - Roadmap del MVP
+# QuickStack — Roadmap
 
-> **Última actualización:** 2026-03-02
-> **Estado:** Phase 1.4 ✅ COMPLETADA | Phase 1.5 ⏳ EN PROGRESO (Estabilización — bugs producción + flujos faltantes)
+> **Última actualización:** 2026-03-04
+> **Estado:** Phase 1 ✅ COMPLETADA | Phase 2 (UX Roles + Piloto) ⏳ EN PROGRESO
 
 ## Vision Summary
 
-Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsApp/IA que permita a restaurantes mexicanos gestionar pedidos, ventas, inventario y reportes básicos, validado con un restaurante piloto antes del lanzamiento comercial.
+QuickStack no es solo un POS — es el **sistema de gestión automatizada del restaurante mexicano**. El POS es el punto de entrada; el verdadero valor está en darle al dueño visibilidad financiera y automatización que hoy no tiene: saber exactamente qué vendió, cuánto le costó, qué necesita comprar y cómo está creciendo su negocio — sin trabajo manual.
 
-**Timeline:** 6 meses hasta piloto validado.
+### Usuario Central: El Dueño del Restaurante Pequeño Mexicano
+
+El usuario que diseña cada decisión de producto es el OWNER de un restaurante pequeño: hace de gerente, comprador, cajero y repartidor al mismo tiempo. **Hoy opera completamente ciego** — sin registros de gastos, sin inventario, sin reportes financieros. Está en una situación económica crítica y busca crecer, pero no tiene datos para decidir.
+
+La promesa del producto:
+> *"QuickStack te dice qué vendiste, cuánto te costó y qué necesitas comprar — sin que tengas que hacer nada manualmente."*
+
+### Diferenciadores clave
+- **UX por rol y dispositivo** — cada persona en el restaurante tiene una interfaz optimizada para su tarea y dispositivo (no una sola pantalla genérica para todos)
+- **Automatización progresiva** — desde el auto-descuento de inventario hasta bots que registran gastos por foto de ticket
+- **Precio accesible** para el mercado mexicano (vs. Revel, Toast, Lightspeed)
+- **Visión a largo plazo**: BI interno, publicidad dinámica, pedidos sin cajero, pagos en línea
+
+### Dos horizontes distintos
+
+| Horizonte | Definición | Objetivo |
+|-----------|-----------|----------|
+| **Piloto** | Software funcional con lo mínimo necesario | Lanzar cuanto antes para recibir feedback real de operación |
+| **MVP** | Producto diferenciado y comercializable | 6 meses. Incluye inventario, bot, todos los roles operativos |
+
+**Timeline:** 6 meses hasta MVP comercializable. El Piloto se lanza en cuanto Phase 2 esté completa.
 
 ---
 
@@ -28,26 +48,22 @@ Sistema de punto de venta multi-sucursal con inventario automático y bot WhatsA
 
 ## Resumen de Fases
 
-| Fase | Nombre | Objetivo | Estado |
-|------|--------|----------|--------|
-| 0 | Foundation | Auth nativo (ASVS L2) + BD + Deploy + CI/CD | ✅ 100% (0.1-0.4 completadas) |
-| 1 | Core POS | Crear pedidos con productos, variantes, modificadores | ✅ 100% (1.1-1.4 completadas) |
-| 1.5 | Estabilización | Bugs producción + flujos admin faltantes (categorías, variantes, modificadores, combos, reportes) | ⏳ En Progreso (Sprint 1/5) |
-| 2 | Inventory Management | Ingredientes, recetas, descuento automático de stock | ⏳ Pendiente |
-| 3 | Digital Tickets & KDS | Tickets digitales (WhatsApp/Email) + KDS en tiempo real | ⏳ Pendiente |
-| 4 | Basic Reporting | Dashboard de ventas día/semana/mes | ⏳ Pendiente |
-| 5 | WhatsApp Bot | Pedidos con IA integrados al POS | ⏳ Pendiente |
-| 6 | Polish & Tables | Bugs, UX, mesas/áreas, onboarding, validación final | ⏳ Pendiente |
+| Fase | Nombre | Objetivo | Horizonte | Estado |
+|------|--------|----------|-----------|--------|
+| 0 | Foundation | Auth ASVS L2 + BD + Deploy + CI/CD | - | ✅ COMPLETADA |
+| 1 | Core POS Backend + UI Base | Pedidos, pagos, catálogo, admin UI completa | - | ✅ COMPLETADA (1.1–1.5) |
+| **2** | **UX Roles + Piloto** | CashierPos, User Management, separar /pos → /cashier+/admin, Admin dual-view | **Piloto** | ⏳ EN PROGRESO |
+| **3** | **Owner Intelligence** | Inventario por receta + auto-descuento, Registro de gastos, Lista de compras, P&L real | **MVP** | ⏳ Pendiente |
+| **4** | **Operations Scale** | WAITER app, KDS, Bot WhatsApp, métodos de pago adicionales | **MVP** | ⏳ Pendiente |
+| 5+ | Post-MVP | PACKER, DELIVERY, PRODUCTION, SaaS billing, BI/ML, multi-sucursal comercial | Post-MVP | ⏳ Futuro |
 
 ---
 
 ## Critical Path
 
 ```
-Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
+Phase 0 ✅ → Phase 1 ✅ → Phase 2 (Piloto) → Phase 3 (Owner Intelligence) → Phase 4 (Operations) → MVP
 ```
-
-> Phase 4 y 5 pueden desarrollarse en paralelo si es necesario acelerar.
 
 ---
 
@@ -380,7 +396,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 ### Phase 1.4: Frontend POS
 
-**Duración:** 3 semanas (6 sprints) | **Status:** ⏳ En Progreso (5/6 sprints) | **Tests:** 226 frontend
+**Duración:** 3 semanas (6 sprints) | **Status:** ✅ COMPLETADA (6/6 sprints) | **Tests:** 244 frontend
 
 > **Roadmap detallado:** `docs/roadmap/PHASE_1.4_FRONTEND_POS.md`
 
@@ -402,31 +418,219 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 - [x] Gestión de clientes (admin) — Sprint 5
 - [x] BranchSelector en TopBar con auto-select — Sprint 5
 - [x] RoleProtectedRoute + adminRoutes + Sidebar admin section — Sprint 5
-- [ ] Vista de pedidos del día con filtros — Sprint 6
-- [ ] Polish, responsive, empty states, error handling — Sprint 6
-- [x] 226 tests frontend (Sprint 1-5)
+- [x] Vista de pedidos del día con filtros — Sprint 6
+- [x] Polish, responsive, empty states, error handling — Sprint 6
+- [x] 244 tests frontend (Sprint 1-6)
 
 ---
 
-## Phase 2: Inventory Management
+### Phase 1.5: Estabilización Admin ✅
 
-**Goal**: Gestión de inventario con descuento automático de stock basado en recetas.
+**Status:** COMPLETADA (5/5 sprints) | **Tests nuevos:** 75 frontend
 
-**Dependencies**: Phase 1 validado con piloto
+- [x] Sprint 1: categoryApi, hooks CRUD categorías, CategoryList, CategoryForm, /admin/categories, fix SKU auto-uppercase
+- [x] Sprint 2: variantApi, ProductForm modo edición con carga/edición/eliminación de variantes
+- [x] Sprint 3: modifierApi, hooks, ModifierGroupList (acordeón), ModifierGroupForm, ModifierList, ModifierForm, integrado en ProductFormPage
+- [x] Sprint 4: comboApi, hooks, ComboList, ComboForm (selector de productos), /admin/combos
+- [x] Sprint 5: reportApi, DailySummaryPage (métricas + top productos + date picker), /admin/reports
 
-**Est. Effort:** 4-5 semanas
+---
 
-### Scope de Phase 2
+## Phase 2: UX Roles + Piloto
 
-**Features de inventario:**
-- Ingredientes con unidades de medida
-- Recetas por producto/variante
-- Descuento automático de stock al cerrar pedido
-- Alertas de stock bajo
-- Órdenes de compra a proveedores
-- Historial de movimientos de stock (audit trail)
+**Goal**: Separar responsabilidades del /pos/* genérico en interfaces especializadas por rol. Lanzar el piloto.
+
+**Dependencies**: Phase 1 completada ✅
+
+**Horizonte**: **Piloto** — lanzar con ADMIN + CASHIER funcionales.
+
+### Decisiones de arquitectura
+
+- `/pos/*` se **depreca completamente**. Sus responsabilidades se distribuyen:
+  - `/cashier/*` — flujo transaccional (catálogo → carrito → cobro en efectivo)
+  - `/admin/*` — gestión (productos, categorías, combos, clientes, reportes, usuarios)
+- **Admin dual-view sin cuenta separada**: un usuario con rol `ADMIN` puede ver el contexto de Owner (global, todas las sucursales) o Manager (operativo, una sucursal) según el branch seleccionado. No hay toggle explícito — el branch selector es el disparador de contexto.
+- Piloto opera con **una sola sucursal, pago en efectivo**.
 
 ### Entregables
+
+#### CashierPos (`/cashier/pos`)
+- [ ] Portar `ProductCatalog` al `CashierLayout` (split-screen: catálogo izquierda, carrito derecha)
+- [ ] Integrar `CartStore` y `PaymentForm` en el flujo de Cashier
+- [ ] Manejo de tipos de servicio: COUNTER y TAKEOUT (los más comunes en mostrador)
+- [ ] Cobro en efectivo con cálculo de cambio
+- [ ] Confirmación de orden
+- [ ] Deprecar rutas `/pos/*` y redirigir a las nuevas
+
+#### User Management (`/admin/users`)
+- [ ] Backend: endpoint CRUD de usuarios (`POST /api/v1/users`, `GET`, `PUT`, `DELETE`)
+- [ ] Registro de roles disponibles: CASHIER, WAITER, KITCHEN, ADMIN
+- [ ] Frontend: UserList, UserForm en `/admin/users`
+- [ ] ADMIN puede crear/desactivar cajeros y futuros meseros desde la app
+
+#### Admin dual-view
+- [ ] Selector de sucursal en TopBar: "Todas las sucursales" → Owner view | sucursal específica → Manager view
+- [ ] Owner view: métricas globales, gestión de sucursales, gestión de usuarios
+- [ ] Manager view: catálogo activo, mesas, reportes de la sucursal, acciones rápidas
+
+### Success Criteria — Piloto
+
+- OWNER puede crear un usuario cajero desde la app
+- CASHIER puede completar una venta de mostrador (seleccionar productos → carrito → cobro en efectivo → confirmación) en < 60 segundos
+- ADMIN ve reporte de ventas del día
+- El restaurante piloto puede operar un turno completo sin papel ni sistema externo para el flujo básico
+
+---
+
+## Phase 3: Owner Intelligence
+
+**Goal**: Darle al OWNER visibilidad financiera real por primera vez. Esta fase es el núcleo del diferenciador del producto.
+
+**Dependencies**: Phase 2 (Piloto) lanzado y con datos reales
+
+**Horizonte**: **MVP**
+
+### El problema que resuelve
+
+El OWNER opera completamente de memoria: no registra gastos, no lleva inventario y no sabe su margen. Esta fase cierra ese gap con datos que el sistema ya genera (órdenes, pagos) más información que el OWNER empieza a registrar (gastos, stock inicial).
+
+### La cadena de valor
+
+```
+CASHIER cierra orden
+    → auto-descuento de ingredientes según receta
+        → sistema detecta stock bajo
+            → genera lista de compras automática
+
+OWNER registra gasto de compra
+    → sistema acumula costos del período
+        → Reporte P&L: Ventas − Costos = Margen (primera vez en su vida)
+```
+
+### Entregables
+
+#### Módulo de Inventario (`quickstack-inventory`)
+
+**Backend:**
+- [ ] Entidad `Ingredient` (nombre, unidad, costo por unidad, stock actual, stock mínimo)
+- [ ] Entidad `Recipe` — receta por producto/variante (producto → lista de ingredientes × cantidad)
+- [ ] Entidad `InventoryMovement` — audit trail de cada cambio de stock
+- [ ] Evento al completar pago: auto-deducción de ingredientes según receta de cada item del pedido
+- [ ] API: alertas de stock bajo (ingredientes bajo el mínimo)
+- [ ] API: resumen de COGS (costo de bienes vendidos) por período
+
+**Frontend:**
+- [ ] CRUD de ingredientes con stock actual y unidad de medida
+- [ ] Asociar receta a cada producto/variante (qué ingredientes y en qué cantidad)
+- [ ] Dashboard de inventario: stock actual con alertas visuales (rojo/amarillo/verde)
+- [ ] Historial de movimientos por ingrediente
+
+#### Registro de Gastos (`quickstack-expenses` o extensión de `quickstack-pos`)
+
+**Backend:**
+- [ ] Entidad `Expense` (monto, categoría, descripción, fecha, proveedor opcional)
+- [ ] Categorías predefinidas: Insumos, Nómina, Renta, Servicios, Mantenimiento, Otro
+- [ ] API CRUD de gastos por tenant/sucursal
+
+**Frontend:**
+- [ ] Pantalla de registro de gastos (formulario rápido: monto, categoría, descripción, fecha)
+- [ ] Listado de gastos del período con filtros por categoría y fecha
+- [ ] Resumen de gastos por categoría (visual, torta o barras)
+
+#### Lista de Compras Automática
+
+- [ ] Backend: query que combina stock bajo + consumo histórico promedio → lista priorizada
+- [ ] Frontend: pantalla "Lista de Compras" — generada automáticamente, editable antes de ir al mercado
+- [ ] OWNER puede marcar items como comprados (actualiza stock manualmente si no escaneó ticket)
+
+#### Reporte P&L
+
+- [ ] Backend: endpoint que combina `DailySummary` (ventas) + `Expense` (costos) → margen bruto por período
+- [ ] Frontend: P&L básico — Ventas Totales, Costo de Insumos (COGS), Otros Gastos, **Margen Bruto**
+- [ ] Comparativo semana/mes anterior
+
+### Success Criteria
+
+- Al completar un pedido, el stock de ingredientes se reduce automáticamente sin intervención del OWNER
+- OWNER puede registrar un gasto en menos de 30 segundos
+- El sistema genera la lista de compras del día sin que el OWNER recorra físicamente la cocina
+- OWNER ve por primera vez su margen bruto real (ventas − costos)
+
+---
+
+## Phase 4: Operations Scale
+
+**Goal**: Escalar la operación con todos los roles del día a día activos y el diferenciador del bot.
+
+**Dependencies**: Phase 3 completada (datos financieros confiables)
+
+**Horizonte**: **MVP** — producto que puedes vender
+
+### Entregables
+
+#### WAITER app (`/waiter/*`)
+- [ ] Vista de mesas móvil (mapa por área, status con colores)
+- [ ] Toma de órdenes con Bottom Navigation y modales de modificadores
+- [ ] Botón flotante "Enviar a Cocina"
+- [ ] Estado de las órdenes de su turno
+- [ ] Solicitar cuenta → notifica a cajero
+
+#### KDS — Kitchen Display System (`/kitchen/*`)
+- [ ] KitchenBoard: Kanban oscuro con tickets por mesa/folio
+- [ ] Polling cada 5-10 segundos (suficiente para MVP; WebSockets en Phase 5+)
+- [ ] Marcar ticket como listo → dispara estado READY
+- [ ] Alerta visual/sonora en ticket nuevo
+- [ ] Modificadores resaltados ("Sin cebolla", "Término medio")
+
+#### Bot WhatsApp (n8n)
+- [ ] Registro de gastos por foto de ticket (OCR → categoriza → registra en `quickstack-expenses`)
+- [ ] Notificación al OWNER: resumen de ventas al cierre del día por WhatsApp
+- [ ] Notificación al cliente: comprobante de pago digital (elimina impresora)
+
+#### Métodos de pago adicionales
+- [ ] Tarjeta (registro manual — la terminal es externa, el sistema solo registra)
+- [ ] Pago mixto (efectivo + tarjeta en un mismo pedido)
+- [ ] QR/SPEI (fase futura o post-MVP si la integración es compleja)
+
+### Success Criteria — MVP completo
+
+- Mesero puede tomar y enviar una orden desde su móvil sin ir a caja
+- Cocina ve las comandas en pantalla sin necesidad de tickets impresos
+- OWNER recibe resumen de ventas por WhatsApp al final del día
+- OWNER puede registrar un gasto enviando una foto del recibo al bot
+
+---
+
+## Phase 5+: Post-MVP
+
+Estas features son visión de producto confirmada, pero no entran en el horizonte de 6 meses.
+
+| Feature | Descripción |
+|---------|-------------|
+| PACKER role | Checklist de empaque, puente KITCHEN → DELIVERY |
+| DELIVERY role | App móvil para repartidores, mapa, swipe de confirmación |
+| PRODUCTION role | Prep list, batch tracking, registro de mermas |
+| SaaS billing | Planes, cobro mensual, facturación automática |
+| KDS WebSockets | Tiempo real sin polling (reemplaza Phase 4 polling) |
+| Multi-sucursal comercial | Gestión de franquicias y cadenas de múltiples dueños |
+| Self-service QR | Cliente pide desde su teléfono escaneando QR de la mesa |
+| BI / ML | Predicción de demanda, publicidad dinámica, optimización de menú |
+| Pagos en línea | Integración con Stripe/Clip/Conekta para cobro en app |
+
+---
+
+## Registro de Decisiones Clave (ADR Summary)
+
+| Decisión | Descripción |
+|----------|-------------|
+| **Piloto ≠ MVP** | Piloto = lanzar ASAP con ADMIN+CASHIER para feedback real. MVP = producto diferenciado, 6 meses. |
+| **OWNER es el usuario #1** | Toda decisión de prioridad se evalúa por cuánto trabajo le quita al dueño del restaurante. |
+| **/pos/* deprecado** | Las responsabilidades se separan: `/cashier/*` (transaccional) y `/admin/*` (gestión). |
+| **Admin dual-view sin cuenta separada** | OWNER y MANAGER son perspectivas UX de un mismo rol `ADMIN`. Branch selector = disparador de contexto. |
+| **Inventario por receta** | Nivel ingrediente × cantidad exacta. Auto-deducción al completar pago. |
+| **KDS con polling en MVP** | WebSockets se pospone a Phase 5+. Polling cada 5-10s es suficiente para el volumen del piloto. |
+| **Kitchen en Phase 4, no Piloto** | El piloto opera sin KDS. Se agrega cuando WAITER también esté activo. |
+| **Impresora es goal, no requerimiento** | El objetivo es eliminar la impresora con tickets digitales (bot), pero no bloquea el piloto. |
 
 #### Backend
 - [ ] CRUD de ingredientes (nombre, unidad, cost_per_unit, stock actual/mínimo)
@@ -460,240 +664,6 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6
 
 - **Demo con piloto**: Mostrar reducción automática de stock
 - **Pregunta clave**: ¿Elimina el conteo manual de inventario?
-
----
-
-## Phase 3: Digital Tickets & KDS
-
-**Goal**: Tickets digitales enviados por WhatsApp/Email + Kitchen Display System en tiempo real.
-
-**Dependencies**: Phase 1 completado
-
-**Est. Effort:** 4 semanas
-
-### Decisión Clave: NO Impresión Física
-
-- **NO impresoras térmicas** en MVP
-- Tickets digitales enviados **opcionalmente** por cajero
-- Canales: WhatsApp y Email
-- KDS en pantalla de cocina con actualización en tiempo real (WebSockets)
-
-### Decisiones Técnicas
-
-- [ ] Estrategia de notificaciones (n8n + WhatsApp Business API + SMTP)
-- [ ] WebSocket server para KDS real-time updates
-- [ ] Formato de ticket digital (HTML responsive)
-
-### Entregables
-
-#### Backend
-- [ ] Diseño de template HTML de ticket digital (responsive)
-- [ ] API: enviar ticket por WhatsApp (integración n8n)
-- [ ] API: enviar ticket por Email (SMTP)
-- [ ] Registro en notification_logs (audit trail)
-- [ ] WebSocket server: emitir eventos de order status change
-- [ ] API de KDS: obtener pedidos activos por sucursal
-- [ ] API de KDS: actualizar kds_status de order_items
-- [ ] Endpoint de reenvío de tickets históricos
-
-#### Frontend
-- [ ] Botón "Enviar ticket" post-cierre de pedido (modal: WhatsApp o Email)
-- [ ] Input de número WhatsApp/Email en modal
-- [ ] Opción de reenviar tickets desde historial de pedidos
-- [ ] Pantalla KDS (Kitchen Display System)
-- [ ] Vista de pedidos activos agrupados por estado
-- [ ] Drag & drop o botones para cambiar estado de items
-- [ ] Actualización en tiempo real vía WebSocket
-- [ ] Indicador de tiempo transcurrido por pedido
-
-### Success Criteria
-
-- Cajero puede enviar ticket digital por WhatsApp en <10 segundos
-- Ticket digital incluye: fecha, hora, sucursal, items, modificadores, total
-- 100% de envíos registrados en notification_logs
-- KDS muestra pedidos activos en tiempo real
-- Cocina puede marcar items como PREPARING → READY
-- WebSocket actualiza pantallas sin refresh
-
-### Validation Checkpoint
-
-- **Demo con piloto**: Envío de ticket y uso de KDS
-- **Pregunta clave**: ¿Preferible a tickets impresos? ¿KDS mejora flujo de cocina?
-
----
-
-## Phase 4: Basic Reporting
-
-**Goal**: Proveer reportes básicos de ventas.
-
-**Dependencies**: Phase 1 completado, datos reales generándose
-
-**Est. Effort:** 3 semanas
-
-### Entregables
-
-#### Backend
-- [ ] API: métricas del día (total ventas, # pedidos, ticket promedio)
-- [ ] API: reporte de ventas por rango de fechas
-- [ ] API: ventas agrupadas por sucursal
-- [ ] API: productos más vendidos (top 10)
-- [ ] API: ventas por tipo de servicio (DINE_IN/COUNTER/DELIVERY/TAKEOUT)
-- [ ] Exportar reportes a CSV
-
-#### Frontend
-- [ ] Dashboard con métricas del día (cards)
-- [ ] Gráfica de ventas por día (últimos 30 días)
-- [ ] Filtros: sucursal, rango de fechas, tipo de servicio
-- [ ] Tabla de productos más vendidos
-- [ ] Botón "Exportar a CSV"
-
-### Success Criteria
-
-- Admin puede ver ventas totales del día en <5 segundos
-- Gráficas se actualizan al cambiar filtros sin lag
-- Exportación funciona con dataset de 1000+ pedidos
-- Reportes son precisos (match con sumas directas de BD)
-
----
-
-## Phase 5: WhatsApp Bot with AI
-
-**Goal**: Pedidos vía WhatsApp con lenguaje natural integrados al POS.
-
-**Dependencies**: Phase 1 completado (catálogo existe), Phase 3 opcional (reutiliza n8n)
-
-**Est. Effort:** 5-6 semanas
-
-### Decisiones Técnicas
-
-- [ ] Proveedor WhatsApp Business API (Meta Cloud API recomendado)
-- [ ] Modelo de IA (OpenAI GPT-4o-mini recomendado)
-- [ ] Estrategia de context management (conversaciones por cliente)
-
-### Entregables
-
-#### Backend
-- [ ] API: webhook para recibir mensajes de WhatsApp
-- [ ] API: obtener catálogo de productos para IA context
-- [ ] API: crear pedido desde estructura parseada por IA
-- [ ] Validaciones: stock disponible, branch abierto
-
-#### n8n Workflows
-- [ ] Setup WhatsApp Business API
-- [ ] Workflow: recibir mensaje → IA parsea intención → responder
-- [ ] Workflow: crear pedido en POS desde intención confirmada
-- [ ] Workflow: enviar confirmación de pedido al cliente
-- [ ] Manejo de casos edge (producto no existe, fuera de horario)
-- [ ] Configurar horarios de atención por sucursal
-
-#### Frontend
-- [ ] Admin: configuración de horarios de atención
-- [ ] Admin: ver log de conversaciones de WhatsApp
-- [ ] Admin: pedidos de WhatsApp marcados con source=WHATSAPP
-
-### Success Criteria
-
-- Bot entiende 80%+ de pedidos simples en lenguaje natural
-- Pedidos de bot aparecen en POS marcados como source="WHATSAPP"
-- Bot responde en <10 segundos
-- Bot maneja casos edge sin romper conversación
-- Piloto recibe ≥20% de pedidos vía WhatsApp después de 2 semanas
-
-### Validation Checkpoint
-
-- **Pregunta clave**: ¿Clientes prefieren WhatsApp vs. llamada telefónica?
-
----
-
-## Phase 6: Polish & Pilot Validation
-
-**Goal**: Refinar producto, agregar mesas/áreas, y preparar para onboarding de más clientes.
-
-**Dependencies**: Phases 1-5 completados
-
-**Est. Effort:** 3-4 semanas
-
-### Entregables
-
-#### Backend
-- [ ] Optimizaciones de performance (indexing, query optimization)
-- [ ] Rate limiting en APIs públicas
-- [ ] Testing de carga básico (JMeter o similar)
-
-#### Frontend
-- [ ] Fixing de bugs críticos reportados por piloto
-- [ ] Mejoras de UX basadas en uso real
-- [ ] Flujo de onboarding para nuevos restaurantes
-- [ ] Pantalla de gestión de mesas/áreas
-- [ ] Vista de plano de mesas (opcional, simple grid)
-
-#### DevOps
-- [ ] Backup automático de BD (Neon snapshots)
-- [ ] Monitoring básico (uptime, error rate)
-- [ ] Recovery plan documentado
-- [ ] Alertas de errores críticos
-
-#### Documentación
-- [ ] Manual de usuario (PDF o web)
-- [ ] Videos de onboarding (opcional)
-
-### Success Criteria
-
-- Piloto ha operado 100% con QuickStack durante 2+ semanas
-- Cero pérdida de datos
-- Tiempo de setup para nuevo restaurante <2 horas
-- Zero-downtime deployments funcionando
-- Bugs críticos: 0, bugs menores: <5 pendientes
-
----
-
-## Checkpoints de Validación con Piloto
-
-| Milestone | Métrica de Éxito | Señal de Alerta |
-|-----------|-----------------|-----------------|
-| Post-Phase 1 | Piloto usa POS para ≥80% de ventas | Rechazo del sistema, workarounds manuales |
-| Post-Phase 2 | 100% de productos con recetas configuradas | Stock manual sigue siendo necesario |
-| Post-Phase 3 | ≥50% de clientes reciben ticket digital | Clientes solicitan tickets impresos |
-| Post-Phase 4 | Dueño revisa reportes ≥3 veces/semana | Reportes ignorados o erróneos |
-| Post-Phase 5 | ≥20% de pedidos de WhatsApp | Cero adopción después de 2 semanas |
-| Post-Phase 6 | Piloto acepta pagar ≥$500 MXN/mes | Rechazo de pago |
-
----
-
-## Features Explícitamente Fuera del MVP
-
-**Características confirmadas FUERA del alcance inicial:**
-
-- Pagos con tarjeta (solo efectivo en MVP)
-- Pagos parciales / split payments
-- Propinas dentro del sistema
-- Roles mixtos (un usuario = un rol)
-- Integración con Uber Eats / Rappi
-- Programas de lealtad / puntos
-- Facturación electrónica (CFDI)
-- Multi-idioma (solo español)
-- App móvil nativa (solo web responsive)
-- Impresión física de tickets (solo digital)
-- Transferencias de stock entre sucursales (diseñado, no implementado)
-
-**Aclaración sobre multi-sucursal:**
-- Esquema de BD diseñado para multi-sucursal desde el inicio
-- MVP funcionará con **1 sucursal** por tenant
-- Expansión a múltiples sucursales es Phase 7+ (post-piloto)
-
----
-
-## Risk Matrix
-
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|--------------|---------|------------|
-| Free tiers se agotan (Neon/Render) | Media | Alto | Monitoreo diario, upgrade plan ready |
-| Piloto abandona proyecto | Baja | Crítico | Comunicación semanal constante |
-| WhatsApp Business API costoso | Media | Medio | Validar pricing antes de Phase 5 |
-| Bot de IA no es preciso | Alta | Medio | Scope reducido, fallback a humano |
-| Performance issues con inventario | Media | Alto | Load testing, indexing agresivo |
-| WebSockets no escalan | Baja | Alto | Plan B: polling cada 5s |
-| Timeline de 6 meses muy agresivo | Alta | Alto | Priorizar ruthlessly, MVP estricto |
 
 ---
 
