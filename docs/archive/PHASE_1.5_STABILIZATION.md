@@ -2,8 +2,9 @@
 
 > **Versión:** 1.0.0
 > **Fecha:** 2026-03-02
-> **Status:** EN PROGRESO
-> **Objetivo:** Corregir bugs de producción y completar los flujos de UI que quedaron incompletos en Phase 1.4 antes de iniciar Phase 2 (Inventario).
+> **Archivado:** 2026-03-04
+> **Status:** ✅ COMPLETADA (5/5 sprints) — 75 tests nuevos frontend
+> **Objetivo:** Corregir bugs de producción y completar los flujos de UI que quedaron incompletos en Phase 1.4.
 
 ---
 
