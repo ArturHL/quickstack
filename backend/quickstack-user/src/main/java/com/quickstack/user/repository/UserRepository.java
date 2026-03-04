@@ -56,11 +56,21 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmailGlobal(@Param("email") String email);
 
     /**
-     * List active users within a tenant with optional search filter.
-     * Searches by email or fullName (case-insensitive).
+     * List all active users within a tenant (no search filter).
+     */
+    @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId AND u.deletedAt IS NULL")
+    Page<User> findByTenantId(
+        @Param("tenantId") UUID tenantId,
+        Pageable pageable
+    );
+
+    /**
+     * List active users within a tenant filtered by search term.
+     * Search must be non-null and non-blank. Searches email and fullName (case-insensitive).
+     * Split from findByTenantId to avoid Hibernate null-parameter bytea type inference bug.
      */
     @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId AND u.deletedAt IS NULL " +
-           "AND (:search IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "AND (LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<User> findByTenantIdAndSearch(
         @Param("tenantId") UUID tenantId,

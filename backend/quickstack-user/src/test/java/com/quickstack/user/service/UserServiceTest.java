@@ -329,12 +329,12 @@ class UserServiceTest {
     class ListUsersTests {
 
         @Test
-        @DisplayName("should return page with roleCode mapped correctly")
+        @DisplayName("should return page with roleCode mapped correctly (no search)")
         @SuppressWarnings({"unchecked", "rawtypes"})
         void shouldReturnPageWithRoleCode() {
             User user = createTestUser();
             Page<User> userPage = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
-            when(userRepository.findByTenantIdAndSearch(eq(TENANT_ID), isNull(), any()))
+            when(userRepository.findByTenantId(eq(TENANT_ID), any()))
                 .thenReturn(userPage);
             when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                 .thenReturn(List.of(Map.entry(ROLE_ID, "CASHIER")));
@@ -347,16 +347,17 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("should convert blank search to null")
+        @DisplayName("should use findByTenantId for blank search")
         @SuppressWarnings({"unchecked", "rawtypes"})
-        void shouldConvertBlankSearchToNull() {
-            when(userRepository.findByTenantIdAndSearch(eq(TENANT_ID), isNull(), any()))
+        void shouldUseFindByTenantIdForBlankSearch() {
+            when(userRepository.findByTenantId(eq(TENANT_ID), any()))
                 .thenReturn(Page.empty());
             when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(List.of());
 
             userService.listUsers(TENANT_ID, "   ", PageRequest.of(0, 20));
 
-            verify(userRepository).findByTenantIdAndSearch(eq(TENANT_ID), isNull(), any());
+            verify(userRepository).findByTenantId(eq(TENANT_ID), any());
+            verify(userRepository, never()).findByTenantIdAndSearch(any(), any(), any());
         }
     }
 

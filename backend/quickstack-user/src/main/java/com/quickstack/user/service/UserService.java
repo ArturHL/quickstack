@@ -164,12 +164,15 @@ public class UserService {
 
     /**
      * List users within a tenant with optional search filter.
+     * Routes to different repository methods to avoid Hibernate null-parameter bytea bug.
      */
     public Page<UserResponse> listUsers(UUID tenantId, String search, Pageable pageable) {
         Map<UUID, String> roleCodes = fetchAllRoleCodes();
-        String effectiveSearch = (search != null && search.isBlank()) ? null : search;
-        return userRepository.findByTenantIdAndSearch(tenantId, effectiveSearch, pageable)
-            .map(user -> UserResponse.from(user, roleCodes.get(user.getRoleId())));
+        boolean hasSearch = search != null && !search.isBlank();
+        Page<User> page = hasSearch
+            ? userRepository.findByTenantIdAndSearch(tenantId, search, pageable)
+            : userRepository.findByTenantId(tenantId, pageable);
+        return page.map(user -> UserResponse.from(user, roleCodes.get(user.getRoleId())));
     }
 
     /**
