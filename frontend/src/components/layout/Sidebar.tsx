@@ -266,6 +266,15 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                 onClick={handleNavigate}
               />
             )}
+            {hasMinRole(user?.role, 'OWNER') && (
+              <NavItem
+                icon={<PeopleIcon />}
+                label="Usuarios"
+                path="/admin/users"
+                active={location.pathname.startsWith('/admin/users')}
+                onClick={handleNavigate}
+              />
+            )}
             <NavItem
               icon={<PeopleIcon />}
               label="Clientes"

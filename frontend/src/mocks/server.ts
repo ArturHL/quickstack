@@ -9,6 +9,7 @@ import { branchHandlers } from './handlers/branchHandlers'
 import { modifierHandlers } from './handlers/modifierHandlers'
 import { comboHandlers } from './handlers/comboHandlers'
 import { reportHandlers } from './handlers/reportHandlers'
+import { userHandlers } from './handlers/userHandlers'
 
 export const server = setupServer(
   ...authHandlers,
@@ -21,4 +22,5 @@ export const server = setupServer(
   ...modifierHandlers,
   ...comboHandlers,
   ...reportHandlers,
+  ...userHandlers,
 )

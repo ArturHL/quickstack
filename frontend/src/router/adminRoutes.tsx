@@ -6,6 +6,7 @@ import ComboListPage from '../features/products/pages/ComboListPage'
 import BranchListPage from '../features/branches/pages/BranchListPage'
 import CustomerListPage from '../features/customers/pages/CustomerListPage'
 import DailySummaryPage from '../features/reports/pages/DailySummaryPage'
+import UserListPage from '../features/users/pages/UserListPage'
 
 export const adminRoutes = [
   {
@@ -23,6 +24,7 @@ export const adminRoutes = [
     element: <RoleProtectedRoute minRole="OWNER" />,
     children: [
       { path: 'branches', element: <BranchListPage /> },
+      { path: 'users', element: <UserListPage /> },
     ],
   },
   {
