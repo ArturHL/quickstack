@@ -1,5 +1,7 @@
 # Role: MANAGER (Gerente)
 
+> **Estado:** ✅ MVP — Esta perspectiva se implementa en la versión inicial. Comparte rol de sistema `ADMIN` con OWNER. Son dos *vistas* dentro de la misma cuenta, no dos cuentas separadas. El usuario con rol `ADMIN` puede alternar entre la perspectiva de Owner (global) y Manager (operativa de sucursal) desde la interfaz en `/admin/*`.
+
 ## Descripción General
 El `MANAGER` es el administrador operativo de **una sucursal específica**. Su enfoque es asegurar que el restaurante funcione sin problemas durante el día a día, controlando el catálogo, supervisando el personal y resolviendo bloqueos operativos.
 

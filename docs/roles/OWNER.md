@@ -1,5 +1,7 @@
 # Role: OWNER (Dueño)
 
+> **Estado:** ✅ MVP — Esta perspectiva se implementa en la versión inicial. Comparte rol de sistema `ADMIN` con MANAGER. Son dos *vistas* dentro de la misma cuenta, no dos cuentas separadas. En Phase 3+, si el negocio lo requiere, se pueden separar en roles distintos con ACL diferenciada.
+
 ## Descripción General
 El perfil `OWNER` tiene acceso absoluto a todo en el sistema QuickStack POS. Es el administrador maestro del Tenant (franquicia o marca) y su enfoque principal es la rentabilidad, analíticas globales y la configuración estructural del negocio.
 

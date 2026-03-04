@@ -1,7 +1,7 @@
 # QuickStack POS - Arquitectura Técnica
 
-> **Última actualización:** 2026-02-20
-> **Estado del Proyecto:** Fase 1.1 - Catalog Base (En Progreso)
+> **Última actualización:** 2026-03-03
+> **Estado del Proyecto:** Phase 2 — UX Overhaul (En Progreso)
 
 ---
 
@@ -34,18 +34,30 @@
 
 El frontend ha migrado de un tablero monolítico a un modelo de enrutamiento por perfiles UX (Role-Based Vertical Slices). Esto significa que dependiendo del rol del usuario autenticado, el sistema renderiza una interfaz completamente distinta optimizada para su tarea y dispositivo:
 
-| Rol | Ruta Base | Dispositivo Ideal | Flujo UX Principal |
-|-----|-----------|-------------------|--------------------|
-| **WAITER** | `/waiter/*` | Móvil / Tablet | Interfaz táctil con Bottom Navigation. Toma de pedidos rápida y mapa de mesas. |
-| **CASHIER** | `/cashier/*` | Terminal (Desktop) | Pantalla dividida persistente. Catálogo lado a lado con el teclado numérico de cobro. |
-| **KITCHEN** | `/kitchen/*` | Pantalla grande | KDS (Kitchen Display System). Modo oscuro Kanban para completar comandas. |
-| **MANAGER / OWNER** | `/admin/*` | Desktop / Laptop | SaaS Dashboard tradicional con gráficas, barras laterales pesadas y catálogos. |
+| Rol | Ruta Base | Dispositivo Ideal | Flujo UX Principal | MVP |
+|-----|-----------|-------------------|--------------------|-----|
+| **CASHIER** | `/cashier/*` | Terminal (Desktop) | Pantalla dividida persistente. Catálogo lado a lado con el teclado numérico de cobro. | ✅ |
+| **WAITER** | `/waiter/*` | Móvil / Tablet | Interfaz táctil con Bottom Navigation. Toma de pedidos rápida y mapa de mesas. | ✅ |
+| **KITCHEN** | `/kitchen/*` | Pantalla grande | KDS (Kitchen Display System). Modo oscuro Kanban para completar comandas. | ✅ |
+| **ADMIN** | `/admin/*` | Desktop / Laptop | SaaS Dashboard con dos perspectivas internas: *Owner View* (global, multi-sucursal) y *Manager View* (operativo, una sucursal). | ✅ |
+| **PACKER** | `/packer/*` | Tablet / Monitor | Checklist. Verificar órdenes contra ticket, sellar entregas. | ⏳ Post-MVP |
+| **PRODUCTION** | `/production/*` | Tablet Ruged / Monitor | Prep List. Marcar preparación de insumos, batch cooking, loteo. | ⏳ Post-MVP |
+| **DELIVERY** | `/delivery/*` | Teléfono Móvil (Vertical) | App-like. Mapa de ruta, swipe para confirmar entregas. | ⏳ Post-MVP |
 
 El componente central `RoleBasedRedirect` asegura que todos los inicios de sesión deriven automáticamente a la ruta correspondiente, impidiendo el cruce de contextos UX.
 
+### Roles Admin: Una cuenta, dos perspectivas
+
+En el MVP, **OWNER y MANAGER no son cuentas separadas**. Ambas perspectivas se sirven desde un único rol `ADMIN`. El usuario con este rol puede alternar entre dos vistas dentro de `/admin/*`:
+
+- **Owner View** — Enfoque global: métricas multi-sucursal, configuración de suscripción, gestión de personal.
+- **Manager View** — Enfoque operativo: catálogo de la sucursal activa, mesas, reportes de cierre, acciones de emergencia (marcar producto agotado).
+
+Esta separación es de **UX, no de permisos**. En fases futuras (Phase 3+), si el negocio lo requiere, se pueden convertir en roles distintos con ACL diferenciada sin romper el contrato actual.
+
 ---
 
-## 2. Estructura del Repositorio (Monorepo)
+## 3. Estructura del Repositorio (Monorepo)
 
 ```
 quickstack-pos/
@@ -57,7 +69,7 @@ quickstack-pos/
 
 ---
 
-## 2. Backend: Arquitectura de Monolito Modular
+## 4. Backend: Arquitectura de Monolito Modular
 
 El backend está organizado en módulos de Maven siguiendo el principio de **"Package by Feature"**, lo que permite una alta cohesión interna y un bajo acoplamiento entre funcionalidades.
 
@@ -139,7 +151,7 @@ graph TD
 
 ---
 
-## 3. Estrategia de Multi-tenancy
+## 5. Estrategia de Multi-tenancy
 
 **Aislamiento:** Base de datos compartida con discriminador `tenant_id` en todas las tablas de dominio.
 
@@ -151,7 +163,7 @@ graph TD
 
 ---
 
-## 4. Seguridad (OWASP ASVS L2)
+## 6. Seguridad (OWASP ASVS L2)
 
 ### Autenticación y Sesión
 *   **Algoritmo JWT:** RS256 (Firma Asimétrica) con rotación de claves soportada.
@@ -166,7 +178,7 @@ graph TD
 
 ---
 
-## 5. Estrategia de Testing
+## 7. Estrategia de Testing
 
 | Tipo de Test | Ubicación | Herramientas | Propósito |
 |--------------|-----------|--------------|-----------|
@@ -176,7 +188,7 @@ graph TD
 
 ---
 
-## 6. Diagrama de Arquitectura Global
+## 8. Diagrama de Arquitectura Global
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -218,6 +230,13 @@ graph TD
 ---
 
 ## Registro de Cambios (Changelog)
+
+### 2026-03-03
+*   **Phase 2 — UX Overhaul iniciado:** Migración de monolito UI a arquitectura de interfaces por rol.
+*   **Enrutamiento por roles:** Implementación de `RoleBasedRedirect`, `WaiterLayout`, `CashierLayout`, `KitchenLayout`. Rutas activas: `/waiter`, `/cashier`, `/kitchen`, `/admin`.
+*   **Sistema de Diseño "Comanda Edge":** Aplicado en los layouts de roles operativos (tipografía tabular, modo oscuro en Kitchen).
+*   **Documentación de roles:** Creación de `docs/roles/` con perfiles UX para todos los roles (MVP y Post-MVP).
+*   **ADR Admin dual-view:** OWNER y MANAGER comparten rol `ADMIN` con dos perspectivas internas de UX hasta Phase 3+.
 
 ### 2026-02-20
 *   **Modularización del Backend:** Extracción de `quickstack-auth` para centralizar la infraestructura de seguridad.
