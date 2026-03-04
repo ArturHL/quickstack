@@ -30,7 +30,22 @@
 
 ---
 
-## 1. Estructura del Repositorio (Monorepo)
+## 1. Arquitectura Frontend (Interfaces por Rol)
+
+El frontend ha migrado de un tablero monolítico a un modelo de enrutamiento por perfiles UX (Role-Based Vertical Slices). Esto significa que dependiendo del rol del usuario autenticado, el sistema renderiza una interfaz completamente distinta optimizada para su tarea y dispositivo:
+
+| Rol | Ruta Base | Dispositivo Ideal | Flujo UX Principal |
+|-----|-----------|-------------------|--------------------|
+| **WAITER** | `/waiter/*` | Móvil / Tablet | Interfaz táctil con Bottom Navigation. Toma de pedidos rápida y mapa de mesas. |
+| **CASHIER** | `/cashier/*` | Terminal (Desktop) | Pantalla dividida persistente. Catálogo lado a lado con el teclado numérico de cobro. |
+| **KITCHEN** | `/kitchen/*` | Pantalla grande | KDS (Kitchen Display System). Modo oscuro Kanban para completar comandas. |
+| **MANAGER / OWNER** | `/admin/*` | Desktop / Laptop | SaaS Dashboard tradicional con gráficas, barras laterales pesadas y catálogos. |
+
+El componente central `RoleBasedRedirect` asegura que todos los inicios de sesión deriven automáticamente a la ruta correspondiente, impidiendo el cruce de contextos UX.
+
+---
+
+## 2. Estructura del Repositorio (Monorepo)
 
 ```
 quickstack-pos/

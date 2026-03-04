@@ -7,11 +7,11 @@ import PaymentPage from '../features/pos/pages/PaymentPage'
 import OrderConfirmationPage from '../features/pos/pages/OrderConfirmationPage'
 
 export const posRoutes = [
-  { path: '/pos/catalog', element: <CatalogPage /> },
-  { path: '/pos/new', element: <NewOrderPage /> },
-  { path: '/pos/new/table', element: <TableSelectionPage /> },
-  { path: '/pos/new/customer', element: <CustomerSelectionPage /> },
-  { path: '/pos/cart', element: <CartPage /> },
-  { path: '/pos/payment', element: <PaymentPage /> },
-  { path: '/pos/confirmation', element: <OrderConfirmationPage /> },
+  { path: 'catalog', element: <CatalogPage /> },
+  { path: 'new', element: <NewOrderPage /> },
+  { path: 'new/table', element: <TableSelectionPage /> },
+  { path: 'new/customer', element: <CustomerSelectionPage /> },
+  { path: 'cart', element: <CartPage /> },
+  { path: 'payment', element: <PaymentPage /> },
+  { path: 'confirmation', element: <OrderConfirmationPage /> },
 ]

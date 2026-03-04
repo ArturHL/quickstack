@@ -82,5 +82,6 @@ Currently **Phase 1 (Core POS) COMPLETED**.
 - **Phase 1.3 (Orders + Payments):** Completed (6/6 sprints). ~1,060 backend tests.
 - **Phase 1.4 (Frontend POS):** Completed (6/6 sprints). 244 frontend tests.
   - Sprint 6: Order Management — OrderList, OrderDetail, routes, sidebar.
+- **Phase 2 (UX and Workflow Overhaul):** In Progress. Implementing role-based routing (`/waiter`, `/cashier`, `/kitchen`, `/admin`) and specialized UX profiles.
 - **Frontend Tests:** 244 total (0 failures).
 - **Backend Tests:** ~1,060 total (0 failures).

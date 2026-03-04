@@ -57,7 +57,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { mutate: login, isPending, error } = useLogin()
 
-  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/'
   if (isAuthenticated) return <Navigate to={from} replace />
 
   const registered = searchParams.get('registered') === 'true'

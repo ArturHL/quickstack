@@ -15,17 +15,23 @@ React 19 + Vite + TypeScript + MUI
 | Axios | HTTP client |
 | React Router | Routing |
 
-## Estructura (pendiente Phase 0.4)
+## Estructura de Directorios
 
-```
+```text
 frontend/src/
-├── components/     # Componentes reutilizables
-├── features/       # Feature modules (auth, pos, inventory)
+├── components/     # Componentes reutilizables (layout, common)
+├── features/       # Feature modules (auth, pos, orders, products)
 ├── hooks/          # Custom hooks
-├── services/       # API clients
-├── stores/         # Zustand stores
+├── pages/          # Páginas específicas por rol UX
+│   ├── admin/      # Vistas de SaaS Dashboard (Owner/Manager)
+│   ├── cashier/    # Vistas de Punto de Venta (Terminal)
+│   ├── kitchen/    # Tablero KDS (Kanban de tickets)
+│   └── waiter/     # Vistas móviles (Mesas, Toma de órdenes)
+├── router/         # Configuración de enrutamiento por roles
+├── services/       # API clients (Axios)
+├── stores/         # Zustand global stores
 ├── types/          # TypeScript types
-└── utils/          # Utilidades
+└── utils/          # Utilidades compartidas
 ```
 
 ## Comandos
@@ -39,13 +45,11 @@ npm run lint        # ESLint
 npm run type-check  # TypeScript check
 ```
 
-## Próximo: Phase 0.4
+## Estado Actual: Phase 2 (UX Overhaul)
 
-- Setup inicial de proyecto
-- Integración con auth backend
-- Login/Register forms
-- Protected routes
-- Token refresh automático
+- Enrutamiento basado en roles finalizado (`/waiter`, `/cashier`, `/kitchen`, `/admin`).
+- Implementación de perfiles UX independientes en progreso.
+- Sistema de diseño de Interfaz (Comanda Edge, Tabular Nums) aplicado.
 
 ## Convenciones (a definir)
 

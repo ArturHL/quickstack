@@ -32,7 +32,7 @@ export function useLogin() {
         role: ROLE_ID_TO_CODE[data.user.roleId ?? ''] ?? data.user.role,
       }
       setAuth(data.accessToken, user)
-      const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard'
+      const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/'
       navigate(from, { replace: true })
     },
   })

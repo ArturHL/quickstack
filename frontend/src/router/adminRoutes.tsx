@@ -11,24 +11,24 @@ export const adminRoutes = [
   {
     element: <RoleProtectedRoute minRole="MANAGER" />,
     children: [
-      { path: '/admin/categories', element: <CategoryListPage /> },
-      { path: '/admin/products', element: <ProductListPage /> },
-      { path: '/admin/products/new', element: <ProductFormPage /> },
-      { path: '/admin/products/:id/edit', element: <ProductFormPage /> },
-      { path: '/admin/combos', element: <ComboListPage /> },
-      { path: '/admin/reports', element: <DailySummaryPage /> },
+      { path: 'categories', element: <CategoryListPage /> },
+      { path: 'products', element: <ProductListPage /> },
+      { path: 'products/new', element: <ProductFormPage /> },
+      { path: 'products/:id/edit', element: <ProductFormPage /> },
+      { path: 'combos', element: <ComboListPage /> },
+      { path: 'reports', element: <DailySummaryPage /> },
     ],
   },
   {
     element: <RoleProtectedRoute minRole="OWNER" />,
     children: [
-      { path: '/admin/branches', element: <BranchListPage /> },
+      { path: 'branches', element: <BranchListPage /> },
     ],
   },
   {
     element: <RoleProtectedRoute minRole="CASHIER" />,
     children: [
-      { path: '/admin/customers', element: <CustomerListPage /> },
+      { path: 'customers', element: <CustomerListPage /> },
     ],
   },
 ]

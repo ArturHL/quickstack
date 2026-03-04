@@ -6,8 +6,8 @@ export const orderRoutes = [
     {
         element: <RoleProtectedRoute minRole="CASHIER" />,
         children: [
-            { path: '/orders', element: <OrderListPage /> },
-            { path: '/orders/:id', element: <OrderDetailPage /> },
+            { path: 'orders', element: <OrderListPage /> },
+            { path: 'orders/:id', element: <OrderDetailPage /> },
         ],
     },
 ]
