@@ -21,6 +21,8 @@ export default function CartItemComponent({ item, index, onUpdateQty, onRemove }
       sx={{ pr: 7 }}
     >
       <ListItemText
+        primaryTypographyProps={{ component: 'div' }}
+        secondaryTypographyProps={{ component: 'div' }}
         primary={
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="body1">

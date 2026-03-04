@@ -22,14 +22,16 @@ interface ProductDetailModalProps {
   product: MenuProductItem | null
   open: boolean
   onClose: () => void
+  onAdded?: () => void
 }
 
 interface ContentProps {
   product: MenuProductItem
   onClose: () => void
+  onAdded?: () => void
 }
 
-function ProductDetailContent({ product, onClose }: ContentProps) {
+function ProductDetailContent({ product, onClose, onAdded }: ContentProps) {
   const addItem = useCartStore((state) => state.addItem)
   const navigate = useNavigate()
 
@@ -109,7 +111,11 @@ function ProductDetailContent({ product, onClose }: ContentProps) {
     })
 
     onClose()
-    navigate('/pos/cart')
+    if (onAdded) {
+      onAdded()
+    } else {
+      navigate('/pos/cart')
+    }
   }
 
   return (
@@ -216,11 +222,11 @@ function ProductDetailContent({ product, onClose }: ContentProps) {
   )
 }
 
-export default function ProductDetailModal({ product, open, onClose }: ProductDetailModalProps) {
+export default function ProductDetailModal({ product, open, onClose, onAdded }: ProductDetailModalProps) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {product && (
-        <ProductDetailContent key={product.id} product={product} onClose={onClose} />
+        <ProductDetailContent key={product.id} product={product} onClose={onClose} onAdded={onAdded} />
       )}
     </Dialog>
   )

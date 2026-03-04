@@ -1,32 +1,52 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Button, Divider, Typography } from '@mui/material'
+import { LogoutOutlined as LogoutIcon } from '@mui/icons-material'
 import { Outlet } from 'react-router-dom'
+import { useAuthStore } from '../../stores/authStore'
+import { useLogout } from '../../hooks/useAuthQuery'
 
 export default function CashierLayout() {
+    const user = useAuthStore((s) => s.user)
+    const { mutate: logout, isPending } = useLogout()
+    const displayName = user?.fullName || user?.email || 'Usuario'
+
     return (
-        <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'var(--surface-base)' }}>
-            {/* Persistent Side Navigation for POS */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: 'var(--surface-base)', overflow: 'hidden' }}>
+            {/* Header bar */}
             <Box sx={{
-                width: 80,
-                bgcolor: 'var(--surface-sidebar)',
-                color: 'white',
+                px: 2,
+                py: 1,
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                py: 3
+                gap: 1.5,
+                borderBottom: 1,
+                borderColor: 'divider',
+                bgcolor: 'var(--surface-card)',
+                flexShrink: 0,
             }}>
-                <Typography variant="caption" sx={{ opacity: 0.5, mb: 4 }}>POS</Typography>
-                {/* Nav Items will go here */}
-                <Typography variant="caption" sx={{ mt: 'auto', opacity: 0.5 }}>Salir</Typography>
+                <Typography variant="subtitle2" fontWeight={700}>
+                    QuickStack POS
+                </Typography>
+                <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
+                <Typography variant="caption" color="text.secondary" noWrap>
+                    {displayName}
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button
+                    variant="text"
+                    size="small"
+                    onClick={() => logout()}
+                    disabled={isPending}
+                    startIcon={<LogoutIcon fontSize="small" />}
+                    aria-label="cerrar sesión"
+                    sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}
+                >
+                    Salir
+                </Button>
             </Box>
 
-            {/* Main POS Content Area */}
-            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                <Box sx={{ p: 2, borderBottom: '1px solid var(--border-subtle)', bgcolor: 'var(--surface-card)' }}>
-                    <Typography variant="h6" fontWeight={700}>Terminal Principal</Typography>
-                </Box>
-                <Box sx={{ p: 2 }}>
-                    <Outlet />
-                </Box>
+            {/* CashierPos manages its own internal layout */}
+            <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <Outlet />
             </Box>
         </Box>
     )

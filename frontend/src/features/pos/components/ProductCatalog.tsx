@@ -5,7 +5,11 @@ import ProductCard from './ProductCard'
 import ProductDetailModal from './ProductDetailModal'
 import type { MenuProductItem } from '../types/Menu'
 
-export default function ProductCatalog() {
+interface ProductCatalogProps {
+  onProductAdded?: () => void
+}
+
+export default function ProductCatalog({ onProductAdded }: ProductCatalogProps = {}) {
   const { data, isLoading, isError } = useMenuQuery()
   const [activeTab, setActiveTab] = useState(0)
   const [selectedProduct, setSelectedProduct] = useState<MenuProductItem | null>(null)
@@ -61,6 +65,7 @@ export default function ProductCatalog() {
         product={selectedProduct}
         open={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
+        onAdded={onProductAdded}
       />
     </Box>
   )
