@@ -27,7 +27,7 @@ export default function CartItemComponent({ item, index, onUpdateQty, onRemove }
               {item.productName}
               {item.variantName ? ` — ${item.variantName}` : ''}
             </Typography>
-            <Typography variant="body1" fontWeight="bold">
+            <Typography variant="body1" fontWeight="bold" className="tabular-nums">
               ${item.lineTotal.toFixed(2)}
             </Typography>
           </Box>
@@ -50,7 +50,7 @@ export default function CartItemComponent({ item, index, onUpdateQty, onRemove }
               >
                 <Remove fontSize="small" />
               </IconButton>
-              <Typography variant="body2" aria-label="cantidad">
+              <Typography variant="body2" aria-label="cantidad" className="tabular-nums">
                 {item.quantity}
               </Typography>
               <IconButton

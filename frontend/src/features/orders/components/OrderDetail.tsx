@@ -161,7 +161,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
             <Typography variant="h6" mb={1}>
                 Artículos
             </Typography>
-            <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }} className="comanda-edge">
                 <Table size="small">
                     <TableHead>
                         <TableRow>
@@ -189,10 +189,10 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                                         </Typography>
                                     )}
                                 </TableCell>
-                                <TableCell align="right">{item.quantity}</TableCell>
-                                <TableCell align="right">${item.unitPrice.toFixed(2)}</TableCell>
-                                <TableCell align="right">${item.modifiersTotal.toFixed(2)}</TableCell>
-                                <TableCell align="right">${item.lineTotal.toFixed(2)}</TableCell>
+                                <TableCell align="right" className="tabular-nums">{item.quantity}</TableCell>
+                                <TableCell align="right" className="tabular-nums">${item.unitPrice.toFixed(2)}</TableCell>
+                                <TableCell align="right" className="tabular-nums">${item.modifiersTotal.toFixed(2)}</TableCell>
+                                <TableCell align="right" className="tabular-nums">${item.lineTotal.toFixed(2)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -204,22 +204,22 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                 <Box minWidth={200}>
                     <Box display="flex" justifyContent="space-between">
                         <Typography>Subtotal:</Typography>
-                        <Typography>${order.subtotal.toFixed(2)}</Typography>
+                        <Typography className="tabular-nums">${order.subtotal.toFixed(2)}</Typography>
                     </Box>
                     {order.discount > 0 && (
                         <Box display="flex" justifyContent="space-between">
                             <Typography>Descuento:</Typography>
-                            <Typography color="error">-${order.discount.toFixed(2)}</Typography>
+                            <Typography color="error" className="tabular-nums">-${order.discount.toFixed(2)}</Typography>
                         </Box>
                     )}
                     <Box display="flex" justifyContent="space-between">
                         <Typography>IVA ({(order.taxRate * 100).toFixed(0)}%):</Typography>
-                        <Typography>${order.tax.toFixed(2)}</Typography>
+                        <Typography className="tabular-nums">${order.tax.toFixed(2)}</Typography>
                     </Box>
                     <Divider sx={{ my: 0.5 }} />
                     <Box display="flex" justifyContent="space-between">
                         <Typography variant="h6">Total:</Typography>
-                        <Typography variant="h6">${order.total.toFixed(2)}</Typography>
+                        <Typography variant="h6" className="tabular-nums">${order.total.toFixed(2)}</Typography>
                     </Box>
                 </Box>
             </Box>
@@ -230,7 +230,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     <Typography variant="h6" mb={1}>
                         Pagos
                     </Typography>
-                    <TableContainer component={Paper} variant="outlined">
+                    <TableContainer component={Paper} variant="outlined" className="comanda-edge">
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
@@ -244,9 +244,9 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                                 {payments.map((p) => (
                                     <TableRow key={p.id}>
                                         <TableCell>{p.paymentMethod}</TableCell>
-                                        <TableCell align="right">${p.amount.toFixed(2)}</TableCell>
-                                        <TableCell align="right">${p.amountReceived.toFixed(2)}</TableCell>
-                                        <TableCell align="right">${p.changeGiven.toFixed(2)}</TableCell>
+                                        <TableCell align="right" className="tabular-nums">${p.amount.toFixed(2)}</TableCell>
+                                        <TableCell align="right" className="tabular-nums">${p.amountReceived.toFixed(2)}</TableCell>
+                                        <TableCell align="right" className="tabular-nums">${p.changeGiven.toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

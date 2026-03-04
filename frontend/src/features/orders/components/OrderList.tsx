@@ -126,7 +126,7 @@ export default function OrderList() {
                     {orders.map((order: OrderResponse) => {
                         const status = getStatusName(order.statusId)
                         return (
-                            <Card key={order.id} variant="outlined">
+                            <Card key={order.id} variant="outlined" className={`comanda-edge comanda-edge-${STATUS_COLORS[status]}`}>
                                 <CardActionArea onClick={() => navigate(`/orders/${order.id}`)}>
                                     <CardContent>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
@@ -150,7 +150,7 @@ export default function OrderList() {
                                                     {formatTime(order.openedAt)}
                                                 </Typography>
                                             </Box>
-                                            <Typography variant="h6" component="span">
+                                            <Typography variant="h6" component="span" className="tabular-nums">
                                                 ${order.total.toFixed(2)}
                                             </Typography>
                                         </Box>

@@ -112,20 +112,20 @@ export default function Cart() {
 
       <Divider sx={{ my: 2 }} />
 
-      <Card variant="outlined" sx={{ mx: 2 }}>
+      <Card variant="outlined" sx={{ mx: 2 }} className="comanda-edge comanda-edge-warning">
         <CardContent>
           <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography>Subtotal</Typography>
-            <Typography aria-label="subtotal">${subtotal.toFixed(2)}</Typography>
+            <Typography aria-label="subtotal" className="tabular-nums">${subtotal.toFixed(2)}</Typography>
           </Box>
           <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography>IVA (16%)</Typography>
-            <Typography aria-label="impuesto">${tax.toFixed(2)}</Typography>
+            <Typography aria-label="impuesto" className="tabular-nums">${tax.toFixed(2)}</Typography>
           </Box>
           <Divider sx={{ my: 1 }} />
           <Box display="flex" justifyContent="space-between">
             <Typography variant="h6">Total</Typography>
-            <Typography variant="h6" aria-label="total">
+            <Typography variant="h6" aria-label="total" className="tabular-nums">
               ${total.toFixed(2)}
             </Typography>
           </Box>

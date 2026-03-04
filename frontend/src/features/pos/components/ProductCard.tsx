@@ -51,7 +51,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           <Typography variant="subtitle2" noWrap title={product.name}>
             {product.name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" className="tabular-nums">
             ${product.basePrice.toFixed(2)}
           </Typography>
         </CardContent>
