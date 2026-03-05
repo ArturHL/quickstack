@@ -40,6 +40,7 @@ export default function ProductList() {
 
   const { data, isLoading, isError } = useProductsQuery({ search, categoryId: categoryId || undefined, page, size: 20 })
   const { data: categories } = useCategoriesQuery()
+  const categoryNameById = Object.fromEntries((categories ?? []).map((c) => [c.id, c.name]))
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProductMutation()
 
   const handleConfirmDelete = () => {
@@ -131,7 +132,7 @@ export default function ProductList() {
             {data?.content.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name}</TableCell>
-                <TableCell>{product.category?.name ?? '—'}</TableCell>
+                <TableCell>{product.categoryId ? (categoryNameById[product.categoryId] ?? '—') : '—'}</TableCell>
                 <TableCell align="right">${product.basePrice.toFixed(2)}</TableCell>
                 <TableCell>{product.productType}</TableCell>
                 <TableCell>
