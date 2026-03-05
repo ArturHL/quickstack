@@ -87,7 +87,7 @@ export default function DailySummaryPage() {
             />
             <MetricCard
               label="Pedidos"
-              value={String(data.orderCount)}
+              value={String(data.totalOrders)}
             />
             <MetricCard
               label="Ticket promedio"

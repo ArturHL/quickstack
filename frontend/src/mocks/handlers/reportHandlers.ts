@@ -7,9 +7,11 @@ const today = new Date().toISOString().split('T')[0]
 
 export const mockDailySummary: DailySummaryResponse = {
   date: today,
+  branchId: 'branch-1',
+  totalOrders: 18,
   totalSales: 1250.50,
-  orderCount: 18,
   averageTicket: 69.47,
+  ordersByServiceType: { COUNTER: 10, TAKEOUT: 8 },
   topProducts: [
     { productName: 'Café Americano', quantitySold: 12 },
     { productName: 'Sandwich Club', quantitySold: 8 },
@@ -24,9 +26,11 @@ export const reportHandlers = [
     if (date && date !== today) {
       const emptyResponse: DailySummaryResponse = {
         date,
+        branchId: 'branch-1',
+        totalOrders: 0,
         totalSales: 0,
-        orderCount: 0,
         averageTicket: 0,
+        ordersByServiceType: {},
         topProducts: [],
       }
       return HttpResponse.json({ data: emptyResponse }, { status: 200 })

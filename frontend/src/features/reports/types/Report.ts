@@ -5,8 +5,10 @@ export interface TopProductEntry {
 
 export interface DailySummaryResponse {
   date: string
+  branchId: string
+  totalOrders: number
   totalSales: number
-  orderCount: number
   averageTicket: number
+  ordersByServiceType: Record<string, number>
   topProducts: TopProductEntry[]
 }
