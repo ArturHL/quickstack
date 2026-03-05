@@ -68,7 +68,7 @@ export default function Cart() {
         // DINE_IN or DELIVERY: order stays IN_PROGRESS, cashier marks ready manually
         setCurrentOrderId(order.id)
         clearCart()
-        navigate('/orders')
+        navigate('/admin/orders')
       }
     } catch {
       setErrorMsg('Error al enviar la orden. Intente de nuevo.')

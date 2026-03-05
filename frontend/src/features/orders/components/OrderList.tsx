@@ -127,7 +127,7 @@ export default function OrderList() {
                         const status = getStatusName(order.statusId)
                         return (
                             <Card key={order.id} variant="outlined" className={`comanda-edge comanda-edge-${STATUS_COLORS[status]}`}>
-                                <CardActionArea onClick={() => navigate(`/orders/${order.id}`)}>
+                                <CardActionArea onClick={() => navigate(`/admin/orders/${order.id}`)}>
                                     <CardContent>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                             <Typography variant="h6" component="span">

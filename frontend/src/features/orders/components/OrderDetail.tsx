@@ -82,7 +82,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                 <Typography color="error" role="alert">
                     Error al cargar la orden
                 </Typography>
-                <Button startIcon={<ArrowBack />} onClick={() => navigate('/orders')} sx={{ mt: 2 }}>
+                <Button startIcon={<ArrowBack />} onClick={() => navigate('/admin/orders')} sx={{ mt: 2 }}>
                     Volver a Pedidos
                 </Button>
             </Box>
@@ -93,7 +93,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
     const isManager = hasMinRole(user?.role, 'MANAGER')
 
     const handleCancel = () => {
-        cancelOrder(orderId, { onSuccess: () => navigate('/orders') })
+        cancelOrder(orderId, { onSuccess: () => navigate('/admin/orders') })
     }
 
     const handleMarkReady = () => {
@@ -107,7 +107,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
     return (
         <Box>
             {/* Back button */}
-            <Button startIcon={<ArrowBack />} onClick={() => navigate('/orders')} sx={{ mb: 2 }}>
+            <Button startIcon={<ArrowBack />} onClick={() => navigate('/admin/orders')} sx={{ mb: 2 }}>
                 Volver a Pedidos
             </Button>
 
