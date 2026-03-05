@@ -193,7 +193,7 @@ export default function DashboardPage() {
             <Grid item xs={12} sm={4}>
               <StatCard
                 label="Pedidos"
-                value={data ? String(data.orderCount) : '0'}
+                value={data ? String(data.totalOrders) : '0'}
                 loading={isLoading}
               />
             </Grid>

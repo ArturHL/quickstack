@@ -66,7 +66,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
       if (cancelled) return
       setName(p.name)
       setDescription(p.description ?? '')
-      setCategoryId(p.category?.id ?? '')
+      setCategoryId(p.categoryId ?? '')
       setSku(p.sku ?? '')
       setBasePrice(String(p.basePrice))
       setCostPrice(p.costPrice != null ? String(p.costPrice) : '')
