@@ -67,6 +67,12 @@ export const customerHandlers = [
     return HttpResponse.json({ data: mockPage(filtered) }, { status: 200 })
   }),
 
+  http.get(`${BASE}/customers/:id`, ({ params }) => {
+    const found = mockCustomers.find((c) => c.id === params.id)
+    if (!found) return HttpResponse.json({ error: 'NOT_FOUND' }, { status: 404 })
+    return HttpResponse.json({ data: found }, { status: 200 })
+  }),
+
   http.put(`${BASE}/customers/:id`, async ({ params, request }) => {
     const body = (await request.json()) as Record<string, string>
     const existing = mockCustomers.find((c) => c.id === params.id)

@@ -19,6 +19,7 @@ import { useOrderQuery } from '../hooks/useOrderQuery'
 import { useOrderPaymentsQuery } from '../hooks/useOrderPaymentsQuery'
 import { useCancelOrderMutation } from '../hooks/useCancelOrderMutation'
 import { useMarkReadyMutation } from '../hooks/useMarkReadyMutation'
+import { useCustomerQuery } from '../../customers/hooks/useCustomerQuery'
 import { useAuthStore } from '../../../stores/authStore'
 import { STATUS_ID_TO_NAME } from '../../../mocks/handlers/orderHandlers'
 import type { OrderStatus } from '../../pos/types/Order'
@@ -65,6 +66,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
     const user = useAuthStore((s) => s.user)
     const { data: order, isLoading, isError } = useOrderQuery(orderId)
     const { data: payments } = useOrderPaymentsQuery(orderId)
+    const { data: customer } = useCustomerQuery(order?.customerId)
     const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrderMutation()
     const { mutate: markReady, isPending: isMarkingReady } = useMarkReadyMutation()
 
@@ -154,6 +156,22 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     )}
                 </Box>
             </Box>
+
+            {(customer || order.notes) && (
+                <Box display="flex" gap={3} mt={1} mb={1} flexWrap="wrap">
+                    {customer && (
+                        <Typography variant="body2" color="text.secondary">
+                            Cliente: <strong>{customer.name}</strong>
+                            {customer.phone && ` · ${customer.phone}`}
+                        </Typography>
+                    )}
+                    {order.notes && (
+                        <Typography variant="body2" color="text.secondary">
+                            Notas: <em>{order.notes}</em>
+                        </Typography>
+                    )}
+                </Box>
+            )}
 
             <Divider sx={{ mb: 2 }} />
 

@@ -31,6 +31,11 @@ export const customerAdminApi = {
       .get<{ data: CustomerPage }>('/api/v1/customers', { params })
       .then((r) => r.data.data),
 
+  getCustomer: (id: string): Promise<CustomerResponse> =>
+    axiosInstance
+      .get<{ data: CustomerResponse }>(`/api/v1/customers/${id}`)
+      .then((r) => r.data.data),
+
   createCustomer: (body: CustomerCreateRequest): Promise<CustomerResponse> =>
     axiosInstance
       .post<{ data: CustomerResponse }>('/api/v1/customers', body)
