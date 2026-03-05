@@ -131,7 +131,7 @@ export default function ProductList() {
             {data?.content.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name}</TableCell>
-                <TableCell>{product.categoryName ?? '—'}</TableCell>
+                <TableCell>{product.category?.name ?? '—'}</TableCell>
                 <TableCell align="right">${product.basePrice.toFixed(2)}</TableCell>
                 <TableCell>{product.productType}</TableCell>
                 <TableCell>

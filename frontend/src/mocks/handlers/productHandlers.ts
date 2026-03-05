@@ -36,8 +36,7 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'prod-1',
     tenantId: 'tenant-1',
-    categoryId: 'cat-1',
-    categoryName: 'Bebidas',
+    category: { id: 'cat-1', name: 'Bebidas', sortOrder: 1, isActive: true, parentId: null },
     name: 'Café Americano',
     description: null,
     sku: 'CAF-001',
@@ -55,8 +54,7 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'prod-2',
     tenantId: 'tenant-1',
-    categoryId: 'cat-2',
-    categoryName: 'Comida',
+    category: { id: 'cat-2', name: 'Comida', sortOrder: 2, isActive: true, parentId: null },
     name: 'Sandwich Club',
     description: null,
     sku: 'SAN-001',
@@ -74,8 +72,7 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'prod-3',
     tenantId: 'tenant-1',
-    categoryId: 'cat-1',
-    categoryName: 'Bebidas',
+    category: { id: 'cat-1', name: 'Bebidas', sortOrder: 1, isActive: true, parentId: null },
     name: 'Café con Leche',
     description: null,
     sku: 'CAF-002',
@@ -183,7 +180,7 @@ export const productHandlers = [
       filtered = filtered.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
     }
     if (categoryId) {
-      filtered = filtered.filter((p) => p.categoryId === categoryId)
+      filtered = filtered.filter((p) => p.category?.id === categoryId)
     }
     return HttpResponse.json({ data: mockPage(filtered, page, size) }, { status: 200 })
   }),
@@ -199,8 +196,7 @@ export const productHandlers = [
     const newProduct: ProductResponse = {
       id: 'prod-new',
       tenantId: 'tenant-1',
-      categoryId: (body.categoryId as string) ?? null,
-      categoryName: null,
+      category: null,
       name: (body.name as string) ?? '',
       description: (body.description as string) ?? null,
       sku: (body.sku as string) ?? null,

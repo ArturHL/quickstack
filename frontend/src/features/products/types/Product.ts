@@ -14,11 +14,18 @@ export interface CategoryResponse {
   updatedBy: string
 }
 
+export interface CategorySummaryResponse {
+  id: string
+  name: string
+  sortOrder: number
+  isActive: boolean
+  parentId: string | null
+}
+
 export interface ProductResponse {
   id: string
   tenantId: string
-  categoryId: string | null
-  categoryName: string | null
+  category: CategorySummaryResponse | null
   name: string
   description: string | null
   sku: string | null
