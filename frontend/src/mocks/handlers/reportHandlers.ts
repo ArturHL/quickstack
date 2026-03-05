@@ -3,7 +3,14 @@ import type { DailySummaryResponse } from '../../features/reports/types/Report'
 
 const BASE = `${import.meta.env.VITE_API_BASE_URL}/api/v1`
 
-const today = new Date().toISOString().split('T')[0]
+function localDateISO(): string {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+const today = localDateISO()
 
 export const mockDailySummary: DailySummaryResponse = {
   date: today,
