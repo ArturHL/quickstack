@@ -28,7 +28,7 @@ export default function CategoryForm({ open, onClose, onSubmit, isPending, initi
       setNameError('El nombre es requerido')
       return
     }
-    onSubmit({ name: name.trim(), description: description.trim() || undefined })
+    onSubmit({ name: name.trim(), description: description.trim() })
   }
 
   return (

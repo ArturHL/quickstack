@@ -93,7 +93,7 @@ public class CategoryService {
             category.setName(request.name());
         }
         if (request.description() != null) {
-            category.setDescription(request.description());
+            category.setDescription(request.description().isBlank() ? null : request.description());
         }
         if (request.imageUrl() != null) {
             category.setImageUrl(request.imageUrl());

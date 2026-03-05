@@ -8,7 +8,6 @@ export const useUpdateCategoryMutation = () => {
     mutationFn: ({ id, body }: { id: string; body: CategoryUpdateRequest }) =>
       categoryApi.updateCategory(id, body),
     onSuccess: (updated) => {
-      // Optimistic: patch cache immediately so UI reflects changes before full refetch
       queryClient.setQueryData<CategoryResponse[]>(['categories'], (old) =>
         old ? old.map((c) => (c.id === updated.id ? updated : c)) : old
       )
