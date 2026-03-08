@@ -27,6 +27,7 @@
         <module>quickstack-product</module>
         <module>quickstack-pos</module>
         <module>quickstack-auth</module>
+        <module>quickstack-inventory</module>
         <module>quickstack-app</module>
     </modules>
 
@@ -88,6 +89,11 @@
             <dependency>
                 <groupId>com.quickstack</groupId>
                 <artifactId>quickstack-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.quickstack</groupId>
+                <artifactId>quickstack-inventory</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

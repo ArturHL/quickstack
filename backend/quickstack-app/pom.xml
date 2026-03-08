@@ -44,6 +44,10 @@
             <groupId>com.quickstack</groupId>
             <artifactId>quickstack-auth</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.quickstack</groupId>
+            <artifactId>quickstack-inventory</artifactId>
+        </dependency>
 
         <!-- Spring Boot Starters -->
         <dependency>
