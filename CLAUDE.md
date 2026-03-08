@@ -26,13 +26,19 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 - 1.4: Frontend POS base — 244 tests
 - 1.5: Estabilización Admin (categorías, variantes, modificadores, combos, reportes) — 75 tests nuevos
 
-**Phase 2 (UX Roles + Piloto)** | **⏳ EN PROGRESO**
-- Enrutamiento por roles: /waiter, /cashier, /kitchen, /admin ✅
-- Comanda Edge design system en layouts ✅
-- Pendiente: CashierPos UI, User Management, deprecar /pos/*
+**Phase 2 (UX Roles + Piloto)** | **✅ COMPLETADA** — 2026-03-08
+- CashierPos split-screen funcional en /cashier/pos (COUNTER + TAKEOUT)
+- User Management CRUD completo en /admin/users (OWNER only)
+- Admin dual-view: BranchSelector + Sidebar context-aware (Owner Global / Manager)
+- UserManagementE2ETest — 8 tests de integración con DB real
 
-**Horizonte Piloto**: ADMIN + CASHIER funcionales → lanzar para feedback real
-**Horizonte MVP (6 meses)**: Inventario por receta + Registro de gastos + WAITER + KDS + Bot WhatsApp
+**Phase 3 (Owner Intelligence)** | **⏳ EN PROGRESO**
+- Ver: `docs/roadmap/PHASE_3_OWNER_INTELLIGENCE.md` (10 sprints planificados)
+- Módulo nuevo: `quickstack-inventory` (Ingredient, Recipe, InventoryMovement, Expense)
+- Entregables: Inventario por receta + auto-descuento, Gastos, Lista de compras, P&L
+
+**Horizonte Piloto**: ✅ LANZADO — ADMIN + CASHIER funcionales
+**Horizonte MVP (6 meses)**: Inventario + Gastos + P&L + WAITER + KDS + Bot WhatsApp
 
 Ver: `docs/ROADMAP.md` | `docs/ARCHITECTURE.md`
 

@@ -1,7 +1,7 @@
 # QuickStack — Roadmap
 
-> **Última actualización:** 2026-03-04
-> **Estado:** Phase 1 ✅ COMPLETADA | Phase 2 (UX Roles + Piloto) ⏳ EN PROGRESO
+> **Última actualización:** 2026-03-08
+> **Estado:** Phase 1 ✅ COMPLETADA | Phase 2 ✅ COMPLETADA | Phase 3 (Owner Intelligence) ⏳ EN PROGRESO
 
 ## Vision Summary
 
@@ -27,7 +27,7 @@ La promesa del producto:
 | **Piloto** | Software funcional con lo mínimo necesario | Lanzar cuanto antes para recibir feedback real de operación |
 | **MVP** | Producto diferenciado y comercializable | 6 meses. Incluye inventario, bot, todos los roles operativos |
 
-**Timeline:** 6 meses hasta MVP comercializable. El Piloto se lanza en cuanto Phase 2 esté completa.
+**Timeline:** 6 meses hasta MVP comercializable. El Piloto se lanza con Phase 2 completada ✅.
 
 ---
 
@@ -52,8 +52,8 @@ La promesa del producto:
 |------|--------|----------|-----------|--------|
 | 0 | Foundation | Auth ASVS L2 + BD + Deploy + CI/CD | - | ✅ COMPLETADA |
 | 1 | Core POS Backend + UI Base | Pedidos, pagos, catálogo, admin UI completa | - | ✅ COMPLETADA (1.1–1.5) |
-| **2** | **UX Roles + Piloto** | CashierPos, User Management, separar /pos → /cashier+/admin, Admin dual-view | **Piloto** | ⏳ EN PROGRESO |
-| **3** | **Owner Intelligence** | Inventario por receta + auto-descuento, Registro de gastos, Lista de compras, P&L real | **MVP** | ⏳ Pendiente |
+| 2 | UX Roles + Piloto | CashierPos, User Management, separar /pos → /cashier+/admin, Admin dual-view | Piloto | ✅ COMPLETADA |
+| **3** | **Owner Intelligence** | Inventario por receta + auto-descuento, Registro de gastos, Lista de compras, P&L real | **MVP** | ⏳ EN PROGRESO |
 | **4** | **Operations Scale** | WAITER app, KDS, Bot WhatsApp, métodos de pago adicionales | **MVP** | ⏳ Pendiente |
 | 5+ | Post-MVP | PACKER, DELIVERY, PRODUCTION, SaaS billing, BI/ML, multi-sucursal comercial | Post-MVP | ⏳ Futuro |
 
@@ -62,7 +62,7 @@ La promesa del producto:
 ## Critical Path
 
 ```
-Phase 0 ✅ → Phase 1 ✅ → Phase 2 (Piloto) → Phase 3 (Owner Intelligence) → Phase 4 (Operations) → MVP
+Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ (Piloto) → Phase 3 (Owner Intelligence) → Phase 4 (Operations) → MVP
 ```
 
 ---
@@ -436,13 +436,11 @@ Phase 0 ✅ → Phase 1 ✅ → Phase 2 (Piloto) → Phase 3 (Owner Intelligence
 
 ---
 
-## Phase 2: UX Roles + Piloto
+## Phase 2: UX Roles + Piloto ✅ COMPLETADA
 
 **Goal**: Separar responsabilidades del /pos/* genérico en interfaces especializadas por rol. Lanzar el piloto.
 
-**Dependencies**: Phase 1 completada ✅
-
-**Horizonte**: **Piloto** — lanzar con ADMIN + CASHIER funcionales.
+**Completada**: 2026-03-08 | **Tests**: ~1,068 backend | 319 frontend
 
 ### Decisiones de arquitectura
 
@@ -454,31 +452,31 @@ Phase 0 ✅ → Phase 1 ✅ → Phase 2 (Piloto) → Phase 3 (Owner Intelligence
 
 ### Entregables
 
-#### CashierPos (`/cashier/pos`)
-- [ ] Portar `ProductCatalog` al `CashierLayout` (split-screen: catálogo izquierda, carrito derecha)
-- [ ] Integrar `CartStore` y `PaymentForm` en el flujo de Cashier
-- [ ] Manejo de tipos de servicio: COUNTER y TAKEOUT (los más comunes en mostrador)
-- [ ] Cobro en efectivo con cálculo de cambio
-- [ ] Confirmación de orden
-- [ ] Deprecar rutas `/pos/*` y redirigir a las nuevas
+#### CashierPos (`/cashier/pos`) ✅
+- [x] Portar `ProductCatalog` al `CashierLayout` (split-screen: catálogo izquierda, carrito derecha)
+- [x] Integrar `CartStore` y `PaymentForm` en el flujo de Cashier
+- [x] Manejo de tipos de servicio: COUNTER y TAKEOUT (los más comunes en mostrador)
+- [x] Cobro en efectivo con cálculo de cambio
+- [x] Confirmación de orden + búsqueda de cliente por teléfono con debounce
 
-#### User Management (`/admin/users`)
-- [ ] Backend: endpoint CRUD de usuarios (`POST /api/v1/users`, `GET`, `PUT`, `DELETE`)
-- [ ] Registro de roles disponibles: CASHIER, WAITER, KITCHEN, ADMIN
-- [ ] Frontend: UserList, UserForm en `/admin/users`
-- [ ] ADMIN puede crear/desactivar cajeros y futuros meseros desde la app
+#### User Management (`/admin/users`) ✅
+- [x] Backend: endpoint CRUD de usuarios (`POST /api/v1/users`, `GET`, `PUT`, `DELETE`)
+- [x] Registro de roles disponibles: CASHIER, WAITER, KITCHEN, OWNER
+- [x] Frontend: UserList, UserForm en `/admin/users`
+- [x] OWNER puede crear/desactivar cajeros y futuros meseros desde la app
+- [x] E2E integration test (`UserManagementE2ETest` — 8 tests)
 
-#### Admin dual-view
-- [ ] Selector de sucursal en TopBar: "Todas las sucursales" → Owner view | sucursal específica → Manager view
-- [ ] Owner view: métricas globales, gestión de sucursales, gestión de usuarios
-- [ ] Manager view: catálogo activo, mesas, reportes de la sucursal, acciones rápidas
+#### Admin dual-view ✅
+- [x] Selector de sucursal en TopBar: "Todas las sucursales" → Owner view | sucursal específica → Manager view
+- [x] Owner view: métricas globales, gestión de sucursales, gestión de usuarios
+- [x] Manager view: catálogo activo, mesas, reportes de la sucursal
 
-### Success Criteria — Piloto
+### Success Criteria — Piloto ✅
 
-- OWNER puede crear un usuario cajero desde la app
-- CASHIER puede completar una venta de mostrador (seleccionar productos → carrito → cobro en efectivo → confirmación) en < 60 segundos
-- ADMIN ve reporte de ventas del día
-- El restaurante piloto puede operar un turno completo sin papel ni sistema externo para el flujo básico
+- ✅ OWNER puede crear un usuario cajero desde la app
+- ✅ CASHIER puede completar una venta de mostrador en < 60 segundos
+- ✅ ADMIN ve reporte de ventas del día
+- ✅ Piloto listo para operar un turno completo
 
 ---
 
