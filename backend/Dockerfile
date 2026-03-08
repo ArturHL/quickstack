@@ -20,6 +20,7 @@ COPY quickstack-auth/pom.xml quickstack-auth/
 COPY quickstack-user/pom.xml quickstack-user/
 COPY quickstack-product/pom.xml quickstack-product/
 COPY quickstack-pos/pom.xml quickstack-pos/
+COPY quickstack-inventory/pom.xml quickstack-inventory/
 COPY quickstack-app/pom.xml quickstack-app/
 
 # Download dependencies (cached layer)
@@ -33,6 +34,7 @@ COPY quickstack-auth/src quickstack-auth/src
 COPY quickstack-user/src quickstack-user/src
 COPY quickstack-product/src quickstack-product/src
 COPY quickstack-pos/src quickstack-pos/src
+COPY quickstack-inventory/src quickstack-inventory/src
 COPY quickstack-app/src quickstack-app/src
 
 # Build the application (memory-constrained for Render free tier)
