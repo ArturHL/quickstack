@@ -47,7 +47,6 @@ class PaymentIntegrationTest extends BaseE2ETest {
     private UUID branchId;
     private UUID areaId;
     private String ownerToken;
-    private String cashierToken;
     private UUID cashierUserId;
 
     @BeforeEach
@@ -67,7 +66,6 @@ class PaymentIntegrationTest extends BaseE2ETest {
                 cashierUserId, tenantId, CASHIER_ROLE_ID, "cashier@payment.test", "Cashier User");
 
         ownerToken = authHeader(userId, tenantId, OWNER_ROLE_ID, "owner@payment.test");
-        cashierToken = authHeader(cashierUserId, tenantId, CASHIER_ROLE_ID, "cashier@payment.test");
 
         branchId = createBranch(tenantId);
         areaId = createArea(tenantId, branchId);

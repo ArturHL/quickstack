@@ -5,7 +5,6 @@ import com.quickstack.common.dto.ApiResponse;
 import com.quickstack.common.security.JwtAuthenticationPrincipal;
 import com.quickstack.pos.dto.request.PaymentRequest;
 import com.quickstack.pos.dto.response.PaymentResponse;
-import com.quickstack.pos.security.PosPermissionEvaluator;
 import com.quickstack.pos.service.PaymentService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

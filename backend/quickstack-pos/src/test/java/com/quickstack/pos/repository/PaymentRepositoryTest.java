@@ -40,7 +40,6 @@ class PaymentRepositoryTest extends AbstractRepositoryTest {
     private UUID tenantA;
     private UUID tenantB;
     private UUID orderId;
-    private UUID orderIdB;
 
     @BeforeEach
     void setUp() {
@@ -83,7 +82,7 @@ class PaymentRepositoryTest extends AbstractRepositoryTest {
                 .executeUpdate();
 
         orderId = persistOrderNative(tenantA, branchA, "ORD-PAY-001");
-        orderIdB = persistOrderNative(tenantB, branchB, "ORD-PAY-002");
+        persistOrderNative(tenantB, branchB, "ORD-PAY-002");
 
         entityManager.flush();
         entityManager.clear();

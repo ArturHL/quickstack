@@ -452,7 +452,7 @@ class OrderIntegrationTest extends BaseE2ETest {
         @DisplayName("16. GET /orders by CASHIER returns only their own orders")
         void cashierSeesOnlyOwnOrders() {
                 // Create order by owner
-                UUID ownerOrderId = createOrderDirect(tenantId, branchId, userId);
+                createOrderDirect(tenantId, branchId, userId);
                 // Create order by cashier
                 UUID cashierOrderId = createOrderDirect(tenantId, branchId, cashierUserId);
 

@@ -330,7 +330,7 @@ class UserServiceTest {
 
         @Test
         @DisplayName("should return page with roleCode mapped correctly (no search)")
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings("unchecked")
         void shouldReturnPageWithRoleCode() {
             User user = createTestUser();
             Page<User> userPage = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
@@ -348,7 +348,7 @@ class UserServiceTest {
 
         @Test
         @DisplayName("should use findByTenantId for blank search")
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings("unchecked")
         void shouldUseFindByTenantIdForBlankSearch() {
             when(userRepository.findByTenantId(eq(TENANT_ID), any()))
                 .thenReturn(Page.empty());
@@ -367,7 +367,7 @@ class UserServiceTest {
 
         @Test
         @DisplayName("should update fullName when provided")
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings("unchecked")
         void shouldUpdateFullName() {
             User user = createTestUser();
             when(userRepository.findByTenantIdAndId(TENANT_ID, user.getId())).thenReturn(Optional.of(user));
@@ -394,7 +394,7 @@ class UserServiceTest {
 
         @Test
         @DisplayName("should update roleId when provided")
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings("unchecked")
         void shouldUpdateRoleId() {
             UUID newRoleId = UUID.randomUUID();
             User user = createTestUser();

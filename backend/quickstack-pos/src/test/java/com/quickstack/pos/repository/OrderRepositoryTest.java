@@ -2,7 +2,6 @@ package com.quickstack.pos.repository;
 
 import com.quickstack.pos.AbstractRepositoryTest;
 import com.quickstack.pos.entity.Order;
-import com.quickstack.pos.entity.OrderItem;
 import com.quickstack.pos.entity.OrderStatusConstants;
 import com.quickstack.pos.entity.ServiceType;
 import org.junit.jupiter.api.BeforeEach;

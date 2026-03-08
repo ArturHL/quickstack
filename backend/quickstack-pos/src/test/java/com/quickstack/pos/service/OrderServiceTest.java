@@ -131,7 +131,7 @@ class OrderServiceTest {
                         Order saved = buildPersistedOrder(ServiceType.DINE_IN, TABLE_ID);
                         when(orderRepository.save(any())).thenReturn(saved);
 
-                        OrderResponse response = orderService.createOrder(TENANT_ID, USER_ID, dineInRequest());
+                        orderService.createOrder(TENANT_ID, USER_ID, dineInRequest());
 
                         ArgumentCaptor<RestaurantTable> tableCaptor = ArgumentCaptor.forClass(RestaurantTable.class);
                         verify(tableRepository).save(tableCaptor.capture());
@@ -1019,7 +1019,7 @@ class OrderServiceTest {
                                         .thenReturn(rows);
                 }
 
-                @SuppressWarnings({"unchecked", "rawtypes"})
+                @SuppressWarnings("unchecked")
                 private void stubTopProducts(
                                 List<com.quickstack.pos.dto.response.DailySummaryResponse.TopProductEntry> products) {
                         when(jdbcTemplate.query(anyString(), any(RowMapper.class),

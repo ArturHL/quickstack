@@ -4,7 +4,6 @@ import com.quickstack.pos.dto.request.OrderCreateRequest;
 import com.quickstack.pos.dto.request.OrderItemModifierRequest;
 import com.quickstack.pos.dto.request.OrderItemRequest;
 import com.quickstack.pos.dto.response.OrderItemModifierResponse;
-import com.quickstack.pos.dto.response.OrderItemResponse;
 import com.quickstack.pos.dto.response.OrderResponse;
 import com.quickstack.pos.entity.KdsStatus;
 import com.quickstack.pos.entity.Order;
