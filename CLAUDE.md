@@ -32,9 +32,10 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 - Admin dual-view: BranchSelector + Sidebar context-aware (Owner Global / Manager)
 - UserManagementE2ETest — 8 tests de integración con DB real
 
-**Phase 3 (Owner Intelligence)** | **⏳ EN PROGRESO**
-- Ver: `docs/roadmap/PHASE_3_OWNER_INTELLIGENCE.md` (10 sprints planificados)
-- Módulo nuevo: `quickstack-inventory` (Ingredient, Recipe, InventoryMovement, Expense)
+**Phase 3 (Owner Intelligence)** | **⏳ EN PROGRESO** — Sprint 1 ✅ 2026-03-08
+- Sprint 1 ✅: Módulo `quickstack-inventory` — 5 entidades + migración V9 + 57 tests
+- Sprint 2 ⏳: CRUD Ingredientes API
+- Ver: `docs/roadmap/PHASE_3_OWNER_INTELLIGENCE.md` (10 sprints)
 - Entregables: Inventario por receta + auto-descuento, Gastos, Lista de compras, P&L
 
 **Horizonte Piloto**: ✅ LANZADO — ADMIN + CASHIER funcionales

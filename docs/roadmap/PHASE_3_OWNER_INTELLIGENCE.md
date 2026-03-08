@@ -1,7 +1,7 @@
 # Phase 3: Owner Intelligence
 
-> **Estado:** Pendiente — comienza al completar Phase 2
-> **Inicio estimado:** 2026-03-23
+> **Estado:** ⏳ EN PROGRESO — Sprint 1 completado (2026-03-08)
+> **Inicio real:** 2026-03-08
 > **Objetivo:** Darle al OWNER visibilidad financiera real por primera vez — saber cuánto le cuesta producir cada platillo, registrar sus gastos, conocer qué necesita comprar y ver un P&L real de su negocio.
 > **Desarrollador:** 1 persona
 > **Duración estimada:** 7 sprints / ~7 semanas
@@ -109,7 +109,7 @@ Sprint 6+7 → Sprint 10 (Frontend: Lista de Compras + P&L)
 
 | Sprint | Nombre | Duración | Módulo | Tests nuevos est. |
 |--------|--------|----------|--------|-------------------|
-| 1 | Fundación del módulo inventario | 1 semana | `quickstack-inventory` (nuevo) | ~30 backend |
+| 1 ✅ | Fundación del módulo inventario | 1 semana | `quickstack-inventory` (nuevo) | 57 backend (real) |
 | 2 | CRUD de Ingredientes API | 1 semana | `quickstack-inventory` | ~25 backend |
 | 3 | Recetas API | 1 semana | `quickstack-inventory` | ~30 backend |
 | 4 | Auto-deducción al completar pago | 1 semana | `quickstack-pos` + `quickstack-inventory` | ~25 backend |
@@ -153,12 +153,15 @@ Ninguna en este sprint — solo fundación backend.
 
 ### Success Criteria
 
-- [ ] `./mvnw install -pl quickstack-inventory -DskipTests` compila sin errores
-- [ ] `./mvnw verify -pl quickstack-inventory` pasa todos los tests de persistencia
-- [ ] `./mvnw verify` en el monorepo completo pasa (no hay regresiones en otros módulos)
-- [ ] La migración V8 se ejecuta limpia contra la BD de desarrollo (Neon)
-- [ ] Los constraints de BD funcionan (intent test: insertar `RecipeItem` duplicado falla con excepción)
-- [ ] Mínimo 20 tests nuevos
+- [x] `./mvnw install -pl quickstack-inventory -DskipTests` compila sin errores
+- [x] `./mvnw verify -pl quickstack-inventory` pasa todos los tests de persistencia (57/57)
+- [x] `./mvnw verify` en el monorepo completo pasa (no hay regresiones en otros módulos)
+- [x] La migración V9 ejecuta limpia (V9 reemplaza tablas draft de V4 via DROP CASCADE)
+- [x] Los constraints de BD funcionan (RecipeItem duplicado y base recipe duplicado lanzan excepción)
+- [x] 57 tests nuevos (superó el mínimo de 20)
+
+**Nota implementación:** Migración fue V9 (no V8 — V8 ya existía con `change_ip_to_varchar`).
+Unique constraint para `recipes` requirió **partial indexes** (no `UNIQUE` estándar) porque PostgreSQL trata `NULL != NULL` — dos partial indexes: uno `WHERE variant_id IS NULL` y otro `WHERE variant_id IS NOT NULL`.
 
 **Riesgos:**
 - El campo `branchId` en `Ingredient` es nullable para soportar ingredientes "globales del tenant" (ej. sal, aceite). En restaurantes pequeños el OWNER probablemente no necesita esto ahora, pero si lo hardcodeamos como NOT NULL, migrar después es costoso.
