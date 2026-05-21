@@ -20,7 +20,31 @@ module "security" {
 }
 
 module "db" {
-  source = "./modules/db"
+  source               = "./modules/db"
   db_subnet_group_name = module.network.db_subnet_group_name
   security_group_id    = module.security.security_group_id
+  sufix                = local.sufix
+  private_subnet_ids   = module.network.private_subnet_ids
+}
+
+module "auth" {
+  source      = "./modules/auth"
+  environment = var.environment
+  sufix       = local.sufix
+}
+
+module "api" {
+  source               = "./modules/api"
+  sufix                = local.sufix
+  vpc_subnet_ids       = module.network.private_subnet_ids
+  security_group_id    = module.security.security_group_id
+  rds_proxy_endpoint   = module.db.rds_proxy_endpoint
+  cognito_issuer_uri   = module.auth.issuer_uri
+  cognito_user_pool_id = module.auth.user_pool_id
+}
+
+module "frontend" {
+  source          = "./modules/frontend"
+  sufix           = local.sufix
+  api_gateway_arn = module.api.api_gateway_stage_arn
 }

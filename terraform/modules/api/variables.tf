@@ -1,0 +1,29 @@
+variable "sufix" {
+  description = "Sufijo para nombrar recursos"
+  type        = string
+}
+
+variable "vpc_subnet_ids" {
+  description = "IDs de las subredes privadas de la VPC"
+  type        = list(string)
+}
+
+variable "security_group_id" {
+  description = "ID del grupo de seguridad"
+  type        = string
+}
+
+variable "rds_proxy_endpoint" {
+  description = "Endpoint del RDS Proxy"
+  type        = string
+}
+
+variable "cognito_issuer_uri" {
+  description = "URI del emisor de JWT (Cognito)"
+  type        = string
+}
+
+variable "cognito_user_pool_id" {
+  description = "ID del User Pool de Cognito"
+  type        = string
+}

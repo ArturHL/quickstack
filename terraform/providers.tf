@@ -6,6 +6,14 @@ terraform {
       version = "6.39.0"
     }
   }
+
+  backend "s3" {
+    bucket         = "quickstack-terraform-state"
+    key            = "state/terraform.tfstate"
+    region         = "us-west-2"
+    encrypt        = true
+    dynamodb_table = "quickstack-terraform-locks"
+  }
 }
 
 provider "aws" {
