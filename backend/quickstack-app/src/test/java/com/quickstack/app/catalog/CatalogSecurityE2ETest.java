@@ -103,8 +103,7 @@ class CatalogSecurityE2ETest extends BaseE2ETest {
                 .when()
                 .get("/products")
                 .then()
-                .statusCode(403); // Missing JWT causes Spring Security to default to 403 without configured
-                                  // EntryPoint
+                .statusCode(401);
     }
 
     @Test

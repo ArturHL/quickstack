@@ -156,13 +156,13 @@ class MenuE2ETest extends BaseE2ETest {
     }
 
     @Test
-    @DisplayName("7. Request without JWT returns 403")
+    @DisplayName("7. Request without JWT returns 401")
     void requestWithoutJwtReturns403() {
         given()
                 .when()
                 .get("/menu")
                 .then()
-                .statusCode(403);
+                .statusCode(401);
     }
 
     @Test

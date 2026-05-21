@@ -76,6 +76,9 @@ public abstract class BaseE2ETest {
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     protected PasswordBreachChecker breachChecker;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    protected org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+
     @BeforeEach
     void setUpRestAssured() {
         RestAssured.baseURI = "http://localhost";
@@ -87,9 +90,24 @@ public abstract class BaseE2ETest {
      * Generates a signed JWT access token for use in test requests.
      */
     protected String generateAccessToken(UUID userId, UUID tenantId, UUID roleId, String email) {
-        // Dummy token for now since we removed quickstack-auth
-        // Spring Security is either disabled or will be mocked in tests
-        return "dummy-jwt-token";
+        String token = "mock-token-" + UUID.randomUUID().toString();
+        
+        org.springframework.security.oauth2.jwt.Jwt.Builder jwtBuilder = org.springframework.security.oauth2.jwt.Jwt.withTokenValue(token)
+                .header("alg", "none")
+                .claim("sub", userId.toString())
+                .claim("email", email);
+                
+        if (tenantId != null) {
+            jwtBuilder.claim("tid", tenantId.toString());
+        }
+        if (roleId != null) {
+            jwtBuilder.claim("rid", roleId.toString());
+        }
+        
+        org.springframework.security.oauth2.jwt.Jwt jwt = jwtBuilder.build();
+                
+        org.mockito.Mockito.when(jwtDecoder.decode(token)).thenReturn(jwt);
+        return token;
     }
 
     /**

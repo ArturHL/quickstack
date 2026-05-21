@@ -61,6 +61,12 @@ management:
     env:
       enabled: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example}
+
 # Application-specific configuration
 app:
   cors:

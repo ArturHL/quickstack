@@ -222,8 +222,8 @@ class PaymentIntegrationTest extends BaseE2ETest {
     }
 
     @Test
-    @DisplayName("8. Unauthenticated request returns 403 (Spring Security default without configured AuthenticationEntryPoint)")
-    void unauthenticatedReturns403() {
+    @DisplayName("8. Unauthenticated request returns 401 (Spring Security default without configured AuthenticationEntryPoint)")
+    void unauthenticatedReturns401() {
         UUID orderId = createReadyOrder(tenantId, branchId, userId, null, null, new BigDecimal("89.00"));
 
         PaymentRequest request = new PaymentRequest(orderId, PaymentMethod.CASH, new BigDecimal("89.00"), null);
@@ -234,7 +234,7 @@ class PaymentIntegrationTest extends BaseE2ETest {
                 .when()
                 .post("/payments")
                 .then()
-                .statusCode(403);
+                .statusCode(401);
     }
 
     // =========================================================================
