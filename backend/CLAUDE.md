@@ -7,7 +7,7 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 | Módulo | Propósito |
 |--------|-----------|
 | quickstack-common | Config properties, exceptions, basic security |
-| quickstack-auth | JWT, session management, auth flows |
+| quickstack-auth | **DEPRECATED** (Archivado) - Sustituido por AWS Cognito |
 | quickstack-user | User CRUD, identity |
 | quickstack-product | Catálogo de productos |
 | quickstack-pos | Punto de venta, órdenes |
@@ -20,19 +20,14 @@ Java 17 + Spring Boot 3.5 | Multi-module Maven
 - **Tests**: `*Test.java` (unit), `*RepositoryTest.java` (slice), `*E2ETest.java` (full system)
 - **Exceptions**: Custom en `common/exception/`, handler en GlobalExceptionHandler
 
-## Auth Actual (Phase 0.3 - COMPLETADO)
+## Auth Actual (Migración a AWS Cognito)
 
 | Aspecto | Implementación |
 |---------|----------------|
-| Password | Argon2id + pepper versionado (en Common) |
-| JWT | RS256 (2048 bits), 15min access / 7d refresh (en Auth) |
-| Rate limit | Bucket4j: 10 req/min IP, 5 req/min email (en Auth) |
-| Lockout | 5 intentos fallidos = 15 min lock (en Auth) |
-| Cookies | HttpOnly, Secure, SameSite=Strict (en Auth) |
-| Password Reset | Token 32 bytes, 1 hora expiry, HIBP check (en Auth) |
-| Session Management | Refresh token rotation + family tracking (en Auth) |
-| Register | POST /api/v1/auth/register (en Auth) |
-| Sessions API | GET/DELETE /api/v1/users/me/sessions (en Auth) |
+| Identity Provider | Amazon Cognito User Pools |
+| Validación | API Gateway (Cognito Authorizers) + Spring Security OAuth2 Resource Server |
+| Multi-tenant | `tenant_id` mapeado como atributo personalizado en Cognito |
+| Password Reset | Gestionado nativamente por los flujos alojados de Cognito |
 
 ## Archivos Clave
 
@@ -42,12 +37,10 @@ quickstack-common/src/main/java/.../common/
 ├── exception/           # AuthenticationException, InvalidTokenException, etc.
 └── security/            # PasswordService, PasswordBreachChecker, JwtAuthenticationPrincipal
 
-quickstack-auth/src/main/java/.../auth/
-├── controller/          # AuthController, UserSessionController
-├── service/             # RefreshTokenService, LoginAttemptService, PasswordResetService, SessionService
-├── security/            # JwtService, JwtAuthenticationFilter, RateLimitFilter, HibpClient
-├── entity/              # RefreshToken, LoginAttempt, PasswordResetToken
-└── repository/          # RefreshTokenRepository, LoginAttemptRepository, PasswordResetTokenRepository
+quickstack-common/src/main/java/.../common/
+├── config/properties/   # RateLimitProperties
+├── exception/           # Custom exceptions
+└── security/            # Configuraciones base y filtros de seguridad
 
 quickstack-user/src/main/java/.../user/
 ├── service/             # UserService
