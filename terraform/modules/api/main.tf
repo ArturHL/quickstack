@@ -104,3 +104,65 @@ resource "aws_api_gateway_stage" "api_stage" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   stage_name    = "v1"
 }
+
+// Regional ACM Certificate for API Gateway
+resource "aws_acm_certificate" "api_cert" {
+  domain_name       = "api.${var.domain_name}"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "api_cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.api_cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.zone_id
+}
+
+resource "aws_acm_certificate_validation" "api_cert" {
+  certificate_arn         = aws_acm_certificate.api_cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.api_cert_validation : record.fqdn]
+}
+
+// API Gateway Custom Domain
+resource "aws_api_gateway_domain_name" "api_domain" {
+  domain_name              = "api.${var.domain_name}"
+  regional_certificate_arn = aws_acm_certificate_validation.api_cert.certificate_arn
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+// API Gateway Base Path Mapping
+resource "aws_api_gateway_base_path_mapping" "api_mapping" {
+  api_id      = aws_api_gateway_rest_api.api.id
+  stage_name  = aws_api_gateway_stage.api_stage.stage_name
+  domain_name = aws_api_gateway_domain_name.api_domain.domain_name
+}
+
+// Route 53 Alias Record for API Gateway
+resource "aws_route53_record" "api_alias" {
+  name    = aws_api_gateway_domain_name.api_domain.domain_name
+  type    = "A"
+  zone_id = var.zone_id
+
+  alias {
+    name                   = aws_api_gateway_domain_name.api_domain.regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.api_domain.regional_zone_id
+    evaluate_target_health = false
+  }
+}

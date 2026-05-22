@@ -7,3 +7,9 @@ variable "environment" {
   description = "Entorno de despliegue (ej. dev, staging, prod)"
   type        = string
 }
+
+variable "domain_name" {
+  description = "Domain name for the application"
+  type        = string
+  default     = "quickstack.com.mx"
+}

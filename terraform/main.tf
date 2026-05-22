@@ -33,6 +33,11 @@ module "auth" {
   sufix       = local.sufix
 }
 
+module "dns" {
+  source      = "./modules/dns"
+  domain_name = var.domain_name
+}
+
 module "api" {
   source               = "./modules/api"
   sufix                = local.sufix
@@ -41,10 +46,18 @@ module "api" {
   rds_proxy_endpoint   = module.db.rds_proxy_endpoint
   cognito_issuer_uri   = module.auth.issuer_uri
   cognito_user_pool_id = module.auth.user_pool_id
+  domain_name          = var.domain_name
+  zone_id              = module.dns.zone_id
 }
 
 module "frontend" {
   source          = "./modules/frontend"
   sufix           = local.sufix
   api_gateway_arn = module.api.api_gateway_stage_arn
+  domain_name     = var.domain_name
+  zone_id         = module.dns.zone_id
+  
+  providers = {
+    aws.us_east_1 = aws.us_east_1
+  }
 }

@@ -27,3 +27,13 @@ variable "cognito_user_pool_id" {
   description = "ID del User Pool de Cognito"
   type        = string
 }
+
+variable "domain_name" {
+  description = "The root domain name"
+  type        = string
+}
+
+variable "zone_id" {
+  description = "The Route53 Zone ID"
+  type        = string
+}

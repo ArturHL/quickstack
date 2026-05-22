@@ -12,3 +12,8 @@ output "api_gateway_stage_arn" {
   description = "ARN of the API Gateway stage"
   value       = aws_api_gateway_stage.api_stage.arn
 }
+
+output "api_custom_url" {
+  description = "Custom domain URL for the API"
+  value       = "https://${aws_api_gateway_domain_name.api_domain.domain_name}"
+}
