@@ -55,6 +55,10 @@ resource "aws_lambda_function" "api_lambda" {
   snap_start {
     apply_on = "PublishedVersions"
   }
+
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 // API Gateway REST API

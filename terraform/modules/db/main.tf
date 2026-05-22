@@ -1,3 +1,8 @@
+resource "random_password" "master" {
+  length  = 16
+  special = false
+}
+
 resource "aws_rds_cluster" "aurora-cluster" {
   cluster_identifier     = "aurora-cluster"
   engine                 = "aurora-postgresql"
@@ -5,7 +10,7 @@ resource "aws_rds_cluster" "aurora-cluster" {
   engine_version         = "15.15"
   database_name          = "quickstack"
   master_username        = "quickstack"
-  master_password        = "must_be_eight_characters"
+  master_password        = random_password.master.result
   storage_encrypted      = true
   db_subnet_group_name   = var.db_subnet_group_name
   vpc_security_group_ids = [var.security_group_id]
