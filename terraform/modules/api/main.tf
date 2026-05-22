@@ -21,16 +21,27 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
+// S3 Bucket for Lambda artifacts
+resource "aws_s3_bucket" "lambda_bucket" {
+  bucket        = "quickstack-lambda-artifacts-${var.sufix}"
+  force_destroy = true
+}
+
+resource "aws_s3_object" "lambda_jar" {
+  bucket      = aws_s3_bucket.lambda_bucket.id
+  key         = "quickstack-app-${filemd5("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")}.jar"
+  source      = "../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar"
+  source_hash = filemd5("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")
+}
+
 // Lambda Function
 resource "aws_lambda_function" "api_lambda" {
   function_name = "quickstack-api-${var.sufix}"
   role          = aws_iam_role.lambda_exec_role.arn
 
-  // The code will be uploaded outside of Terraform (via CI/CD or aws cli)
-  // For initial creation, we can use a dummy payload or reference the target jar
-  filename      = "../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar"
-  
-  // Terraform needs the file to exist to compute hash.
+  s3_bucket        = aws_s3_bucket.lambda_bucket.id
+  s3_key           = aws_s3_object.lambda_jar.key
+  source_code_hash = filebase64sha256("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")
   
   handler       = "com.quickstack.StreamLambdaHandler::handleRequest"
   runtime       = "java17"
