@@ -170,7 +170,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: mx-central-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -183,7 +183,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: terraform
-        run: terraform apply -auto-approve -var="aws_region=us-west-2" -var="environment=prod"
+        run: terraform apply -auto-approve -var="aws_region=mx-central-1" -var="environment=prod"
 
       - name: Deploy Frontend to S3
         working-directory: terraform

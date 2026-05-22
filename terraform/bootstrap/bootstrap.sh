@@ -2,8 +2,8 @@
 set -e
 
 # Configuración
-REGION="us-west-2"
-BUCKET_NAME="quickstack-terraform-state"
+REGION="mx-central-1"
+BUCKET_NAME="quickstack-terraform-state-mx"
 TABLE_NAME="quickstack-terraform-locks"
 
 echo "==== Bootstrap de Estado Remoto Terraform ===="

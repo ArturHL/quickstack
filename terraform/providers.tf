@@ -8,11 +8,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "quickstack-terraform-state"
+    bucket         = "quickstack-terraform-state-mx"
     key            = "state/terraform.tfstate"
-    region         = "us-west-2"
+    region         = "mx-central-1"
     encrypt        = true
-    dynamodb_table = "quickstack-terraform-locks"
+    use_lockfile   = true
   }
 }
 

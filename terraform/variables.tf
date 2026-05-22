@@ -1,6 +1,7 @@
 variable "aws_region" {
   description = "Región de AWS donde se desplegará la infraestructura"
   type        = string
+  default     = "mx-central-1"
 }
 
 variable "environment" {

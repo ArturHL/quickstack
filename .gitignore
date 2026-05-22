@@ -129,3 +129,10 @@ CLAUDE.md.backup
 # Code Reviews
 # ============================
 docs/reviews/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
