@@ -43,7 +43,7 @@ module "api" {
   sufix                = local.sufix
   vpc_subnet_ids       = module.network.private_subnet_ids
   security_group_id    = module.security.security_group_id
-  rds_proxy_endpoint   = module.db.rds_proxy_endpoint
+  cluster_endpoint     = module.db.aurora_cluster_endpoint
   cognito_issuer_uri   = module.auth.issuer_uri
   cognito_user_pool_id = module.auth.user_pool_id
   domain_name          = var.domain_name

@@ -56,7 +56,7 @@ resource "aws_lambda_function" "api_lambda" {
   environment {
     variables = {
       SPRING_PROFILES_ACTIVE = "prod"
-      SPRING_DATASOURCE_URL  = "jdbc:postgresql://${var.rds_proxy_endpoint}:5432/quickstack"
+      SPRING_DATASOURCE_URL  = "jdbc:postgresql://${var.cluster_endpoint}:5432/quickstack"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI = var.cognito_issuer_uri
       // Las credenciales de DB deberían ser inyectadas o resueltas con Spring Cloud AWS
       // Por simplicidad en este paso las dejamos pendientes o como dummy

@@ -13,8 +13,8 @@ variable "security_group_id" {
   type        = string
 }
 
-variable "rds_proxy_endpoint" {
-  description = "Endpoint del RDS Proxy"
+variable "cluster_endpoint" {
+  description = "Endpoint del clúster de base de datos"
   type        = string
 }
 
