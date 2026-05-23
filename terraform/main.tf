@@ -7,6 +7,7 @@ module "network" {
   cidr_block          = "10.0.0.0/16"
   sufix               = local.sufix
   s3_service_name     = "com.amazonaws.${var.aws_region}.s3"
+  cognito_service_name = "com.amazonaws.${var.aws_region}.cognito-idp"
   resource_count      = 2
   subnets_cidr        = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   subnets_az          = ["${var.aws_region}a", "${var.aws_region}c"]

@@ -27,4 +27,8 @@ variable "subnets_az" {
   description = "List of availability zones for the subnets"
   type        = list(string)
 }
-  
+
+variable "cognito_service_name" {
+  description = "Service name for the Cognito IDP endpoint"
+  type        = string
+}

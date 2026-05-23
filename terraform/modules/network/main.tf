@@ -16,26 +16,7 @@ resource "aws_internet_gateway" "igw_principal" {
   }
 }
 
-// NAT Gateway
 
-resource "aws_nat_gateway" "nat_gateway_principal" {
-  count = var.resource_count
-  allocation_id = aws_eip.nat_gateway_principal_eip[count.index].id
-  subnet_id     = aws_subnet.public_subnet[count.index].id
-
-  tags = {
-    Name = "nat_gateway_principal-${var.sufix}-${count.index}"
-  }
-
-  depends_on = [aws_internet_gateway.igw_principal]
-}
-
-resource "aws_eip" "nat_gateway_principal_eip" {
-  count = var.resource_count
-  tags = {
-    Name = "nat_gateway_principal_eip-${var.sufix}-${count.index}"
-  }
-}
 
 // Endpoint Gateway
 
@@ -164,10 +145,7 @@ resource "aws_route_table" "private_route_table" {
   count = 2
   vpc_id = aws_vpc.vpc_principal.id
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gateway_principal[count.index].id
-  }
+
 
   tags = {
     Name = "private_route_table-${var.sufix}-${count.index}"
@@ -255,6 +233,45 @@ resource "aws_db_subnet_group" "aurora_db_subnet_group" {
 
   tags = {
     Name = "aurora_db_subnet_group"
+  }
+}
+
+// Security Group for VPC Endpoints
+resource "aws_security_group" "vpc_endpoints_sg" {
+  name        = "vpc-endpoints-sg-${var.sufix}"
+  description = "Security group for VPC Endpoints"
+  vpc_id      = aws_vpc.vpc_principal.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.vpc_principal.cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "vpc-endpoints-sg-${var.sufix}"
+  }
+}
+
+// Cognito VPC Endpoint
+resource "aws_vpc_endpoint" "cognito_idp" {
+  vpc_id              = aws_vpc.vpc_principal.id
+  service_name        = var.cognito_service_name
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [for i in range(var.resource_count) : aws_subnet.private_subnet[i].id]
+  security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "cognito-idp-endpoint-${var.sufix}"
   }
 }
 
