@@ -49,8 +49,8 @@ jobs:
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-lambda-jar
-          path: backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar
+          name: backend-lambda-zip
+          path: backend/quickstack-app/target/quickstack-app-lambda.zip
           retention-days: 1
 
   # ===========================================================================

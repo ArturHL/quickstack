@@ -29,9 +29,9 @@ resource "aws_s3_bucket" "lambda_bucket" {
 
 resource "aws_s3_object" "lambda_jar" {
   bucket      = aws_s3_bucket.lambda_bucket.id
-  key         = "quickstack-app-${filemd5("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")}.jar"
-  source      = "../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar"
-  source_hash = filemd5("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")
+  key         = "quickstack-app-${filemd5("../backend/quickstack-app/target/quickstack-app-lambda.zip")}.zip"
+  source      = "../backend/quickstack-app/target/quickstack-app-lambda.zip"
+  source_hash = filemd5("../backend/quickstack-app/target/quickstack-app-lambda.zip")
 }
 
 // Lambda Function
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "api_lambda" {
 
   s3_bucket        = aws_s3_bucket.lambda_bucket.id
   s3_key           = aws_s3_object.lambda_jar.key
-  source_code_hash = filebase64sha256("../backend/quickstack-app/target/quickstack-app-0.0.1-SNAPSHOT.jar")
+  source_code_hash = filebase64sha256("../backend/quickstack-app/target/quickstack-app-lambda.zip")
   
   handler       = "com.quickstack.StreamLambdaHandler::handleRequest"
   runtime       = "java17"

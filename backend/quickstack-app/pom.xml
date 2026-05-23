@@ -162,23 +162,21 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <version>3.5.1</version>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.1</version>
                         <executions>
                             <execution>
+                                <id>lambda-zip</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>shade</goal>
+                                    <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <artifactSet>
-                                        <excludes>
-                                            <exclude>org.apache.tomcat.embed:*</exclude>
-                                        </excludes>
-                                    </artifactSet>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/lambda-zip.xml</descriptor>
+                                    </descriptors>
+                                    <finalName>quickstack-app-lambda</finalName>
                                 </configuration>
                             </execution>
                         </executions>
