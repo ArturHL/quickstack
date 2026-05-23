@@ -164,7 +164,7 @@ jobs:
       - name: Download Lambda artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-lambda-jar
+          name: backend-lambda-zip
           path: backend/quickstack-app/target/
 
       - name: Download Frontend artifact
