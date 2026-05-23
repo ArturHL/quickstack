@@ -11,9 +11,9 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 6.1.1 | Verificar que los datos privados regulados se almacenen cifrados en reposo, como Informacion Personalmente Identificable (PII), informacion personal sensible, o datos evaluados como probablemente sujetos a la regulacion de privacidad de la UE GDPR | L2 | ⏳ | **Pendiente Phase 1:** Neon PostgreSQL cifra datos at-rest (AES-256). PII (email, phone, address) en tablas `users` y `customers`. Datos financieros en `orders` y `payments`. |
+| 6.1.1 | Verificar que los datos privados regulados se almacenen cifrados en reposo, como Informacion Personalmente Identificable (PII), informacion personal sensible, o datos evaluados como probablemente sujetos a la regulacion de privacidad de la UE GDPR | L2 | ⏳ | **Pendiente Phase 1:** Amazon Aurora cifra datos at-rest (AES-256). PII (email, phone, address) en tablas `users` y `customers`. Datos financieros en `orders` y `payments`. |
 | 6.1.2 | Verificar que los datos regulados de salud se almacenen cifrados en reposo, como registros medicos, detalles de dispositivos medicos, o registros de investigacion anonimizados | L2 | N/A | **No aplica:** No manejamos datos de salud. |
-| 6.1.3 | Verificar que los datos financieros regulados se almacenen cifrados en reposo, como cuentas financieras, incumplimientos o historial crediticio, registros fiscales, historial de pagos, beneficiarios, o registros de mercado o investigacion anonimizados | L2 | ⏳ | **Pendiente Phase 1:** Datos financieros (orders, payments) cifrados at-rest por Neon. Sin datos de tarjetas (solo efectivo en MVP). Retencion 7 anos por requisitos SAT. |
+| 6.1.3 | Verificar que los datos financieros regulados se almacenen cifrados en reposo, como cuentas financieras, incumplimientos o historial crediticio, registros fiscales, historial de pagos, beneficiarios, o registros de mercado o investigacion anonimizados | L2 | ⏳ | **Pendiente Phase 1:** Datos financieros (orders, payments) cifrados at-rest por Aurora. Sin datos de tarjetas (solo efectivo en MVP). Retencion 7 anos por requisitos SAT. |
 
 ---
 
@@ -23,7 +23,7 @@
 |----|-----------|-------|--------|---------------------|
 | 6.2.1 | Verificar que todos los modulos criptograficos fallen de forma segura, y que los errores se manejen de una manera que no habilite ataques de oraculo Padding | L1 | ✅ | JwtService falla con InvalidTokenException generico (no revela detalles internos). Argon2id via Spring Security sin timing side-channels. |
 | 6.2.2 | Verificar que se usen algoritmos, modos y bibliotecas criptograficas probados por la industria o aprobados por el gobierno, en lugar de criptografia codificada a medida | L2 | ✅ | JJWT v0.12.6 para JWT. Spring Security para crypto. Argon2id (OWASP recommended). RS256 (RSA 2048-bit + SHA-256). Sin crypto custom. |
-| 6.2.3 | Verificar que el vector de inicializacion de cifrado, configuracion de cifrado, y modos de bloque se configuren de forma segura usando los ultimos consejos | L2 | ✅ | JWT usa RS256 (firma asimetrica, no cifrado). TLS 1.2+ manejado por Render/Neon. Sin cifrado custom que requiera IV/block modes. |
+| 6.2.3 | Verificar que el vector de inicializacion de cifrado, configuracion de cifrado, y modos de bloque se configuren de forma segura usando los ultimos consejos | L2 | ✅ | JWT usa RS256 (firma asimetrica, no cifrado). TLS 1.2+ manejado por AWS. Sin cifrado custom que requiera IV/block modes. |
 | 6.2.4 | Verificar que los algoritmos de numeros aleatorios, cifrado o hash, longitudes de clave, rondas, cifrados o modos, se puedan reconfigurar, actualizar, o intercambiar en cualquier momento, para proteger contra rupturas criptograficas | L2 | ✅ | Algoritmos configurables via `application.yml`. `JwtConfig` soporta rotacion de claves con `previous-public-keys`. `PasswordService` con pepper versionado y `needsRehash()` para upgrades. Argon2 params configurables. |
 | 6.2.5 | Verificar que modos de bloque inseguros conocidos (es decir ECB, etc.), modos de padding (es decir PKCS#1 v1.5, etc.), cifrados con tamanos de bloque pequenos (es decir Triple-DES, Blowfish, etc.), y algoritmos de hashing debiles (es decir MD5, SHA1, etc.) no se usen a menos que se requieran para compatibilidad retroactiva | L2 | ✅ | Sin ECB, Triple-DES, MD5, SHA1. RS256 para JWT. SHA-256 para token hashing. Argon2id para passwords. JwtService rechaza algoritmos inseguros. |
 | 6.2.6 | Verificar que nonces, vectores de inicializacion, y otros numeros de un solo uso no se usen mas de una vez con una clave de cifrado dada. El metodo de generacion debe ser apropiado para el algoritmo usado | L2 | ✅ | JWT `jti` unico por token via SecureTokenGenerator (256 bits). Cada token tiene ID unico. Reset tokens generados con SecureRandom. |
@@ -46,7 +46,7 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 6.4.1 | Verificar que exista una solucion de gestion de secretos como un vault de claves para crear, almacenar, controlar acceso a, y destruir secretos de forma segura | L2 | ⏳ | **MVP:** Render environment variables (encrypted at rest). **Futuro:** HashiCorp Vault o AWS Secrets Manager para rotacion automatica. |
+| 6.4.1 | Verificar que exista una solucion de gestion de secretos como un vault de claves para crear, almacenar, controlar acceso a, y destruir secretos de forma segura | L2 | ⏳ | **MVP:** AWS Lambda environment variables (encrypted at rest). **Futuro:** AWS Secrets Manager para rotacion automatica. |
 | 6.4.2 | Verificar que el material de claves no se exponga a la aplicacion sino que use un modulo de seguridad aislado como un vault para operaciones criptograficas | L2 | ⏳ | **MVP:** JWT signing key en env var, cargada en memoria. **Futuro:** AWS KMS o similar para signing sin exponer clave. |
 
 ---

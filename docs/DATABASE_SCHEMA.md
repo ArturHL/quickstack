@@ -2043,7 +2043,7 @@ backend/src/main/resources/db/migration/
 
 ### Pre-migration Checklist
 
-- [ ] Neon database instance created
+- [ ] Aurora database instance created
 - [ ] Connection string configured in application.yml
 - [ ] Flyway configured in Spring Boot
 - [ ] Test environment mirrors production schema

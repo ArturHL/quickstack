@@ -17,7 +17,7 @@ sequenceDiagram
     participant Svc as AuthService.java
     participant Repo as UserRepository.java
     participant Pass as PasswordEncoder (Argon2id)
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
 
     U->>View: Ingresa email y password
     View->>Store: login(email, password)
@@ -56,7 +56,7 @@ sequenceDiagram
     participant AuthAPI as authApi.ts
     participant Ctrl as AuthController.java (Spring Boot)
     participant Svc as AuthService.java
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
 
     API->>API: Request a un endpoint privado
     API->>API: Detecta Access Token expirado (401)

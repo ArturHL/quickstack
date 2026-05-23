@@ -1,6 +1,6 @@
 # QuickStack POS — API Reference
 
-> **Base URL producción:** `https://quickstack.onrender.com`
+> **Base URL producción:** `https://api.quickstack.com.mx`
 > **Base URL local:** `http://localhost:8080`
 > **Versión:** 1.0.0 | **Última actualización:** 2026-03-02
 > **Swagger UI:** `{BASE_URL}/swagger-ui.html` | **OpenAPI JSON:** `{BASE_URL}/v3/api-docs`

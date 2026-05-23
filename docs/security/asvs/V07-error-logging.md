@@ -33,8 +33,8 @@
 |----|-----------|-------|--------|---------------------|
 | 7.3.1 | Verificar que todos los componentes de logging codifiquen apropiadamente los datos para prevenir inyeccion de logs | L2 | ✅ | **Implementado:** Logback con JSON encoder escapa caracteres especiales. SLF4J placeholders previenen format string injection. |
 | 7.3.2 | [ELIMINADO - DUPLICADO DE 7.3.1] | - | N/A | - |
-| 7.3.3 | Verificar que los logs de seguridad esten protegidos de acceso y modificacion no autorizados | L2 | ⏳ | **MVP:** Logs a stdout, Render log aggregation (inmutables). **Futuro:** Export a servicio externo con retencion y audit trail. |
-| 7.3.4 | Verificar que las fuentes de tiempo esten sincronizadas al tiempo y zona horaria correctos. Considerar fuertemente loguear solo en UTC si los sistemas son globales para ayudar con analisis forense post-incidente | L2 | ⏳ | **Pendiente Phase 0.3:** Servidor sincronizado via NTP (Render managed). Logs en UTC. `Instant` para timestamps en BD. |
+| 7.3.3 | Verificar que los logs de seguridad esten protegidos de acceso y modificacion no autorizados | L2 | ⏳ | **MVP:** AWS CloudWatch (inmutables, con IAM access control). **Futuro:** Export a servicio externo con retencion y audit trail adicional. |
+| 7.3.4 | Verificar que las fuentes de tiempo esten sincronizadas al tiempo y zona horaria correctos. Considerar fuertemente loguear solo en UTC si los sistemas son globales para ayudar con analisis forense post-incidente | L2 | ⏳ | **Pendiente Phase 0.3:** Servidor sincronizado via NTP (AWS managed). Logs en UTC. `Instant` para timestamps en BD. |
 
 ---
 

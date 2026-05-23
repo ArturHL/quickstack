@@ -15,7 +15,7 @@ sequenceDiagram
     participant Svc as OrderService.java
     participant WsConfig as WebSocketMessageBroker (STOMP)
     participant Repo as OrderRepository.java
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
     participant KDS as KDS Display (React KDS)
 
     POS->>API: Checkout de Productos / POST /api/v1/orders
@@ -48,7 +48,7 @@ sequenceDiagram
     participant WsHandler as KdsWebSocketHandler.java (Spring Boot)
     participant Svc as OrderService.java
     participant Repo as OrderRepository.java
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
     participant P as POS / Cajero (React POS)
 
     K->>WsClient: Clic en "Marcar Listo"

@@ -45,7 +45,7 @@ sequenceDiagram
     participant Repo as ProductRepository.java
     participant Context as TenantContext.java
     participant Hibernate as Hibernate SessionFactory
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
 
     Service->>Repo: save(Nuevo Producto)
     Repo->>Hibernate: Llama a persist(Product)

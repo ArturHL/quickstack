@@ -35,9 +35,9 @@ La promesa del producto:
 
 | Componente | Tecnología | Hosting |
 |------------|------------|---------|
-| Frontend | React 19 + Vite + TypeScript + MUI | Vercel |
-| Backend | Java 17 + Spring Boot 3.5 | Render (Docker) |
-| Base de datos | PostgreSQL (29 tablas, multi-tenant) | Neon (serverless) |
+| Frontend | React 19 + Vite + TypeScript + MUI | AWS S3 + CloudFront |
+| Backend | Java 17 + Spring Boot 3.5 | AWS Lambda + API Gateway |
+| Base de datos | PostgreSQL (29 tablas, multi-tenant) | Amazon Aurora Serverless v2 |
 | Autenticación | Spring Security + JWT (OWASP ASVS L2) | - |
 | State Management | Zustand | - |
 | HTTP Client | TanStack Query + Axios | - |
@@ -112,7 +112,7 @@ Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ (Piloto) → Phase 3 (Owner Intellig
 - [ ] Branch protection en `main` (configurar en GitHub UI)
 
 #### Base de Datos
-- [x] Crear proyecto en Neon (PostgreSQL 17, us-west-2)
+- [x] Crear base de datos en Amazon Aurora Serverless v2 (PostgreSQL 15.15)
 - [x] Connection pooling habilitado (pooler endpoint)
 - [x] Ejecutar migraciones V1-V7 (29 tablas creadas)
 - [x] Seed data inicial (roles, plans, status types, unit types)
@@ -130,22 +130,22 @@ Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ (Piloto) → Phase 3 (Owner Intellig
 
 #### Deploy
 - [x] Dockerfile multi-stage (usuario non-root)
-- [x] Configurar Render (backend - Docker)
-- [x] Configurar Vercel (frontend - Vite)
-- [x] Variables de entorno en Render
-- [x] CORS configurado con URL de Vercel
+- [x] Configurar AWS Lambda + API Gateway (backend - ZIP)
+- [x] Configurar AWS S3 + CloudFront (frontend - Vite)
+- [x] Variables de entorno en AWS Lambda
+- [x] CORS configurado con URL de CloudFront
 
 **Success Criteria 0.2:** ✅ Completado
 - [x] `mvn compile` pasa localmente
 - [x] `mvn verify` pasa en CI
-- [x] Migraciones ejecutadas en Neon (V1-V7)
-- [x] Health check responde en Render
+- [x] Migraciones ejecutadas en AWS Aurora (V1-V7)
+- [x] Health check responde en AWS Lambda
 - [x] Deploy automático funciona (push → deploy)
 
 **URLs de Producción:**
-- Backend: https://quickstack-api.onrender.com
-- Frontend: https://quickstack-drab.vercel.app
-- Database: Neon (us-west-2)
+- Backend: https://api.quickstack.com.mx
+- Frontend: https://app.quickstack.com.mx
+- Database: Amazon Aurora Serverless v2
 
 ---
 
@@ -980,10 +980,10 @@ Estas features son visión de producto confirmada, pero no entran en el horizont
 
 ### 2026-02-10
 - **Phase 0.2 completado:**
-  - Proyecto Neon creado (PostgreSQL 17, región us-west-2)
+  - Base de datos AWS Aurora creada (PostgreSQL 17, región us-west-2)
   - Migraciones V1-V7 ejecutadas exitosamente (29 tablas)
-  - Backend desplegado en Render (Docker, auto-deploy desde main)
-  - Frontend desplegado en Vercel (Vite, auto-deploy desde main)
+  - Backend desplegado en AWS Lambda (ZIP via Maven Assembly, auto-deploy desde main)
+  - Frontend desplegado en AWS S3 + CloudFront (Vite, auto-deploy desde main)
   - Variables de entorno configuradas
   - CORS configurado con URL de producción
   - CI/CD funcionando con GitHub Actions
@@ -1011,7 +1011,7 @@ Estas features son visión de producto confirmada, pero no entran en el horizont
   - GlobalExceptionHandler + ApiResponse/ApiError DTOs
   - SecurityConfig con Argon2id password encoder
   - Dockerfile multi-stage con usuario non-root
-  - Pendiente: Neon, Render, Vercel
+  - Pendiente: AWS Aurora, Lambda, S3
 
 ### 2026-02-05
 - **CAMBIO MAYOR:** Inventario ahora parte del MVP (Phase 2)

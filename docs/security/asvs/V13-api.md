@@ -28,7 +28,7 @@
 | 13.2.3 | Verificar que los servicios web RESTful que utilizan cookies esten protegidos de Falsificacion de Solicitud Entre Sitios via el uso de al menos uno o mas de los siguientes: patron de cookie de doble envio, nonces CSRF, o verificaciones de header Origin | L1 | ⏳ | **Pendiente Phase 0.3:** Access token en header (no cookie) = sin CSRF. Refresh token en cookie SameSite=Strict. Origin header validado. |
 | 13.2.4 | [ELIMINADO - DUPLICADO DE 11.1.4] | - | N/A | - |
 | 13.2.5 | Verificar que los servicios REST verifiquen explicitamente que el Content-Type entrante sea el esperado, como application/xml o application/json | L2 | ⏳ | **Pendiente Phase 1:** `consumes = MediaType.APPLICATION_JSON_VALUE` en controllers. Rechazo de otros content types. |
-| 13.2.6 | Verificar que los headers y payload del mensaje esten firmados usando JWS y cifrados usando JWE para comunicacion sensible entre servicios | L2 | N/A | **No aplica:** Comunicacion service-to-service via conexiones TLS directas. Sin JWE para mensajes entre backend y Neon. |
+| 13.2.6 | Verificar que los headers y payload del mensaje esten firmados usando JWS y cifrados usando JWE para comunicacion sensible entre servicios | L2 | N/A | **No aplica:** Comunicacion service-to-service via conexiones TLS directas. Sin JWE para mensajes entre backend y Aurora. |
 
 ---
 

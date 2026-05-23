@@ -51,7 +51,7 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 12.5.1 | Verificar que la capa web este configurada para servir solo archivos con extensiones de archivo especificas para prevenir informacion no intencional y fuga de codigo fuente. Por ejemplo, archivos de respaldo (como .bak), archivos de trabajo temporales (como .swp), archivos comprimidos (.zip, .tar.gz, etc) y otras extensiones comunmente usadas por editores deben bloquearse a menos que sea requerido | L1 | ⏳ | **Pendiente Phase 0.2:** Spring Boot no sirve archivos estaticos (API only). Vercel configurado para servir solo assets de build. |
+| 12.5.1 | Verificar que la capa web este configurada para servir solo archivos con extensiones de archivo especificas para prevenir informacion no intencional y fuga de codigo fuente. Por ejemplo, archivos de respaldo (como .bak), archivos de trabajo temporales (como .swp), archivos comprimidos (.zip, .tar.gz, etc) y otras extensiones comunmente usadas por editores deben bloquearse a menos que sea requerido | L1 | ⏳ | **Pendiente Phase 0.2:** Spring Boot no sirve archivos estaticos (API only). CloudFront/S3 configurado para servir solo assets de build. |
 | 12.5.2 | Verificar que solicitudes directas a archivos subidos nunca se ejecutaran como contenido HTML/JavaScript | L1 | N/A | **MVP:** Sin archivos subidos. **Futuro:** `Content-Type` forzado, `X-Content-Type-Options: nosniff`, dominio separado para assets. |
 
 ---
@@ -60,7 +60,7 @@
 
 | ID | Requisito | Nivel | Estado | Medida Implementada |
 |----|-----------|-------|--------|---------------------|
-| 12.6.1 | Verificar que el servidor web o de aplicaciones este configurado con una lista blanca de recursos o sistemas a los cuales el servidor puede enviar solicitudes o cargar datos/archivos | L1 | ⏳ | **Pendiente Phase 1:** Sin HTTP client para URLs de usuario. Integraciones solo a servicios conocidos (Neon, SendGrid, Twilio) via whitelist de hosts. |
+| 12.6.1 | Verificar que el servidor web o de aplicaciones este configurado con una lista blanca de recursos o sistemas a los cuales el servidor puede enviar solicitudes o cargar datos/archivos | L1 | ⏳ | **Pendiente Phase 1:** Sin HTTP client para URLs de usuario. Integraciones solo a servicios conocidos (Aurora, SendGrid, Twilio) via whitelist de hosts. |
 
 ---
 

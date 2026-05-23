@@ -18,6 +18,6 @@ Estos diagramas exhiben el viaje de la información a través de las distintas c
 
 - **Actor/View/U**: Representa la interacción humana o de interfaz (React).
 - **API/Store**: Representa el State Management (Zustand/TanStack Query) y clientes HTTP Axios.
-- **Ctrl/Svc/Repo/DB**: Componentes nativos de Spring Boot (Capa de presentacón, negocio, persistencia) y capa de base de datos final (PostgreSQL en Neon).
+- **Ctrl/Svc/Repo/DB**: Componentes nativos de Spring Boot (Capa de presentacón, negocio, persistencia) y capa de base de datos final (Aurora PostgreSQL en AWS).
 - **Arrows (`->>`)**: Llamadas sincrónicas funcionales directas u operativas HTTP/SQL.
 - **Arrows punteadas (`-->>`)**: Respuestas de funciones, retornos HTTP, y data set proveniente de DB.

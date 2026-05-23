@@ -15,7 +15,7 @@ sequenceDiagram
     participant Svc as ProductService.java
     participant CRepo as CategoryRepository.java
     participant PRepo as ProductRepository.java
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
 
     Admin->>API: Formulario de Nuevo Producto
     API->>Ctrl: POST /api/v1/products {name, price, category_id}
@@ -52,7 +52,7 @@ sequenceDiagram
     participant Ctrl as CatalogController.java
     participant Svc as CatalogService.java
     participant Repo as CategoryRepository.java
-    participant DB as PostgreSQL (Neon)
+    participant DB as Aurora Serverless PostgreSQL
 
     UI->>Query: render() lanza hook
     Query->>API: GET /api/v1/catalog/menu
