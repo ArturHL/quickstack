@@ -54,11 +54,11 @@ Los requisitos detallados de OWASP ASVS L2 estan documentados por capitulo en:
 
 | Asset | Clasificacion | Ubicacion | Impacto si Comprometido |
 |-------|---------------|-----------|------------------------|
-| Credenciales de usuarios | CRITICO | Neon PostgreSQL (password_hash) | Acceso no autorizado a todo el sistema |
+| Credenciales de usuarios | CRITICO | Amazon Aurora PostgreSQL (password_hash) | Acceso no autorizado a todo el sistema |
 | Tokens JWT | CRITICO | Memoria (frontend), Headers (transito) | Suplantacion de identidad, acceso a datos de tenant |
-| Datos de transacciones | ALTO | Neon PostgreSQL | Fraude financiero, perdida de ingresos, problemas legales |
-| PII de clientes | ALTO | Neon PostgreSQL | Violacion de privacidad, multas LFPDPPP, dano reputacional |
-| Datos de inventario/costos | MEDIO | Neon PostgreSQL | Ventaja competitiva comprometida |
+| Datos de transacciones | ALTO | Amazon Aurora PostgreSQL | Fraude financiero, perdida de ingresos, problemas legales |
+| PII de clientes | ALTO | Amazon Aurora PostgreSQL | Violacion de privacidad, multas LFPDPPP, dano reputacional |
+| Datos de inventario/costos | MEDIO | Amazon Aurora PostgreSQL | Ventaja competitiva comprometida |
 | API keys (Twilio, SendGrid) | MEDIO | Render env vars | Abuso de servicios, costos inesperados |
 | Codigo fuente | MEDIO | GitHub | Exposicion de vulnerabilidades, robo de IP |
 
@@ -102,7 +102,7 @@ Los requisitos detallados de OWASP ASVS L2 estan documentados por capitulo en:
                                       |
                                       v
                               +---------------------------+
-                              |      Render               |
+                              |      AWS Lambda           |
                               |   (Backend - Spring)      |
                               |   + Auth Module           |
                               +-------------+-------------+
@@ -111,7 +111,7 @@ Los requisitos detallados de OWASP ASVS L2 estan documentados por capitulo en:
                                             |
                                             v
                         +---------------------------+
-                        |      Neon PostgreSQL      |
+                        | Amazon Aurora PostgreSQL  |
                         |   (Multi-tenant Data)     |
                         +---------------------------+
                                       ^
@@ -206,10 +206,10 @@ El reviewer debe verificar:
 
 | Secreto | Frecuencia | Responsable | Procedimiento |
 |---------|------------|-------------|---------------|
-| JWT Signing Key (RS256) | Anual | Owner | Generar nuevo par de claves, periodo de gracia 7 dias con ambas validas, actualizar Render env |
-| Database Password | Trimestral | Owner | Rotar en Neon, actualizar Render env |
-| Twilio API Key | Trimestral | Owner | Regenerar en Twilio, actualizar Render env |
-| SendGrid API Key | Trimestral | Owner | Regenerar en SendGrid, actualizar Render env |
+| JWT Signing Key (RS256) | Anual | Owner | Generar nuevo par de claves, periodo de gracia 7 dias con ambas validas, actualizar AWS Lambda env |
+| Database Password | Trimestral | Owner | Rotar credenciales, actualizar AWS Secrets Manager / Terraform |
+| Twilio API Key | Trimestral | Owner | Regenerar en Twilio, actualizar AWS Lambda env |
+| SendGrid API Key | Trimestral | Owner | Regenerar en SendGrid, actualizar AWS Lambda env |
 | Refresh Tokens | Por uso | Sistema | Rotacion automatica en cada refresh, family tracking para detectar reuso |
 
 ---

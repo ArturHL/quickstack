@@ -379,7 +379,17 @@ Baja. Solo relevante cuando tengamos múltiples tenants reales en producción.
 
 ---
 
-## ✅ Completado (2026-02-19)
+## ✅ Completado (2026-02-19 y posterior)
+
+### Migración a Infraestructura AWS Serverless Nativa
+
+**Resuelto:** 2026-05-23
+
+**Acción tomada:**
+Migración completa desde proveedores de terceros (Render, Neon, Vercel) hacia un entorno 100% AWS Serverless gestionado con Terraform.
+Se refactorizó el empaquetado del backend a ZIP usando Maven Assembly Plugin para AWS Lambda. Se optimizó Aurora Serverless v2 con auto-pause a 0 ACUs y VPC Endpoints, eliminando NAT Gateways y RDS Proxy.
+
+---
 
 ### Remover IDs Hardcodeados en Auth Pages
 

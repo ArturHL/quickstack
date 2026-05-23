@@ -6,8 +6,8 @@ QuickStack POS is a multi-tenant SaaS Point of Sale (POS) system specifically de
 ### Core Technologies
 - **Backend:** Java 17, Spring Boot 3.5, Spring Data JPA, Spring Security, Maven (Multi-module).
 - **Frontend:** React 19, Vite, TypeScript, Material UI (MUI) 5, Zustand (State Management), TanStack Query (Server State).
-- **Database:** PostgreSQL 16 (Neon Serverless), Flyway (Migrations).
-- **Infrastructure:** Vercel (Frontend), Render (Backend), GitHub Actions (CI/CD).
+- **Database:** Amazon Aurora PostgreSQL 15.15 (Serverless v2, 0 ACU), Flyway (Migrations).
+- **Infrastructure:** S3 + CloudFront (Frontend), AWS Lambda + API Gateway (Backend), GitHub Actions (CI/CD) via Terraform.
 - **Architecture:** Monorepo, Multi-tenancy via `tenant_id` column, Package-by-feature.
 
 ---

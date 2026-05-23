@@ -25,7 +25,7 @@
 | Spring Data JPA | 3.x | ORM / Data access |
 | Spring Security | 6.x | Security Infrastructure |
 | JJWT | 0.12.6 | JWT implementation (RS256) |
-| PostgreSQL | 16.x | Database (Neon Serverless) |
+| PostgreSQL | 15.15 | Database (AWS Aurora Serverless v2 - Auto Pause 0 ACU) |
 | Flyway | 10.x | DB migrations |
 
 ---
@@ -230,6 +230,12 @@ graph TD
 ---
 
 ## Registro de Cambios (Changelog)
+
+### 2026-05-23
+*   **Migración a AWS Serverless:** Transición completa de la infraestructura hacia AWS nativo usando Terraform.
+*   **API / Backend:** Despliegue mediante AWS Lambda (empaquetado en ZIP con Maven Assembly Plugin) + API Gateway.
+*   **Base de Datos:** Migración de Neon a Amazon Aurora Serverless v2 PostgreSQL con escalado a 0 ACUs y VPC Endpoint para Cognito.
+*   **Optimización de Costos:** Eliminación de NAT Gateways y RDS Proxy para operar con costos base mínimos.
 
 ### 2026-03-03
 *   **Phase 2 — UX Overhaul iniciado:** Migración de monolito UI a arquitectura de interfaces por rol.

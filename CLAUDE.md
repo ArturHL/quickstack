@@ -6,9 +6,9 @@ Sistema POS SaaS multi-tenant para restaurantes en México. MVP en 6 meses.
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | React 19 + Vite + TS + MUI (Vercel) |
-| Backend | Java 17 + Spring Boot 3.5 (Render) |
-| DB | PostgreSQL 16 (Neon serverless) |
+| Frontend | React 19 + Vite + TS + MUI (AWS S3 + CloudFront) |
+| Backend | Java 17 + Spring Boot 3.5 (AWS Lambda) |
+| DB | Amazon Aurora PostgreSQL 15.15 (Serverless v2, 0 ACU) |
 | Auth | Spring Security + JWT (ASVS L2) |
 
 ## Arquitectura
