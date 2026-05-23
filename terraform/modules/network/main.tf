@@ -1,7 +1,9 @@
 // VPC
 
 resource "aws_vpc" "vpc_principal" {
-  cidr_block = var.cidr_block
+  cidr_block           = var.cidr_block
+  enable_dns_support   = true
+  enable_dns_hostnames = true
   tags = {
     Name = "vpc_principal-${var.sufix}"
   }
